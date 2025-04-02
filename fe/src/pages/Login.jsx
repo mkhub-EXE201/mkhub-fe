@@ -7,7 +7,9 @@ import {
     // Container,
     InputAdornment,
     IconButton,
-    Grid
+    Grid,
+    FormControlLabel,
+    Checkbox
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
@@ -17,14 +19,16 @@ import loginImage from '../assets/login.jpeg';
 export default function Login() {
     const [credentials, setCredentials] = useState({
         emailOrPhone: '',
-        password: ''
+        password: '',
+        rememberMe: false
     });
     const [showPassword, setShowPassword] = useState(false);
 
     const handleChange = (e) => {
+        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
         setCredentials({
             ...credentials,
-            [e.target.name]: e.target.value
+            [e.target.name]: value
         });
     };
 
@@ -35,6 +39,11 @@ export default function Login() {
 
     const handleTogglePassword = () => {
         setShowPassword(!showPassword);
+    };
+
+    const handleForgotPassword = () => {
+        console.log('Forgot password clicked');
+        // Add your forgot password logic here
     };
 
     return (
@@ -69,7 +78,8 @@ export default function Login() {
                         minWidth: 0,
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center',
+                        justifyContent: 'flex-start',
+                        pl: 10,
                         '@media (max-width: 900px)': {
                             width: '100%',
                             height: 'auto'
@@ -83,18 +93,19 @@ export default function Login() {
                             alignItems: 'flex-start',
                             p: 2,
                             width: '100%',
-                            maxWidth: '400px'
+                            maxWidth: '400px',
+
                         }}
                     >
                         <Box sx={{ mb: 2, alignSelf: 'flex-start', ml: -1 }}>
                             <img
                                 src={logo}
                                 alt="Makeup Hub Logo"
-                                style={{ height: '60px', width: 'auto' }}
+                                style={{ height: '70px', width: 'auto' }}
                             />
                         </Box>
 
-                        <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
+                        <Typography component="h1" variant="h5" sx={{ mb: 3, fontStyle: "italic" }}>
                             Xin chào
                         </Typography>
 
@@ -119,7 +130,8 @@ export default function Login() {
                                 size="small"
                                 sx={{
                                     '& .MuiOutlinedInput-root': {
-                                        borderRadius: '20px'
+                                        borderRadius: '20px',
+
                                     }
                                 }}
                             />
@@ -152,6 +164,29 @@ export default function Login() {
                                     ),
                                 }}
                             />
+
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, width: '100%' }}>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            name="rememberMe"
+                                            checked={credentials.rememberMe}
+                                            onChange={handleChange}
+                                            size="small"
+                                            color="primary"
+                                        />
+                                    }
+                                    label={<Typography variant="body2">Ghi nhớ đăng nhập</Typography>}
+                                />
+                                <Typography
+                                    variant="body2"
+                                    color="primary"
+                                    sx={{ cursor: 'pointer' }}
+                                    onClick={handleForgotPassword}
+                                >
+                                    Quên mật khẩu?
+                                </Typography>
+                            </Box>
 
                             <Button
                                 type="submit"
