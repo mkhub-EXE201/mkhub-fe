@@ -1,0 +1,276 @@
+import React, { useState } from 'react';
+import {
+    Box,
+    TextField,
+    Button,
+    Typography,
+    InputAdornment,
+    IconButton,
+    Grid,
+    FormControlLabel,
+    Checkbox,
+    Divider
+} from '@mui/material';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import GoogleIcon from '@mui/icons-material/Google';
+import logo from '../assets/logo.png';
+import loginImage from '../assets/login.jpeg';
+
+export default function Login() {
+    const [credentials, setCredentials] = useState({
+        emailOrPhone: '',
+        password: '',
+        rememberMe: false
+    });
+    const [showPassword, setShowPassword] = useState(false);
+
+    const handleChange = (e) => {
+        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+        setCredentials({
+            ...credentials,
+            [e.target.name]: value
+        });
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        console.log('Login credentials:', credentials);
+    };
+
+    const handleTogglePassword = () => {
+        setShowPassword(!showPassword);
+    };
+
+    const handleForgotPassword = () => {
+        console.log('Forgot password clicked');
+        // Add your forgot password logic here
+    };
+
+    return (
+        <Box
+            sx={{
+                height: '100vh',
+                width: '100vw',
+                margin: 0,
+                padding: 0,
+                overflow: 'hidden'
+            }}
+        >
+            <Grid
+                container
+                spacing={0}
+                sx={{
+                    height: '100%',
+                    width: '100vw',
+                    flexWrap: 'nowrap',
+                    margin: 0,
+                    '@media (max-width: 900px)': {
+                        flexDirection: 'column'
+                    }
+                }}
+            >
+                {/* Left column - Form */}
+                <Grid
+                    item
+                    xs={12}
+                    md={6}
+                    sx={{
+                        minWidth: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'flex-start',
+                        pl: 10,
+                        '@media (max-width: 900px)': {
+                            width: '100%',
+                            height: 'auto',
+                            pl: 2
+                        }
+                    }}
+                >
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'flex-start',
+                            p: 2,
+                            width: '400px' // Fixed width as previously resolved
+                        }}
+                    >
+                        <Box sx={{ mb: 2, alignSelf: 'flex-start', ml: -1 }}>
+                            <img
+                                src={logo}
+                                alt="Makeup Hub Logo"
+                                style={{ height: '70px', width: 'auto' }}
+                            />
+                        </Box>
+
+                        <Typography component="h1" variant="h5" sx={{ mb: 3, fontStyle: "italic" }}>
+                            Xin chào
+                        </Typography>
+
+                        <Box
+                            component="form"
+                            onSubmit={handleSubmit}
+                            sx={{
+                                '& .MuiTextField-root': { mb: 2, width: '100%' },
+                                width: '100%'
+                            }}
+                            noValidate
+                            autoComplete="off"
+                        >
+                            <TextField
+                                required
+                                fullWidth
+                                label="Email / Số điện thoại"
+                                name="emailOrPhone"
+                                value={credentials.emailOrPhone}
+                                onChange={handleChange}
+                                variant="outlined"
+                                size="small"
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                        borderRadius: '20px'
+                                    }
+                                }}
+                            />
+
+                            <TextField
+                                required
+                                fullWidth
+                                name="password"
+                                label="Mật khẩu"
+                                type={showPassword ? 'text' : 'password'}
+                                value={credentials.password}
+                                onChange={handleChange}
+                                variant="outlined"
+                                size="small"
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                        borderRadius: '20px'
+                                    }
+                                }}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                onClick={handleTogglePassword}
+                                                edge="end"
+                                            >
+                                                {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, width: '100%' }}>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            name="rememberMe"
+                                            checked={credentials.rememberMe}
+                                            onChange={handleChange}
+                                            size="small"
+                                            color="primary"
+                                        />
+                                    }
+                                    label={<Typography variant="body2">Ghi nhớ đăng nhập</Typography>}
+                                />
+                                <Typography
+                                    variant="body2"
+                                    color="primary"
+                                    sx={{ cursor: 'pointer' }}
+                                    onClick={handleForgotPassword}
+                                >
+                                    Quên mật khẩu?
+                                </Typography>
+                            </Box>
+
+                            <Button
+                                type="submit"
+                                fullWidth
+                                variant="contained"
+                                sx={{ mt: 2, py: 1.2, borderRadius: '20px' }}
+                            >
+                                Đăng nhập
+                            </Button>
+
+                            <Box sx={{ display: 'flex', alignItems: 'center', my: 2 }}>
+                                <Divider sx={{ flexGrow: 1 }} />
+                                <Typography variant="body2" sx={{ mx: 2, color: 'text.secondary' }}>
+                                    hoặc
+                                </Typography>
+                                <Divider sx={{ flexGrow: 1 }} />
+                            </Box>
+
+                            <Button
+                                fullWidth
+                                variant="outlined"
+                                startIcon={<GoogleIcon />}
+                                sx={{
+                                    py: 1.2,
+                                    borderRadius: '20px',
+                                    textTransform: 'none',
+                                    borderColor: '#DADCE0',
+                                    color: '#3c4043',
+                                    '&:hover': {
+                                        backgroundColor: '#f5f5f5',
+                                        borderColor: '#DADCE0'
+                                    }
+                                }}
+                                onClick={() => console.log('Google login clicked')}
+                            >
+                                Đăng nhập với Google
+                            </Button>
+
+                            <Typography variant="body2" sx={{ mt: 2, textAlign: 'center' }}>
+                                Chưa có tài khoản?{' '}
+                                <Typography component="span" color="primary" sx={{ cursor: 'pointer' }}>
+                                    Đăng ký ngay
+                                </Typography>
+                            </Typography>
+                        </Box>
+                    </Box>
+                </Grid>
+
+                {/* Right column - Image */}
+                <Grid
+                    item
+                    xs={12}
+                    md={6}
+                    sx={{
+                        minWidth: 0,
+                        display: { xs: 'none', md: 'block' },
+                        height: '100%',
+                        marginLeft: 'auto',
+                        padding: 0,
+                        width: '50vw'
+                    }}
+                >
+                    <Box
+                        sx={{
+                            height: '100vh',
+                            width: '100%',
+                            margin: 0,
+                            padding: 0
+                        }}
+                    >
+                        <img
+                            src={loginImage}
+                            alt="Login"
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                                borderRadius: "90px 0 0 90px",
+                                display: 'block',
+                                margin: 0
+                            }}
+                        />
+                    </Box>
+                </Grid>
+            </Grid>
+        </Box>
+    );
+}
