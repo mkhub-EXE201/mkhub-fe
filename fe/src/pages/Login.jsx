@@ -4,15 +4,16 @@ import {
     TextField,
     Button,
     Typography,
-    // Container,
     InputAdornment,
     IconButton,
     Grid,
     FormControlLabel,
-    Checkbox
+    Checkbox,
+    Divider
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import GoogleIcon from '@mui/icons-material/Google';
 import logo from '../assets/logo.png';
 import loginImage from '../assets/login.jpeg';
 
@@ -82,7 +83,8 @@ export default function Login() {
                         pl: 10,
                         '@media (max-width: 900px)': {
                             width: '100%',
-                            height: 'auto'
+                            height: 'auto',
+                            pl: 2
                         }
                     }}
                 >
@@ -92,9 +94,7 @@ export default function Login() {
                             flexDirection: 'column',
                             alignItems: 'flex-start',
                             p: 2,
-                            width: '100%',
-                            maxWidth: '400px',
-
+                            width: '400px' // Fixed width as previously resolved
                         }}
                     >
                         <Box sx={{ mb: 2, alignSelf: 'flex-start', ml: -1 }}>
@@ -130,8 +130,7 @@ export default function Login() {
                                 size="small"
                                 sx={{
                                     '& .MuiOutlinedInput-root': {
-                                        borderRadius: '20px',
-
+                                        borderRadius: '20px'
                                     }
                                 }}
                             />
@@ -197,6 +196,34 @@ export default function Login() {
                                 Đăng nhập
                             </Button>
 
+                            <Box sx={{ display: 'flex', alignItems: 'center', my: 2 }}>
+                                <Divider sx={{ flexGrow: 1 }} />
+                                <Typography variant="body2" sx={{ mx: 2, color: 'text.secondary' }}>
+                                    hoặc
+                                </Typography>
+                                <Divider sx={{ flexGrow: 1 }} />
+                            </Box>
+
+                            <Button
+                                fullWidth
+                                variant="outlined"
+                                startIcon={<GoogleIcon />}
+                                sx={{
+                                    py: 1.2,
+                                    borderRadius: '20px',
+                                    textTransform: 'none',
+                                    borderColor: '#DADCE0',
+                                    color: '#3c4043',
+                                    '&:hover': {
+                                        backgroundColor: '#f5f5f5',
+                                        borderColor: '#DADCE0'
+                                    }
+                                }}
+                                onClick={() => console.log('Google login clicked')}
+                            >
+                                Đăng nhập với Google
+                            </Button>
+
                             <Typography variant="body2" sx={{ mt: 2, textAlign: 'center' }}>
                                 Chưa có tài khoản?{' '}
                                 <Typography component="span" color="primary" sx={{ cursor: 'pointer' }}>
@@ -236,7 +263,7 @@ export default function Login() {
                                 width: '100%',
                                 height: '100%',
                                 objectFit: 'cover',
-                                borderRadius: "80px 0 0 80px",
+                                borderRadius: "90px 0 0 90px",
                                 display: 'block',
                                 margin: 0
                             }}
