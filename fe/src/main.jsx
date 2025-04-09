@@ -8,7 +8,7 @@ import theme from "./theme/theme";
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
-      <CssBaseline /> {/* Resets browser styles to match MUI */}
+      <CssBaseline /> 
       <App />
     </ThemeProvider>
   </React.StrictMode>

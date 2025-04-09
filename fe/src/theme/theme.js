@@ -2,12 +2,12 @@ import { createTheme } from "@mui/material/styles";
 
 const theme = createTheme({
     palette: {
-        mode: "light", // Change to "dark" for dark mode
+        mode: "light",
         primary: {
-            main: "#F13067", 
+            main: "#F13067",
         },
         secondary: {
-            main: "#dc004e", 
+            main: "#dc004e",
         },
     },
     typography: {
@@ -17,16 +17,15 @@ const theme = createTheme({
             fontWeight: 700,
         },
         h5: {
-            fontSize: "1.5rem", // Default h5 size
-            fontWeight: 500, // Default h5 weight
-            color: "#091B65", // Specific color for Xin chào
+            fontSize: "1.5rem",
+            fontWeight: 500,
+            color: "#091B65",
         },
         button: {
-            textTransform: "none", 
+            textTransform: "none",
         },
     },
     components: {
-        // Customize TextField border and label
         MuiTextField: {
             styleOverrides: {
                 root: {
@@ -50,13 +49,12 @@ const theme = createTheme({
                 },
             },
         },
-        // Ensure button uses primary color
         MuiButton: {
             styleOverrides: {
                 contained: {
-                    backgroundColor: "#F13067", // Ensure contained buttons use primary color
+                    backgroundColor: "#F13067",
                     "&:hover": {
-                        backgroundColor: "#D12A58", // Slightly darker shade for hover
+                        backgroundColor: "#D12A58",
                     },
                 },
             },
