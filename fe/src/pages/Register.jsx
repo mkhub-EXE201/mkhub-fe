@@ -15,7 +15,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import GoogleIcon from '@mui/icons-material/Google';
 import logo from '../assets/logo.png';
-import RegisterImage from '../assets/signup.jpeg'; // Updated image import
+import RegisterImage from '../assets/signup.jpeg';
 
 export default function Register() {
   const [credentials, setCredentials] = useState({
@@ -73,20 +73,20 @@ export default function Register() {
           }
         }}
       >
-        {/* Left column - Image with absolute positioning for right element */}
+        {/* Left col - Image */}
         <Box sx={{
           position: 'relative',
           width: '100%',
           height: '100%',
           display: 'flex'
         }}>
-          {/* Image section */}
+
           <Box
             sx={{
               width: '50%',
               height: '100%',
               display: { xs: 'none', md: 'block' },
-              pr: 2 // Add small padding to the right of the image
+              pr: 2
             }}
           >
             <img
@@ -103,14 +103,14 @@ export default function Register() {
             />
           </Box>
 
-          {/* Form section - positioned directly next to image */}
+          {/* Right col - form */}
           <Box
             sx={{
               width: '50%',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'flex-start',
-              pl: 20, // Increased from 2 to create a small but noticeable gap
+              pl: 20,
               '@media (max-width: 900px)': {
                 width: '100%',
                 pl: 2
@@ -134,7 +134,7 @@ export default function Register() {
                 />
               </Box>
 
-              {/* Rest of the form */}
+              {/*form */}
               <Typography component="h1" variant="h5" sx={{ mb: 3, fontStyle: "italic" }}>
                 Tạo tài khoản
               </Typography>
@@ -243,7 +243,7 @@ export default function Register() {
                   }}
                 />
 
-                {/* Terms Agreement Checkbox */}
+                {/*Checkbox */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, width: '100%' }}>
                   <FormControlLabel
                     control={
