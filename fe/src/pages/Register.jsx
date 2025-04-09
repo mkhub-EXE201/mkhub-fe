@@ -76,7 +76,7 @@ export default function Register() {
         <Grid
           item
           xs={12}
-          md={6}
+          md={5}
           sx={{
             minWidth: 0,
             display: { xs: 'none', md: 'block' },
@@ -113,13 +113,13 @@ export default function Register() {
         <Grid
           item
           xs={12}
-          md={6}
+          md={7}
           sx={{
             minWidth: 0,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'flex-start',
-            pl: 10,
+            pl: 2,
             '@media (max-width: 900px)': {
               width: '100%',
               height: 'auto',
