@@ -1,9 +1,10 @@
-import React from 'react'
+import { Box, Typography } from "@mui/material";
+import React from "react";
 
 export default function Homepage() {
   return (
-    <div>
-      
-    </div>
-  )
+    <Box>
+      <Typography>Homepage</Typography>
+    </Box>
+  );
 }

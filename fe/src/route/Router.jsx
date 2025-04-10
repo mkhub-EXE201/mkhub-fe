@@ -5,17 +5,15 @@ import Register from "../pages/Register";
 import Homepage from "../pages/Homepage";
 
 const AppRouter = () => {
-    return (
-        <Router>
-            <Routes>
-                {/* <Route path="/" element={<Homepage />} /> */}
-                {/* <Route path="/login" element={<Login />} /> */}
-                <Route path="/" element={<Login />} />
-                <Route path="/home" element={<Homepage />} />
-                <Route path="/register" element={<Register />} />
-            </Routes>
-        </Router>
-    );
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Homepage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Routes>
+    </Router>
+  );
 };
 
 export default AppRouter;
