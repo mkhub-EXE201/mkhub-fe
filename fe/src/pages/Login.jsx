@@ -13,6 +13,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import GoogleIcon from "@mui/icons-material/Google";
 import logo from "../assets/logo.png";
+import logoWhite from "../assets/logo-white.png";
 import loginImage from "../assets/login.jpeg";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -323,13 +324,14 @@ export default function Login() {
               }}
             />
             <img
-              src={logo}
+              src={logoWhite}
               alt="Overlay"
               style={{
                 position: "absolute",
-                bottom: "50px",
-                right: "150px",
-                width: "150px",
+                bottom: "20px",
+                right: "55px",
+                width: "300px",
+                height: "auto",
                 objectFit: "cover",
                 zIndex: 10,
               }}

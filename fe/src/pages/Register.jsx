@@ -15,6 +15,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import GoogleIcon from "@mui/icons-material/Google";
 import logo from "../assets/logo.png";
+import logoWhite from "../assets/logo-white.png";
 import RegisterImage from "../assets/signup.jpeg";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
@@ -38,11 +39,6 @@ export default function Register() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  const handleChange = (e) => {
-    const value =
-      e.target.type === "checkbox" ? e.target.checked : e.target.value;
-  };
 
   const handleRegister = handleSubmit(async (data) => {
     try {
@@ -133,13 +129,14 @@ export default function Register() {
               }}
             />
             <img
-              src={logo}
+              src={logoWhite}
               alt="Overlay"
               style={{
                 position: "absolute",
-                bottom: "50px",
-                left: "150px",
-                width: "150px",
+                bottom: "20px",
+                left: "110px",
+                width: "300px",
+                height: "auto",
                 objectFit: "cover",
                 zIndex: 10,
               }}
