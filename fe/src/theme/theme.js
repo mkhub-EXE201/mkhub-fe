@@ -6,8 +6,19 @@ const theme = createTheme({
     primary: {
       main: "#F13067",
     },
+    lightGray: "#F6F6F6",
+    darkPink: "#ED1E79",
+    lightBlue: "#AEDCF4",
+    lightPink: "#FEC9D9",
+    darkBlue: "#091B65",
     secondary: {
       main: "#dc004e",
+    },
+    ochre: {
+      main: "#E3D026",
+      lightGrey: "#D9D9D9",
+      dark: "#000000",
+      white: "#fff",
     },
   },
   typography: {
