@@ -377,25 +377,33 @@ export default function Register() {
                     fullWidth
                     variant={
                       watch("first_name") &&
-                      watch("last_name") &&
-                      watch("email") &&
-                      watch("phone_number") &&
-                      watch("password") &&
-                      watch("confirm_password")
-                        ? "contained"
-                        : "outlined"
-                    }
-                    sx={{
-                      mt: "2px",
-                      py: 1,
-                      borderRadius: "20px",
-                      cursor:
-                        watch("first_name") &&
                         watch("last_name") &&
                         watch("email") &&
                         watch("phone_number") &&
                         watch("password") &&
                         watch("confirm_password")
+                        ? "contained"
+                        : "outlined"
+                    }
+                    disabled={
+                      !watch("first_name") ||
+                      !watch("last_name") ||
+                      !watch("email") ||
+                      !watch("phone_number") ||
+                      !watch("password") ||
+                      !watch("confirm_password")
+                    }
+                    sx={{
+                      mt: 2,
+                      py: 1.2,
+                      borderRadius: "20px",
+                      cursor:
+                        watch("first_name") &&
+                          watch("last_name") &&
+                          watch("email") &&
+                          watch("phone_number") &&
+                          watch("password") &&
+                          watch("confirm_password")
                           ? "pointer"
                           : "not-allowed",
                     }}
