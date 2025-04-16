@@ -6,12 +6,14 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React from "react";
+import React, { useContext } from "react";
 import logo from "../assets/logo.png";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import { Link } from "react-router-dom";
+import { AppContext } from "../contexts/app.context";
 
 export default function Headers() {
+  const { isAuthenticated } = useContext(AppContext);
   return (
     <Box
       sx={{
@@ -75,18 +77,26 @@ export default function Headers() {
           <Button variant="contained" sx={{ borderRadius: "50px" }}>
             Trở thành makeup artist
           </Button>
-          <Link
-            to={"/login"}
-            style={{ textDecoration: "none", color: "inherit" }}
-          >
-            <Typography color="white">Đăng nhập</Typography>
-          </Link>
-          <Link
-            to={"/register"}
-            style={{ textDecoration: "none", color: "inherit" }}
-          >
-            <Typography color="white">Đăng kí</Typography>
-          </Link>
+          {!isAuthenticated ? (
+            <>
+              <Link
+                to={"/login"}
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <Typography color="white">Đăng nhập</Typography>
+              </Link>
+              <Link
+                to={"/register"}
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <Typography color="white">Đăng kí</Typography>
+              </Link>
+            </>
+          ) : (
+            <>
+              <Typography>profile</Typography>
+            </>
+          )}
         </Box>
       </Box>
 
