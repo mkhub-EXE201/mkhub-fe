@@ -15,13 +15,16 @@ import GoogleIcon from "@mui/icons-material/Google";
 import logo from "../assets/logo.png";
 import logoWhite from "../assets/logo-white.png";
 import loginImage from "../assets/login.jpeg";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { loginSchema } from "../schemas/loginSchema";
 import { isAxiosUnprocessableEntityError } from "../utils/errors.type";
 import HttpStatusCode from "../constants/httpStatus";
 import userApis from "../apis/users.apis";
+import toast from "react-hot-toast";
+import { useContext } from "react";
+import { AppContext } from "../contexts/app.context";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -34,14 +37,19 @@ export default function Login() {
   } = useForm({
     resolver: yupResolver(loginSchema),
   });
-
+  const { setIsAuthenticated, setProfile } = useContext(AppContext);
   const [showPassword, setShowPassword] = useState(false);
 
   const handleFormSubmit = handleSubmit(async (data) => {
     try {
       const response = await userApis.login(data);
       if (response.status === HttpStatusCode.Ok) {
+        setIsAuthenticated(true);
+
         navigate("/");
+        toast.success(response.data.message, {
+          position: "top-right",
+        });
       }
     } catch (error) {
       if (isAxiosUnprocessableEntityError(error)) {
@@ -58,11 +66,6 @@ export default function Login() {
 
   const handleTogglePassword = () => {
     setShowPassword(!showPassword);
-  };
-
-  const handleForgotPassword = () => {
-    console.log("Forgot password clicked");
-    // Add your forgot password logic here
   };
 
   const handleLoginWithGoogle = async () => {
@@ -199,7 +202,12 @@ export default function Login() {
                   }}
                 />
 
-                <Box
+                <Link
+                  to={"/forgot-password"}
+                  style={{
+                    textDecoration: "none",
+                    color: "inherit",
+                  }}
                   sx={{
                     display: "flex",
                     justifyContent: "space-between",
@@ -213,11 +221,10 @@ export default function Login() {
                     variant="body2"
                     color="primary"
                     sx={{ cursor: "pointer" }}
-                    onClick={handleForgotPassword}
                   >
                     Quên mật khẩu?
                   </Typography>
-                </Box>
+                </Link>
 
                 <Button
                   type="submit"
