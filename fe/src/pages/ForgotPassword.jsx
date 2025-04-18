@@ -1,17 +1,12 @@
 import {
-  Avatar,
   Box,
   Button,
-  Checkbox,
   Container,
-  FormControlLabel,
   Paper,
   TextField,
   Typography,
 } from "@mui/material";
 import React from "react";
-import { Link } from "react-router-dom";
-import LockResetIcon from "@mui/icons-material/LockReset";
 
 export default function ForgotPassword() {
   return (

@@ -56,7 +56,10 @@ export default function Headers() {
               objectFit: "cover",
             }}
           />
-          <Link to={"/"} style={{ textDecoration: "none", color: "inherit" }}>
+          <Link
+            to={"/explore"}
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
             <Typography color="white">Khám phá</Typography>
           </Link>
 
