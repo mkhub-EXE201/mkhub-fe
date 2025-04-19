@@ -5,9 +5,11 @@ const locationApi = {
   async getProvinces() {
     return await http.get(`${locationUrl}/provinces`);
   },
-  async getDistricts(provinceId) {
-    return await http.post(`${locationUrl}/districts`, {
-      province_id: provinceId,
+  async getDistricts(province_id) {
+    return await http.get(`${locationUrl}/districts`, {
+      params: {
+        province_id,
+      },
     });
   },
   async getWards(districtId) {

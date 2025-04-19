@@ -22,36 +22,78 @@ import toast from "react-hot-toast";
 import PlaceIcon from "@mui/icons-material/PlaceOutlined";
 import CategoryIcon from "@mui/icons-material/CategoryOutlined";
 import avatar from "../assets/login.jpeg";
-
+import Footer from "../components/Footer";
 export default function Explore() {
   const [provinces, setProvinces] = useState([]);
+  const [districts, setDistricts] = useState([]);
   const [selectedProvince, setSelectedProvince] = useState(null);
+  const [selectedDistrict, setSelectedDistrict] = useState(null);
   const [selectedValue, setSelectedValue] = useState("all");
+  const [userCoords, setUserCoords] = useState(null);
+
   useEffect(() => {
     const getProvinces = async () => {
       const response = await locationApi.getProvinces();
       if (response.status === HttpStatusCode.Ok) {
         const data = response.data.result;
-
         setProvinces(data);
       } else {
-        toast.error("Lỗi lấy danh sách tỉnh thành phố");
+        toast.error("Lỗi lấy danh sách tỉnh/thành phố");
       }
     };
     getProvinces();
   }, []);
+
+  useEffect(() => {
+    const getDistricts = async () => {
+      if (!selectedProvince) return;
+      const response = await locationApi.getDistricts(Number(selectedProvince));
+      if (response.status === HttpStatusCode.Ok) {
+        const data = response.data.result;
+        setDistricts(data);
+        setSelectedDistrict("");
+      } else {
+        toast.error("Lỗi lấy danh sách quận/huyện");
+      }
+    };
+    getDistricts();
+  }, [selectedProvince]);
+
+  const handleGetLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error("Trình duyệt không hỗ trợ định vị");
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setUserCoords({ lat: latitude, lng: longitude });
+        toast.success(`Đã lấy được vị trí!, ${latitude} ${longitude}`);
+      },
+      () => {
+        toast.error("Không thể lấy vị trí của bạn");
+      }
+    );
+  };
+
   return (
     <Box>
       <Navbar />
       <Box sx={{ display: "flex", gap: 2, marginTop: 5, marginX: 5 }}>
-        {/* left */}
+        {/* left - filter*/}
         <Box
           sx={{
             display: "flex",
             flexDirection: "column",
             gap: 2,
             width: "30%",
+            position: "sticky",
+            top: 0, // độ cao cố định để sticky
+            alignSelf: "flex-start",
+            height: "fit-content",
             boxShadow: 2,
+            backgroundColor: "#fff",
+            zIndex: 1,
           }}
         >
           <Box>
@@ -75,7 +117,7 @@ export default function Explore() {
                 <FormControl>
                   <RadioGroup
                     aria-labelledby="makeup-layout-label"
-                    value={selectedValue}
+                    value={selectedValue ?? ""}
                     onChange={(e) => setSelectedValue(e.target.value)}
                     name="radio-buttons-group"
                   >
@@ -149,6 +191,7 @@ export default function Explore() {
               >
                 Chọn khu vực để hiển thị kết quả phù hợp gần bạn.
               </Typography>
+              {/* tỉnh/thành phố */}
               <AccordionDetails>
                 <FormControl fullWidth>
                   <InputLabel id="demo-simple-select-label">
@@ -156,7 +199,7 @@ export default function Explore() {
                   </InputLabel>
                   <Select
                     labelId="demo-simple-select-label"
-                    value={selectedProvince}
+                    value={selectedProvince ?? ""}
                     label="Tỉnh/Thành phố"
                     onChange={(e) =>
                       setSelectedProvince(Number(e.target.value))
@@ -175,11 +218,74 @@ export default function Explore() {
                   </Select>
                 </FormControl>
               </AccordionDetails>
+              {/* quận/huyện */}
+              <AccordionDetails>
+                <FormControl fullWidth>
+                  <InputLabel id="demo-simple-select-label">
+                    Quận/Huyện
+                  </InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    value={selectedDistrict ?? ""}
+                    label="Quận/Huyện"
+                    onChange={(e) =>
+                      setSelectedDistrict(Number(e.target.value))
+                    }
+                  >
+                    {districts &&
+                      districts.length > 0 &&
+                      districts.map((district) => (
+                        <MenuItem
+                          key={district.DistrictID}
+                          value={district.DistrictID.toString()}
+                        >
+                          {district.DistrictName}
+                        </MenuItem>
+                      ))}
+                  </Select>
+                </FormControl>
+                <Typography
+                  sx={{
+                    textAlign: "center",
+                    marginX: 2,
+                    marginY: 1,
+                    color: (theme) => theme.palette.darkBrown,
+                  }}
+                >
+                  Hoặc
+                </Typography>
+                <Box sx={{ padding: 1 }}>
+                  <Box
+                    sx={{ display: "flex", flexDirection: "column", gap: 1 }}
+                  >
+                    <button
+                      onClick={handleGetLocation}
+                      style={{
+                        backgroundColor: "#ED1E79",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        padding: "8px 12px",
+                        cursor: "pointer",
+                        fontWeight: 500,
+                      }}
+                    >
+                      Lấy tọa độ của tôi
+                    </button>
+                    {userCoords && (
+                      <Typography sx={{ fontSize: 14 }}>
+                        Vĩ độ: <b>{userCoords.lat.toFixed(5)}</b> <br />
+                        Kinh độ: <b>{userCoords.lng.toFixed(5)}</b>
+                      </Typography>
+                    )}
+                  </Box>
+                </Box>
+              </AccordionDetails>
             </Accordion>
           </Box>
         </Box>
 
-        {/* right */}
+        {/* right - layout */}
         <Box
           sx={{
             boxShadow: 2,
@@ -252,6 +358,7 @@ export default function Explore() {
           </Box>
         </Box>
       </Box>
+      <Footer />
     </Box>
   );
 }
