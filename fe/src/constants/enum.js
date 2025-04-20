@@ -1,0 +1,4 @@
+export const ARTIST_WORKING_LOCATION_TYPE = {
+  HOME: "HOME",
+  STUDIO: "STUDIO",
+};

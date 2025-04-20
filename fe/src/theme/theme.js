@@ -6,6 +6,7 @@ const theme = createTheme({
     primary: {
       main: "#F13067",
     },
+    darkBrown: "#493628",
     lightGray: "#F6F6F6",
     darkPink: "#ED1E79",
     lightBlue: "#AEDCF4",
