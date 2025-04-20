@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   Chip,
   InputAdornment,
   TextField,
@@ -77,9 +76,33 @@ export default function Headers() {
             alignItems: "center",
           }}
         >
-          <Button variant="contained" sx={{ borderRadius: "50px" }}>
-            Trở thành makeup artist
-          </Button>
+          <Link
+            to={"/register-artist"}
+            style={{
+              textDecoration: "none",
+              color: "inherit",
+            }}
+            variant="contained"
+            sx={{
+              borderRadius: "50px",
+            }}
+          >
+            <Box
+              sx={{
+                backgroundColor: (theme) => theme.palette.darkPink,
+                paddingX: 2,
+                paddingY: 1,
+                borderRadius: 50,
+                ":hover": {
+                  backgroundColor: "#DA498D",
+                },
+              }}
+            >
+              <Typography sx={{ color: "white" }}>
+                Trở thành Makeup Artist
+              </Typography>
+            </Box>
+          </Link>
           {!isAuthenticated ? (
             <>
               <Link

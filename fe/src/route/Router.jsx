@@ -6,6 +6,7 @@ import Homepage from "../pages/Homepage";
 import ForgotPassword from "../pages/ForgotPassword";
 import Profile from "../pages/Profile";
 import Explore from "../pages/Explore";
+import RegisterArtist from "../pages/RegisterArtist";
 
 const AppRouter = () => {
   return (
@@ -17,6 +18,7 @@ const AppRouter = () => {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/explore" element={<Explore />} />
+        <Route path="/register-artist" element={<RegisterArtist />} />
       </Routes>
     </Router>
   );

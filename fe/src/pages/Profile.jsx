@@ -5,7 +5,6 @@ import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import SendIcon from "@mui/icons-material/Send";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone"; // đã là outlined
 import logo from "../assets/logo.png";
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import ReviewsIcon from "@mui/icons-material/Reviews";

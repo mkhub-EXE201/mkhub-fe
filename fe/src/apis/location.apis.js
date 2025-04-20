@@ -13,7 +13,9 @@ const locationApi = {
     });
   },
   async getWards(districtId) {
-    return await http.post(`${locationUrl}/wards`, { district_id: districtId });
+    return await http.get(`${locationUrl}/wards`, {
+      params: { district_id: districtId },
+    });
   },
 };
 export default locationApi;
