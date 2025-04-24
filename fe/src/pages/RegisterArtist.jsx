@@ -7,6 +7,7 @@ import {
   TextField,
   Typography,
   IconButton,
+  FormHelperText,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import OnboardingNavBar from "../components/OnboardingNavBar";
@@ -20,6 +21,9 @@ import toast from "react-hot-toast";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useNavigate } from "react-router-dom";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { registerArtistSchema } from "../schemas/registerArtistSchema";
+import { useForm, Controller } from "react-hook-form";
 
 const steps = [
   "Thông tin artist",
@@ -33,20 +37,37 @@ export default function RegisterArtist() {
   // state của stepper
   const [activeStep, setActiveStep] = useState(0);
   const [skipped, setSkipped] = useState(new Set());
-  const [addressType, setAddressType] = useState(
-    ARTIST_WORKING_LOCATION_TYPE.HOME
-  );
+
   //state của form
-  const [addressName, setAddressName] = useState("");
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [wards, setWards] = useState([]);
-  const [selectedProvince, setSelectedProvince] = useState(null);
-  const [selectedDistrict, setSelectedDistrict] = useState(null);
-  const [selectedWard, setSelectedWard] = useState(null);
-  const [streetName, setStreetName] = useState("");
+
   const [profileUrls, setProfileUrls] = useState([]);
   const [mediaUrls, setMediaUrls] = useState([]);
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    trigger,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(registerArtistSchema),
+    defaultValues: {
+      name: "",
+      phone_number: "",
+      province_id: undefined,
+      district_id: undefined,
+      ward_code: undefined,
+    },
+  });
+
+  // Lắng nghe thay đổi province_id từ React Hook Form
+  const selectedProvince = watch("province_id");
+  const selectedDistrict = watch("district_id");
 
   useEffect(() => {
     const getProvinces = async () => {
@@ -54,6 +75,9 @@ export default function RegisterArtist() {
       if (response.status === HttpStatusCode.Ok) {
         const data = response.data.result;
         setProvinces(data);
+        setValue("district_id", undefined);
+        setValue("ward_code", undefined);
+        setWards([]);
       } else {
         toast.error("Lỗi lấy danh sách tỉnh/thành phố");
       }
@@ -64,11 +88,14 @@ export default function RegisterArtist() {
   useEffect(() => {
     const getDistricts = async () => {
       if (!selectedProvince) return;
+
       const response = await locationApi.getDistricts(Number(selectedProvince));
       if (response.status === HttpStatusCode.Ok) {
         const data = response.data.result;
         setDistricts(data);
-        setSelectedDistrict("");
+        setValue("district_id", undefined);
+        setValue("ward_code", undefined);
+        setWards([]);
       } else {
         toast.error("Lỗi lấy danh sách quận/huyện");
       }
@@ -83,7 +110,7 @@ export default function RegisterArtist() {
       if (response.status === HttpStatusCode.Ok) {
         const data = response.data.result;
         setWards(data);
-        setSelectedWard("");
+        setValue("ward_code", undefined);
       } else {
         toast.error("Lỗi lấy danh sách phường/xã");
       }
@@ -124,7 +151,10 @@ export default function RegisterArtist() {
     return skipped.has(step);
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    const valid = await trigger();
+    if (!valid) return;
+
     let newSkipped = skipped;
     if (isStepSkipped(activeStep)) {
       newSkipped = new Set(newSkipped.values());
@@ -138,6 +168,8 @@ export default function RegisterArtist() {
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
+
+  const handleFormSubmit = async () => {};
 
   return (
     <Box>
@@ -171,232 +203,267 @@ export default function RegisterArtist() {
           </Box>
         ) : (
           <Box>
-            <Typography sx={{ mt: 2, mb: 1 }}>Bước {activeStep + 1}</Typography>
+            <Typography sx={{ mt: 3, mb: 1, paddingX: 2 }}>
+              Bước {activeStep + 1}
+            </Typography>
             {activeStep === 0 && (
               <>
                 {/* form */}
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    width: "100%",
-                    rowGap: 2,
-                    paddingX: 5,
-                    paddingY: 2,
-                  }}
-                >
-                  {/* input 1: họ tên artist */}
+                <form onSubmit={handleFormSubmit} noValidate>
                   <Box
                     sx={{
                       display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                      width: "60%",
+                      flexDirection: "column",
+                      width: "100%",
+                      rowGap: 2,
+                      paddingX: 5,
+                      paddingY: 2,
                     }}
                   >
-                    <label style={{ width: "20%" }}>Họ tên</label>
-                    <TextField
-                      variant="outlined"
-                      margin="normal"
-                      fullWidth
-                      value={""}
-                      onChange={() => {}}
-                    />
-                  </Box>
-                  {/* input 2: sđt artist */}
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                      width: "60%",
-                    }}
-                  >
-                    <label style={{ width: "20%" }}>Số điện thoại</label>
-                    <TextField
-                      variant="outlined"
-                      margin="normal"
-                      fullWidth
-                      value={""}
-                      onChange={() => {}}
-                    />
-                  </Box>
-                  {/* input 3: email artist */}
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                      width: "60%",
-                    }}
-                  >
-                    <label style={{ width: "20%" }}>Email</label>
-                    <TextField
-                      variant="outlined"
-                      disabled
-                      margin="normal"
-                      fullWidth
-                      value={"phm.giamy@gmail.com"}
-                      onChange={() => {}}
-                    />
-                  </Box>
-                  {/* input 4: location working type của artist */}
-                  <FormControl
-                    sx={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                      width: "60%",
-                    }}
-                  >
-                    <label style={{ width: "20%" }}>Loại địa chỉ</label>
-                    <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      value={addressType}
-                      fullWidth
-                      onChange={(e) => setAddressType(e.target.value)}
+                    {/* input 1: họ tên artist */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        width: "60%",
+                      }}
                     >
-                      <MenuItem value={ARTIST_WORKING_LOCATION_TYPE.HOME}>
-                        Nhà riêng
-                      </MenuItem>
-                      <MenuItem value={ARTIST_WORKING_LOCATION_TYPE.STUDIO}>
-                        Studio
-                      </MenuItem>
-                    </Select>
-                  </FormControl>
-                  {/* input 5: location working name của artist nếu có */}
-                  <FormControl
-                    sx={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                      width: "60%",
-                    }}
-                  >
-                    <label style={{ width: "20%" }}>Tên studio</label>
-                    <TextField
-                      variant="outlined"
-                      disabled={
-                        addressType === ARTIST_WORKING_LOCATION_TYPE.HOME
-                      }
-                      margin="normal"
-                      fullWidth
-                      value={addressName}
-                      onChange={
-                        addressType === ARTIST_WORKING_LOCATION_TYPE.STUDIO
-                          ? (e) => setAddressName(e.target.value)
-                          : () => {}
-                      }
-                    />
-                  </FormControl>
-                  {/* input 6: location: province */}
-                  <FormControl
-                    sx={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                      width: "60%",
-                    }}
-                  >
-                    <label style={{ width: "20%" }}>Tỉnh/Thành phố</label>
-                    <Select
-                      labelId="demo-simple-select-label"
-                      value={selectedProvince ?? ""}
-                      fullWidth
-                      onChange={(e) =>
-                        setSelectedProvince(Number(e.target.value))
-                      }
+                      <label style={{ width: "20%" }}>Họ tên</label>
+                      <TextField
+                        variant="outlined"
+                        margin="normal"
+                        fullWidth
+                        {...register("name")}
+                        error={!!errors.name}
+                        helperText={errors.name?.message || " "}
+                      />
+                    </Box>
+                    {/* input 2: sđt artist */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        width: "60%",
+                      }}
                     >
-                      {provinces &&
-                        provinces.length > 0 &&
-                        provinces.map((province) => (
-                          <MenuItem
-                            key={province.ProvinceID}
-                            value={province.ProvinceID.toString()}
-                          >
-                            {province.ProvinceName}
+                      <label style={{ width: "20%" }}>Số điện thoại</label>
+                      <TextField
+                        variant="outlined"
+                        margin="normal"
+                        fullWidth
+                        {...register("phone_number")}
+                        error={!!errors.phone_number}
+                        helperText={errors.phone_number?.message || " "}
+                      />
+                    </Box>
+                    {/* input 3: email artist */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        width: "60%",
+                      }}
+                    >
+                      <label style={{ width: "20%" }}>Email</label>
+                      <TextField
+                        variant="outlined"
+                        disabled
+                        margin="normal"
+                        fullWidth
+                        value={"phm.giamy@gmail.com"}
+                        onChange={() => {}}
+                      />
+                    </Box>
+                    {/* input 4: location working type của artist */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        width: "60%",
+                      }}
+                    >
+                      <label style={{ width: "20%" }}>Loại địa chỉ</label>
+                      <FormControl fullWidth error={!!errors.address_type}>
+                        <Select
+                          defaultValue={ARTIST_WORKING_LOCATION_TYPE.HOME}
+                          labelId="demo-simple-select-label"
+                          id="demo-simple-select"
+                          {...register("address_type")}
+                        >
+                          <MenuItem value={ARTIST_WORKING_LOCATION_TYPE.HOME}>
+                            Nhà riêng
                           </MenuItem>
-                        ))}
-                    </Select>
-                  </FormControl>
-                  {/* input 7: location: district */}
-                  <FormControl
-                    sx={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                      width: "60%",
-                    }}
-                  >
-                    <label style={{ width: "20%" }}>Quận/Huyện</label>
-                    <Select
-                      labelId="demo-simple-select-label"
-                      value={selectedDistrict ?? ""}
-                      fullWidth
-                      onChange={(e) =>
-                        setSelectedDistrict(Number(e.target.value))
-                      }
-                    >
-                      {districts &&
-                        districts.length > 0 &&
-                        districts.map((district) => (
-                          <MenuItem
-                            key={district.DistrictID}
-                            value={district.DistrictID.toString()}
-                          >
-                            {district.DistrictName}
+                          <MenuItem value={ARTIST_WORKING_LOCATION_TYPE.STUDIO}>
+                            Studio
                           </MenuItem>
-                        ))}
-                    </Select>
-                  </FormControl>
-                  {/* input 8: location: ward */}
-                  <FormControl
-                    sx={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                      width: "60%",
-                    }}
-                  >
-                    <label style={{ width: "20%" }}>Phường/Xã</label>
-                    <Select
-                      labelId="demo-simple-select-label"
-                      value={selectedWard ?? ""}
-                      fullWidth
-                      onChange={(e) => setSelectedWard(Number(e.target.value))}
+                        </Select>
+                      </FormControl>
+                    </Box>
+                    {/* input 5: location working name của artist nếu có */}
+                    <FormControl
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        width: "60%",
+                      }}
                     >
-                      {wards &&
-                        wards.length > 0 &&
-                        wards.map((ward) => (
-                          <MenuItem
-                            key={ward.WardCode}
-                            value={ward.WardCode.toString()}
-                          >
-                            {ward.WardName}
-                          </MenuItem>
-                        ))}
-                    </Select>
-                  </FormControl>
-                  {/* input 8: location: street name */}
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                      width: "60%",
-                    }}
-                  >
-                    <label style={{ width: "20%" }}>Số & Tên đường</label>
-                    <TextField
-                      variant="outlined"
-                      margin="normal"
-                      fullWidth
-                      value={streetName}
-                      onChange={(e) => setStreetName(e.target.value)}
-                    />
+                      <label style={{ width: "20%" }}>Tên studio</label>
+                      <TextField
+                        variant="outlined"
+                        margin="normal"
+                        fullWidth
+                        disabled={watch("address_type") === "HOME"}
+                        error={!!errors.location_name}
+                        helperText={errors.location_name?.message}
+                        {...register("location_name")}
+                      />
+                    </FormControl>
+
+                    {/* input 6: location: province */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        width: "60%",
+                      }}
+                    >
+                      <label style={{ width: "20%" }}>Tỉnh/Thành phố</label>
+                      <Controller
+                        name="province_id"
+                        control={control}
+                        render={({ field }) => (
+                          <FormControl fullWidth error={!!errors.province_id}>
+                            <Select
+                              {...field}
+                              value={field.value ?? ""}
+                              onChange={(e) =>
+                                field.onChange(Number(e.target.value))
+                              }
+                              displayEmpty
+                            >
+                              <MenuItem value="">Chọn Tỉnh/Thành phố</MenuItem>
+                              {provinces.map((p) => (
+                                <MenuItem
+                                  key={p.ProvinceID}
+                                  value={p.ProvinceID}
+                                >
+                                  {p.ProvinceName}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                            <FormHelperText>
+                              {errors.province_id?.message}
+                            </FormHelperText>
+                          </FormControl>
+                        )}
+                      />
+                    </Box>
+                    {/* input 7: location: district */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        width: "60%",
+                      }}
+                    >
+                      <label style={{ width: "20%" }}>Quận/Huyện</label>
+                      <Controller
+                        name="district_id"
+                        control={control}
+                        render={({ field }) => (
+                          <FormControl fullWidth error={!!errors.district_id}>
+                            <Select
+                              {...field}
+                              value={field.value ?? ""}
+                              onChange={(e) =>
+                                field.onChange(Number(e.target.value))
+                              }
+                              displayEmpty
+                            >
+                              <MenuItem value="">Chọn Quận/Huyện</MenuItem>
+                              {districts.map((p) => (
+                                <MenuItem
+                                  key={p.DistrictID}
+                                  value={p.DistrictID}
+                                >
+                                  {p.DistrictName}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                            <FormHelperText>
+                              {errors.district_id?.message}
+                            </FormHelperText>
+                          </FormControl>
+                        )}
+                      />
+                    </Box>
+
+                    {/* input 8: location: ward */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        width: "60%",
+                      }}
+                    >
+                      <label style={{ width: "20%" }}>Phường/Xã</label>
+                      <Controller
+                        name="ward_code"
+                        control={control}
+                        render={({ field }) => (
+                          <FormControl fullWidth error={!!errors.ward_code}>
+                            <Select
+                              {...field}
+                              value={field.value ?? ""}
+                              onChange={(e) =>
+                                field.onChange(Number(e.target.value))
+                              }
+                              displayEmpty
+                            >
+                              <MenuItem value="">Chọn Phường/Xã</MenuItem>
+                              {wards.map((p) => (
+                                <MenuItem key={p.WardCode} value={p.WardCode}>
+                                  {p.WardName}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                            <FormHelperText>
+                              {errors.ward_code?.message}
+                            </FormHelperText>
+                          </FormControl>
+                        )}
+                      />
+                    </Box>
+
+                    {/* input 8: location: street name */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        width: "60%",
+                      }}
+                    >
+                      <label style={{ width: "20%" }}>Số & Tên đường</label>
+                      <TextField
+                        variant="outlined"
+                        margin="normal"
+                        fullWidth
+                        {...register("street_name")}
+                        error={!!errors.street_name}
+                        helperText={errors.street_name?.message || " "}
+                      />
+                    </Box>
                   </Box>
-                </Box>
+                </form>
               </>
             )}
             {activeStep === 1 && (
@@ -486,6 +553,80 @@ export default function RegisterArtist() {
                 </Box>
               </>
             )}
+            {/* {activeStep === 3 && (
+              <Box px={5} py={2}>
+                <Typography variant="h6">Xác nhận thông tin</Typography>
+                <Box component="dl" my={2}>
+                  <dt>Họ tên:</dt>
+                  <dd>{artistName}</dd>
+                  <dt>Số điện thoại:</dt>
+                  <dd>{phoneNumber}</dd>
+                  <dt>Loại địa chỉ:</dt>
+                  <dd>
+                    {addressType === ARTIST_WORKING_LOCATION_TYPE.HOME
+                      ? "Nhà riêng"
+                      : "Studio"}
+                  </dd>
+                  {addressType === ARTIST_WORKING_LOCATION_TYPE.STUDIO && (
+                    <>
+                      <dt>Tên studio:</dt>
+                      <dd>{addressName}</dd>
+                    </>
+                  )}
+                  <dt>Địa chỉ chi tiết:</dt>
+                  <dd>
+                    {`${wards.find((w) => w.WardCode.toString() === selectedWard)?.WardName}, `}
+                    {`${districts.find((d) => d.DistrictID.toString() === selectedDistrict)?.DistrictName}, `}
+                    {`${districts.find((p) => p.ProvinceID.toString() === selectedProvince)?.ProvinceName}, `}
+                    {streetName}
+                  </dd>
+                  <dt>Liên kết MXH:</dt>
+                  <dd>
+                    <ul>
+                      {profileUrls.map((u, i) => (
+                        <li key={i}>{u}</li>
+                      ))}
+                    </ul>
+                  </dd>
+                  <dt>Media:</dt>
+                  <dd>
+                    <ul>
+                      {mediaUrls.map((f, i) => (
+                        <li key={i}>{f.name}</li>
+                      ))}
+                    </ul>
+                  </dd>
+                </Box>
+                <Button
+                  variant="contained"
+                  onClick={async () => {
+                    const payload = {
+                      name: artistName,
+                      phone_number: phoneNumber,
+                      portfolio_url: profileUrls,
+                      bio: "",
+                      avatar_url: "",
+                      address_type: addressType,
+                      location_name: addressName,
+                      ward_code: Number(selectedWard),
+                      district_id: Number(selectedDistrict),
+                      province_id: Number(selectedProvince),
+                      street_name: streetName,
+                      media_url: mediaUrls, // or processed URLs
+                    };
+                    try {
+                      // await yourApi.registerArtist(payload);
+                      toast.success("Đăng ký thành công!");
+                      navigate("/");
+                    } catch (e) {
+                      toast.error("Đăng ký thất bại, thử lại.");
+                    }
+                  }}
+                >
+                  Gửi hồ sơ
+                </Button>
+              </Box>
+            )} */}
             {/* navigation button: quay lại & tiếp tục */}
             <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
               <Button

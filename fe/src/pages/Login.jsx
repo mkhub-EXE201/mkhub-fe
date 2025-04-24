@@ -45,10 +45,10 @@ export default function Login() {
       const response = await userApis.login(data);
       if (response.status === HttpStatusCode.Ok) {
         setIsAuthenticated(true);
-
+        setProfile(response.data.result.user);
         navigate("/");
         toast.success(response.data.message, {
-          position: "top-right",
+          position: "top-center",
         });
       }
     } catch (error) {

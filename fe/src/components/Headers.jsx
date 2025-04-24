@@ -12,7 +12,7 @@ import { Link } from "react-router-dom";
 import { AppContext } from "../contexts/app.context";
 
 export default function Headers() {
-  const { isAuthenticated } = useContext(AppContext);
+  const { isAuthenticated, profile } = useContext(AppContext);
   return (
     <Box
       sx={{
@@ -120,7 +120,12 @@ export default function Headers() {
             </>
           ) : (
             <>
-              <Typography>profile</Typography>
+              <img
+                src={profile.avatar_url}
+                width={40}
+                height={40}
+                style={{ borderRadius: 50 }}
+              />
             </>
           )}
         </Box>
