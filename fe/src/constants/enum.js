@@ -2,3 +2,5 @@ export const ARTIST_WORKING_LOCATION_TYPE = {
   HOME: "HOME",
   STUDIO: "STUDIO",
 };
+
+export const REGISTER_ARTIST_MAX_MEDIA_FILES = 5;

@@ -8,6 +8,7 @@ import {
   Typography,
   IconButton,
   FormHelperText,
+  Stack,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import OnboardingNavBar from "../components/OnboardingNavBar";
@@ -23,12 +24,14 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { useNavigate } from "react-router-dom";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { registerArtistSchema } from "../schemas/registerArtistSchema";
-import { useForm, Controller } from "react-hook-form";
-
+import { useForm, Controller, useFieldArray } from "react-hook-form";
+import { ADDRESS_MESSAGE } from "../constants/message";
+import { useDropzone } from "react-dropzone";
+import RemoveIcon from "@mui/icons-material/Remove";
 const steps = [
   "Thông tin artist",
   "Nhận diện độ tin cậy",
-  "xây dựng trang cá nhân",
+  "Xây dựng trang cá nhân",
   "Hoàn tất",
 ];
 
@@ -36,15 +39,11 @@ export default function RegisterArtist() {
   const navigate = useNavigate();
   // state của stepper
   const [activeStep, setActiveStep] = useState(0);
-  const [skipped, setSkipped] = useState(new Set());
 
   //state của form
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [wards, setWards] = useState([]);
-
-  const [profileUrls, setProfileUrls] = useState([]);
-  const [mediaUrls, setMediaUrls] = useState([]);
 
   const {
     register,
@@ -59,9 +58,12 @@ export default function RegisterArtist() {
     defaultValues: {
       name: "",
       phone_number: "",
+      address_type: ARTIST_WORKING_LOCATION_TYPE.HOME,
       province_id: undefined,
       district_id: undefined,
       ward_code: undefined,
+      portfolio_urls: [""],
+      media_urls: [],
     },
   });
 
@@ -79,7 +81,7 @@ export default function RegisterArtist() {
         setValue("ward_code", undefined);
         setWards([]);
       } else {
-        toast.error("Lỗi lấy danh sách tỉnh/thành phố");
+        toast.error(ADDRESS_MESSAGE.CANNOT_GET_LIST_OF_PROVINCES);
       }
     };
     getProvinces();
@@ -97,7 +99,7 @@ export default function RegisterArtist() {
         setValue("ward_code", undefined);
         setWards([]);
       } else {
-        toast.error("Lỗi lấy danh sách quận/huyện");
+        toast.error(ADDRESS_MESSAGE.CANNOT_GET_LIST_OF_DISTRICTS);
       }
     };
     getDistricts();
@@ -112,57 +114,38 @@ export default function RegisterArtist() {
         setWards(data);
         setValue("ward_code", undefined);
       } else {
-        toast.error("Lỗi lấy danh sách phường/xã");
+        toast.error(ADDRESS_MESSAGE.CANNOT_GET_LIST_OF_WARDS);
       }
     };
     getWards();
   }, [selectedDistrict]);
 
-  const handleChangeProfileUrls = (index, value) => {
-    const newUrls = [...profileUrls];
-    newUrls[index] = value;
-    setProfileUrls(newUrls);
-  };
-
-  const addProfileUrl = () => {
-    setProfileUrls([...profileUrls, ""]);
-  };
-
-  const removeProfileUrl = (index) => {
-    const newUrls = profileUrls.filter((_, i) => i !== index);
-    setProfileUrls(newUrls);
-  };
-
-  const handleChangeMediaUrls = (e) => {
-    if (e.target.files) {
-      const newFiles = Array.from(e.target.files);
-      setMediaUrls((prevFiles) => [...prevFiles, ...newFiles]);
-    }
-  };
-
-  // Hàm xóa file tại vị trí index
-  const removeMediaUrl = (index) => {
-    const newUrls = [...mediaUrls];
-    newUrls.splice(index, 1);
-    setMediaUrls(newUrls);
-  };
-
-  const isStepSkipped = (step) => {
-    return skipped.has(step);
-  };
-
   const handleNext = async () => {
-    const valid = await trigger();
-    if (!valid) return;
-
-    let newSkipped = skipped;
-    if (isStepSkipped(activeStep)) {
-      newSkipped = new Set(newSkipped.values());
-      newSkipped.delete(activeStep);
+    let stepFields = [];
+    if (activeStep === 0) {
+      stepFields = [
+        "name",
+        "phone_number",
+        "address_type",
+        "location_name",
+        "province_id",
+        "district_id",
+        "ward_code",
+        "street_name",
+      ];
+    } else if (activeStep === 1) {
+      const portfolioFields = (watch("portfolio_urls") || []).map(
+        (_, index) => `portfolio_urls.${index}`
+      );
+      stepFields = portfolioFields;
+      stepFields =
+        portfolioFields.length > 0 ? portfolioFields : ["portfolio_urls"];
+    } else if (activeStep === 2) {
+      stepFields = ["media_urls"];
     }
-
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    setSkipped(newSkipped);
+    const isStepValid = await trigger(stepFields);
+    if (!isStepValid) return;
+    setActiveStep((prev) => prev + 1);
   };
 
   const handleBack = () => {
@@ -171,19 +154,59 @@ export default function RegisterArtist() {
 
   const handleFormSubmit = async () => {};
 
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "portfolio_urls",
+  });
+
+  const onDrop = (acceptedFiles) => {
+    const currentFiles = watch("media_urls") || [];
+    const currentPreview = watch("media_urls_preview") || [];
+    // Map file mới và tạo ảnh preview cho mỗi file
+    const mappedFiles = acceptedFiles.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file), // Tạo ảnh preview
+    }));
+    // Cập nhật lại media_urls và media_urls_preview
+    setValue("media_urls", [...currentFiles, ...acceptedFiles]);
+    setValue("media_urls_preview", [...currentPreview, ...mappedFiles], {
+      shouldValidate: true,
+    });
+  };
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    accept: {
+      "image/*": [],
+      "video/*": [],
+    },
+    multiple: true,
+  });
+
+  const handleRemoveFile = (index) => {
+    const files = watch("media_urls") || [];
+    const previewFiles = watch("media_urls_preview") || [];
+    const newFiles = [...files];
+    const newPreviewFiles = [...previewFiles];
+    if (newPreviewFiles[index]?.preview) {
+      URL.revokeObjectURL(newPreviewFiles[index].preview);
+    }
+    newFiles.splice(index, 1);
+    newPreviewFiles.splice(index, 1);
+    setValue("media_urls", newFiles);
+    setValue("media_urls_preview", newPreviewFiles);
+  };
+
   return (
     <Box>
       <OnboardingNavBar />
       {/* stepper  */}
       <Box sx={{ margin: 10, boxShadow: 2, padding: 2 }}>
         <Stepper activeStep={activeStep}>
-          {steps.map((label, index) => {
+          {steps.map((label) => {
             const stepProps = {};
             const labelProps = {};
 
-            if (isStepSkipped(index)) {
-              stepProps.completed = false;
-            }
             return (
               <Step key={label} {...stepProps}>
                 <StepLabel {...labelProps}>{label}</StepLabel>
@@ -289,9 +312,7 @@ export default function RegisterArtist() {
                       <label style={{ width: "20%" }}>Loại địa chỉ</label>
                       <FormControl fullWidth error={!!errors.address_type}>
                         <Select
-                          defaultValue={ARTIST_WORKING_LOCATION_TYPE.HOME}
-                          labelId="demo-simple-select-label"
-                          id="demo-simple-select"
+                          value={watch("address_type")}
                           {...register("address_type")}
                         >
                           <MenuItem value={ARTIST_WORKING_LOCATION_TYPE.HOME}>
@@ -468,43 +489,55 @@ export default function RegisterArtist() {
             )}
             {activeStep === 1 && (
               <>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    width: "100%",
-                    rowGap: 2,
-                    paddingX: 5,
-                    paddingY: 2,
-                  }}
-                >
-                  {profileUrls.map((_, index) => (
-                    <Box key={index} display="flex" alignItems="center" gap={1}>
+                {fields.map((field, index) => (
+                  <Box
+                    key={field.id}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      width: "100%",
+                      rowGap: 2,
+                      paddingX: 5,
+                      paddingY: 2,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        gap: 1,
+                        alignItems: "center",
+                      }}
+                    >
                       <TextField
                         sx={{ width: "60%" }}
                         label={`Liên kết ${index + 1}`}
-                        value={profileUrls[index]}
-                        onChange={(e) =>
-                          handleChangeProfileUrls(index, e.target.value)
-                        }
+                        {...register(`portfolio_urls.${index}`)}
+                        error={Boolean(errors.portfolio_urls?.[index])}
+                        helperText={errors.portfolio_urls?.[index]?.message}
                       />
                       <IconButton
-                        onClick={() => removeProfileUrl(index)}
-                        disabled={profileUrls.length === 1}
+                        onClick={() => remove(index)}
+                        disabled={fields.length === 1}
                       >
                         <DeleteIcon />
                       </IconButton>
                     </Box>
-                  ))}
-                  <Button
-                    onClick={addProfileUrl}
-                    startIcon={<AddIcon />}
-                    sx={{ width: "60%" }}
-                    variant="outlined"
-                  >
-                    Thêm liên kết tài khoản
-                  </Button>
-                </Box>
+                  </Box>
+                ))}
+                <Button
+                  onClick={() => append("")}
+                  startIcon={<AddIcon />}
+                  sx={{ width: "60%" }}
+                  variant="outlined"
+                >
+                  Thêm liên kết tài khoản
+                </Button>
+                {errors.portfolio_urls?.message && (
+                  <Typography color="error">
+                    {errors.portfolio_urls?.message}
+                  </Typography>
+                )}
               </>
             )}
             {activeStep === 2 && (
@@ -519,114 +552,284 @@ export default function RegisterArtist() {
                     paddingY: 2,
                   }}
                 >
-                  {mediaUrls.map((file, index) => (
-                    <Box
-                      key={index}
-                      display="flex"
-                      alignItems="center"
-                      gap={1}
-                      sx={{ width: "100%" }}
-                    >
-                      <Typography sx={{ flex: 1 }}>{file.name}</Typography>
-
-                      <IconButton onClick={() => removeMediaUrl(index)}>
-                        <DeleteIcon />
-                      </IconButton>
-                    </Box>
-                  ))}
-
-                  <Button
-                    variant="outlined"
-                    component="label"
-                    startIcon={<AddIcon />}
-                    sx={{ width: "60%" }}
+                  <Box
+                    {...getRootProps()}
+                    sx={{
+                      border: "2px dashed gray",
+                      p: 2,
+                      textAlign: "center",
+                      borderRadius: 2,
+                    }}
                   >
-                    Thêm Ảnh/Video
-                    <input
-                      type="file"
-                      accept="image/*,video/*"
-                      hidden
-                      multiple
-                      onChange={(e) => handleChangeMediaUrls(e)}
-                    />
-                  </Button>
+                    <input {...getInputProps()} />
+                    <Typography>
+                      Nhấn hoặc kéo thả hình ảnh/video vào đây
+                    </Typography>
+                  </Box>
+
+                  <Box
+                    mt={2}
+                    sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}
+                  >
+                    {watch("media_urls_preview")?.map((item, index) => (
+                      <Box
+                        key={index}
+                        sx={{ width: 120, height: 120, position: "relative" }}
+                      >
+                        {item?.file?.type?.startsWith("image/") ? (
+                          <>
+                            <img
+                              src={item.preview}
+                              alt="preview"
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                                borderRadius: 8,
+                              }}
+                            />
+                            <IconButton
+                              size="small"
+                              onClick={() => handleRemoveFile(index)}
+                              sx={{
+                                position: "absolute",
+                                top: 0,
+                                right: 0,
+                                bgcolor: "white",
+                              }}
+                            >
+                              <RemoveIcon fontSize="small" />
+                            </IconButton>
+                          </>
+                        ) : item?.file?.type?.startsWith("video/") ? (
+                          <>
+                            <video
+                              src={item.preview}
+                              controls
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                                borderRadius: 8,
+                              }}
+                            />
+                            <IconButton
+                              size="small"
+                              onClick={() => handleRemoveFile(index)}
+                              sx={{
+                                position: "absolute",
+                                top: 0,
+                                right: 0,
+                                bgcolor: "white",
+                              }}
+                            >
+                              <RemoveIcon fontSize="small" />
+                            </IconButton>
+                          </>
+                        ) : (
+                          <Typography>Không xác định</Typography>
+                        )}
+                      </Box>
+                    ))}
+                  </Box>
+
+                  {errors.media_urls && (
+                    <Typography color="error" mt={1}>
+                      {errors.media_urls.message}
+                    </Typography>
+                  )}
                 </Box>
               </>
             )}
-            {/* {activeStep === 3 && (
-              <Box px={5} py={2}>
-                <Typography variant="h6">Xác nhận thông tin</Typography>
-                <Box component="dl" my={2}>
-                  <dt>Họ tên:</dt>
-                  <dd>{artistName}</dd>
-                  <dt>Số điện thoại:</dt>
-                  <dd>{phoneNumber}</dd>
-                  <dt>Loại địa chỉ:</dt>
-                  <dd>
-                    {addressType === ARTIST_WORKING_LOCATION_TYPE.HOME
-                      ? "Nhà riêng"
-                      : "Studio"}
-                  </dd>
-                  {addressType === ARTIST_WORKING_LOCATION_TYPE.STUDIO && (
-                    <>
-                      <dt>Tên studio:</dt>
-                      <dd>{addressName}</dd>
-                    </>
+            {activeStep === 3 && (
+              <Box px={5} py={3}>
+                <Typography variant="h5" fontWeight="bold" gutterBottom>
+                  Xác nhận thông tin
+                </Typography>
+
+                <Stack spacing={2} mt={2}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 1,
+                    }}
+                  >
+                    <Typography variant="subtitle2" color="textSecondary">
+                      Họ tên:
+                    </Typography>
+                    <Typography>{watch("name")}</Typography>
+                  </Box>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 1,
+                    }}
+                  >
+                    <Typography variant="subtitle2" color="textSecondary">
+                      Số điện thoại:
+                    </Typography>
+                    <Typography>{watch("phone_number")}</Typography>
+                  </Box>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 1,
+                    }}
+                  >
+                    <Typography variant="subtitle2" color="textSecondary">
+                      Loại địa chỉ:
+                    </Typography>
+                    <Typography>
+                      {watch("address_type") ===
+                      ARTIST_WORKING_LOCATION_TYPE.HOME
+                        ? "Nhà riêng"
+                        : "Studio"}
+                    </Typography>
+                  </Box>
+
+                  {watch("address_type") ===
+                    ARTIST_WORKING_LOCATION_TYPE.STUDIO && (
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 1,
+                      }}
+                    >
+                      <Typography variant="subtitle2" color="textSecondary">
+                        Tên studio:
+                      </Typography>
+                      <Typography>{watch("location_name")}</Typography>
+                    </Box>
                   )}
-                  <dt>Địa chỉ chi tiết:</dt>
-                  <dd>
-                    {`${wards.find((w) => w.WardCode.toString() === selectedWard)?.WardName}, `}
-                    {`${districts.find((d) => d.DistrictID.toString() === selectedDistrict)?.DistrictName}, `}
-                    {`${districts.find((p) => p.ProvinceID.toString() === selectedProvince)?.ProvinceName}, `}
-                    {streetName}
-                  </dd>
-                  <dt>Liên kết MXH:</dt>
-                  <dd>
-                    <ul>
-                      {profileUrls.map((u, i) => (
-                        <li key={i}>{u}</li>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 1,
+                    }}
+                  >
+                    <Typography variant="subtitle2" color="textSecondary">
+                      Địa chỉ cụ thể:
+                    </Typography>
+                    <Typography>
+                      {[
+                        watch("street_name"),
+                        wards.find(
+                          (w) => Number(w.WardCode) === watch("ward_code")
+                        )?.WardName,
+                        districts.find(
+                          (d) => d.DistrictID === watch("district_id")
+                        )?.DistrictName,
+                        provinces.find(
+                          (p) => p.ProvinceID === watch("province_id")
+                        )?.ProvinceName,
+                      ]
+                        .filter(Boolean)
+                        .join(", ")}
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="subtitle2" color="textSecondary">
+                      Liên kết tài khoản khác:
+                    </Typography>
+                    <Stack
+                      component="ul"
+                      sx={{ listStyle: "disc", pl: 2 }}
+                      spacing={0.5}
+                    >
+                      {watch("portfolio_urls")?.map((url, index) => (
+                        <Typography
+                          key={index}
+                          component="li"
+                          variant="body2"
+                          sx={{
+                            "& a": {
+                              color: "text.primary",
+                              textDecoration: "none",
+                              transition: "all 0.2s",
+                            },
+                            "& a:hover": {
+                              color: "primary.main",
+                              textDecoration: "underline",
+                            },
+                          }}
+                        >
+                          <a
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {url}
+                          </a>
+                        </Typography>
                       ))}
-                    </ul>
-                  </dd>
-                  <dt>Media:</dt>
-                  <dd>
-                    <ul>
-                      {mediaUrls.map((f, i) => (
-                        <li key={i}>{f.name}</li>
+                    </Stack>
+                  </Box>
+
+                  <Box>
+                    <Typography variant="subtitle2" color="textSecondary">
+                      Hình ảnh/video về layout makeup bạn đã thực hiện
+                    </Typography>
+                    <Stack direction="row" spacing={2} flexWrap="wrap" mt={1}>
+                      {watch("media_urls_preview")?.map((file, index) => (
+                        <Box
+                          key={index}
+                          sx={{
+                            width: 120,
+                            height: 120,
+                            position: "relative",
+                            borderRadius: 2,
+                            overflow: "hidden",
+                            bgcolor: "#f0f0f0",
+                          }}
+                        >
+                          {file?.file?.type?.startsWith("image/") ? (
+                            <img
+                              src={file.preview}
+                              alt={`preview-${index}`}
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                              }}
+                            />
+                          ) : file?.file?.type?.startsWith("video/") ? (
+                            <video
+                              src={file.preview}
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                              }}
+                              controls
+                            />
+                          ) : (
+                            <Typography variant="body2" p={1}>
+                              Không xác định
+                            </Typography>
+                          )}
+                        </Box>
                       ))}
-                    </ul>
-                  </dd>
-                </Box>
-                <Button
-                  variant="contained"
-                  onClick={async () => {
-                    const payload = {
-                      name: artistName,
-                      phone_number: phoneNumber,
-                      portfolio_url: profileUrls,
-                      bio: "",
-                      avatar_url: "",
-                      address_type: addressType,
-                      location_name: addressName,
-                      ward_code: Number(selectedWard),
-                      district_id: Number(selectedDistrict),
-                      province_id: Number(selectedProvince),
-                      street_name: streetName,
-                      media_url: mediaUrls, // or processed URLs
-                    };
-                    try {
-                      // await yourApi.registerArtist(payload);
-                      toast.success("Đăng ký thành công!");
-                      navigate("/");
-                    } catch (e) {
-                      toast.error("Đăng ký thất bại, thử lại.");
-                    }
-                  }}
-                >
-                  Gửi hồ sơ
-                </Button>
+                    </Stack>
+                  </Box>
+                </Stack>
+
+                <Box mt={4} display="flex" justifyContent="center"></Box>
               </Box>
-            )} */}
+            )}
+
             {/* navigation button: quay lại & tiếp tục */}
             <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
               <Button
@@ -639,9 +842,39 @@ export default function RegisterArtist() {
               </Button>
               <Box sx={{ flex: "1 1 auto" }} />
 
-              <Button onClick={handleNext}>
-                {activeStep === steps.length - 1 ? "Hoàn tất" : "Tiếp tục"}
-              </Button>
+              {activeStep == steps.length - 1 ? (
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={async () => {
+                    const payload = {
+                      name: watch("name"),
+                      phone_number: watch("phone_number"),
+                      portfolio_url: watch("portfolio_urls"),
+                      bio: "",
+                      avatar_url: "",
+                      address_type: watch("address_type"),
+                      location_name: watch("location_name"),
+                      ward_code: Number(watch("ward_code")),
+                      district_id: Number(watch("district_id")),
+                      province_id: Number(watch("province_id")),
+                      street_name: watch("street_name"),
+                      media_url: watch("media_urls"),
+                    };
+                    try {
+                      // await yourApi.registerArtist(payload);
+                      toast.success("Đăng ký thành công!");
+                      navigate("/");
+                    } catch (e) {
+                      toast.error("Đăng ký thất bại, thử lại.");
+                    }
+                  }}
+                >
+                  Gửi hồ sơ
+                </Button>
+              ) : (
+                <Button onClick={handleNext}>Hoàn tất</Button>
+              )}
             </Box>
           </Box>
         )}
