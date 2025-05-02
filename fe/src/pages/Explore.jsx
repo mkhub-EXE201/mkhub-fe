@@ -16,7 +16,7 @@ import {
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import locationApi from "../apis/location.apis";
+import locationApi from "../apis/locations.apis";
 import { HttpStatusCode } from "axios";
 import toast from "react-hot-toast";
 import PlaceIcon from "@mui/icons-material/PlaceOutlined";
