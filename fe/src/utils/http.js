@@ -43,7 +43,7 @@ class Http {
           setAccessTokenToLocalStorage(this.accessToken);
           setRefreshTokenToLocalStorage(this.refreshToken);
           setProfileToLocalStorage(response.data.result.user);
-        } else if (url === logoutUrl) {
+        } else if (url.includes(logoutUrl)) {
           this.accessToken = "";
           this.refreshToken = "";
           clearLocalStorage();

@@ -10,13 +10,33 @@ import {
 import React, { useContext } from "react";
 import logo from "../assets/logo.png";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AppContext } from "../contexts/app.context";
 import Popover from "./Popover";
 import path from "../constants/path";
+import { getRefreshTokenFromLocalStorage } from "../utils/auth";
+import userApis from "../apis/users.apis";
+import { HttpStatusCode } from "axios";
+import toast from "react-hot-toast";
 
 export default function Headers() {
-  const { isAuthenticated, profile } = useContext(AppContext);
+  const navigate = useNavigate();
+  const { isAuthenticated, setIsAuthenticated, profile, setProfile } =
+    useContext(AppContext);
+
+  const handleLogout = async () => {
+    const refresh_token = getRefreshTokenFromLocalStorage();
+    const response = await userApis.logout(refresh_token);
+    if (response.status === HttpStatusCode.Ok) {
+      setIsAuthenticated(false);
+      setProfile(null);
+      toast.success(response.data.message, {
+        position: "top-center",
+      });
+    }
+    navigate(path.home);
+  };
+
   return (
     <Box
       sx={{
@@ -175,6 +195,7 @@ export default function Headers() {
                       </Button>
 
                       <Button
+                        onClick={() => handleLogout()}
                         sx={{
                           mt: 1,
                           py: 1,
