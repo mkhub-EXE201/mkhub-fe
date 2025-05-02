@@ -11,6 +11,7 @@ import logo from "../assets/logo.png";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 
 import { AppContext } from "../contexts/app.context";
+import path from "../constants/path";
 
 export default function Navbar() {
   const { isAuthenticated } = useContext(AppContext);
@@ -37,24 +38,28 @@ export default function Navbar() {
           alignItems: "center",
         }}
       >
-        <img
-          src={logo}
-          onClick={() => <Link to={"/"} />}
-          alt="header-logo"
-          style={{
-            width: "100px",
-            height: "auto",
-            objectFit: "cover",
-          }}
-        />
+        <Link to={path.home}>
+          <img
+            src={logo}
+            alt="header-logo"
+            style={{
+              width: "100px",
+              height: "auto",
+              objectFit: "cover",
+            }}
+          />
+        </Link>
         <Link
-          to={"/explore"}
+          to={path.explore}
           style={{ textDecoration: "none", color: "inherit" }}
         >
           <Typography>Khám phá</Typography>
         </Link>
 
-        <Link to={"/"} style={{ textDecoration: "none", color: "inherit" }}>
+        <Link
+          to={path.home}
+          style={{ textDecoration: "none", color: "inherit" }}
+        >
           <Typography>Cộng đồng</Typography>
         </Link>
       </Box>
@@ -122,13 +127,13 @@ export default function Navbar() {
         {!isAuthenticated ? (
           <>
             <Link
-              to={"/login"}
+              to={path.home}
               style={{ textDecoration: "none", color: "inherit" }}
             >
               <Typography>Đăng nhập</Typography>
             </Link>
             <Link
-              to={"/register"}
+              to={path.register}
               style={{ textDecoration: "none", color: "inherit" }}
             >
               <Typography>Đăng kí</Typography>

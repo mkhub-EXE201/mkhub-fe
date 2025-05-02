@@ -70,6 +70,16 @@ export const registerArtistSchema = Yup.object().shape({
         .required(REGISTER_ARTIST_MESSAGE.PORTFOLIO_URL_IS_REQUIRED)
         .url(REGISTER_ARTIST_MESSAGE.PORTFOLIO_IS_INVALID)
     )
+    .test(
+      "unique",
+      REGISTER_ARTIST_MESSAGE.PORTFOLIO_URL_HAS_EXISTED,
+      (value) => {
+        if (!value) return true;
+        const filtered = value.filter((v) => v && v.trim() !== "");
+        const uniqueSet = new Set(filtered.map((v) => v.trim().toLowerCase()));
+        return uniqueSet.size === filtered.length;
+      }
+    )
     .min(1, REGISTER_ARTIST_MESSAGE.PORTFOLIO_URL_MUST_BE_AT_LEAST_ONE)
     .max(5, REGISTER_ARTIST_MESSAGE.PORTFOLIO_URL_MUST_BE_AT_MOST_FIVE),
 
@@ -92,4 +102,24 @@ export const registerArtistSchema = Yup.object().shape({
     )
     .min(1, REGISTER_ARTIST_MESSAGE.MEDIA_URL_MUST_BE_AT_LEAST_ONE)
     .max(5, REGISTER_ARTIST_MESSAGE.MEDIA_URL_MUST_BE_AT_MOST_FIVE),
+
+  avatar_url: Yup.mixed()
+    .test(
+      "fileType",
+      REGISTER_ARTIST_MESSAGE.AVATAR_URL_MUST_BE_IMAGE,
+      (value) => {
+        if (!value) return true;
+        return (
+          value && (value.type === "image/jpeg" || value.type === "image/png")
+        );
+      }
+    )
+    .test(
+      "fileSize",
+      REGISTER_ARTIST_MESSAGE.AVATAR_URL_SIZE_MUST_BE_LESS_THAN_2_MB,
+      (value) => {
+        if (!value) return true;
+        return value && value.size <= 2 * 1024 * 1024;
+      }
+    ),
 });

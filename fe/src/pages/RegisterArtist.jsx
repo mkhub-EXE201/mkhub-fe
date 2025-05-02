@@ -9,30 +9,39 @@ import {
   IconButton,
   FormHelperText,
   Stack,
+  Avatar,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import OnboardingNavBar from "../components/OnboardingNavBar";
 import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import { ARTIST_WORKING_LOCATION_TYPE } from "../constants/enum";
 import HttpStatusCode from "../constants/httpStatus";
-import locationApi from "../apis/location.apis";
+import locationApi from "../apis/locations.apis";
 import toast from "react-hot-toast";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useNavigate } from "react-router-dom";
+import { data, useNavigate } from "react-router-dom";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { registerArtistSchema } from "../schemas/registerArtistSchema";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { ADDRESS_MESSAGE } from "../constants/message";
 import { useDropzone } from "react-dropzone";
 import RemoveIcon from "@mui/icons-material/Remove";
+import mediaApis from "../apis/media.apis";
+import artistApis from "../apis/artists.apis";
 const steps = [
   "Thông tin artist",
   "Nhận diện độ tin cậy",
   "Xây dựng trang cá nhân",
   "Hoàn tất",
+];
+const stepDescriptions = [
+  "Nhập thông tin cá nhân và địa chỉ làm việc của bạn",
+  "Thêm các liên kết portfolio của bạn",
+  "Tải lên hình ảnh hoặc video mẫu về công việc của bạn",
+  "Xác nhận thông tin trước khi gửi",
 ];
 
 export default function RegisterArtist() {
@@ -44,13 +53,16 @@ export default function RegisterArtist() {
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [wards, setWards] = useState([]);
+  const [previewUrl, setPreviewUrl] = useState(
+    "https://mkhub.s3.us-east-1.amazonaws.com/avatar/default_avt.jpg"
+  );
 
   const {
     register,
-    handleSubmit,
     control,
     trigger,
     watch,
+    getValues,
     setValue,
     formState: { errors },
   } = useForm({
@@ -70,6 +82,7 @@ export default function RegisterArtist() {
   // Lắng nghe thay đổi province_id từ React Hook Form
   const selectedProvince = watch("province_id");
   const selectedDistrict = watch("district_id");
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     const getProvinces = async () => {
@@ -152,7 +165,44 @@ export default function RegisterArtist() {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  const handleFormSubmit = async () => {};
+  const onSubmit = async () => {
+    // 1. upload avatar
+    const avatarFormData = new FormData();
+    avatarFormData.append("folderName", "avatar");
+    avatarFormData.append("images", getValues("avatar_url"));
+    let response = await mediaApis.uploadImage(avatarFormData);
+    const avatar_url = response.data.result[0];
+
+    // 2. upload ảnh làm profile
+    const files = watch("media_urls") || [];
+    const profileMediaFormData = new FormData();
+    profileMediaFormData.append("folderName", "profile");
+    files.forEach((file) => {
+      profileMediaFormData.append("images", file);
+    });
+    await mediaApis.uploadImage(profileMediaFormData);
+
+    response = await mediaApis.uploadImage(profileMediaFormData);
+    const profileMedia = response.data.result;
+    const payload = {
+      name: watch("name"),
+      phone_number: watch("phone_number"),
+      avatar_url: avatar_url,
+      portfolio_url: watch("portfolio_urls"),
+      media_url: profileMedia,
+      address_type: watch("address_type"),
+      location_name: watch("location_name"),
+      street_name: watch("street_name"),
+      ward_code: watch("ward_code"),
+      district_id: watch("district_id"),
+      province_id: watch("province_id"),
+      email: "phm.giamy@gmail.com",
+    };
+    console.log(payload);
+
+    response = await artistApis.registerArtist(payload);
+    console.log(response.data);
+  };
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -197,6 +247,14 @@ export default function RegisterArtist() {
     setValue("media_urls_preview", newPreviewFiles);
   };
 
+  const handleAvatarChange = (event) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setValue("avatar_url", file, { shouldValidate: true });
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
   return (
     <Box>
       <OnboardingNavBar />
@@ -227,12 +285,12 @@ export default function RegisterArtist() {
         ) : (
           <Box>
             <Typography sx={{ mt: 3, mb: 1, paddingX: 2 }}>
-              Bước {activeStep + 1}
+              Bước {activeStep + 1}: {stepDescriptions[activeStep]}
             </Typography>
             {activeStep === 0 && (
               <>
                 {/* form */}
-                <form onSubmit={handleFormSubmit} noValidate>
+                <form onSubmit={onSubmit} noValidate>
                   <Box
                     sx={{
                       display: "flex",
@@ -243,6 +301,45 @@ export default function RegisterArtist() {
                       paddingY: 2,
                     }}
                   >
+                    {/* avatar - optional */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 2,
+                      }}
+                    >
+                      <Typography>Ảnh đại diện</Typography>
+                      <Avatar
+                        src={previewUrl}
+                        alt="Avatar Preview"
+                        sx={{
+                          width: 150,
+                          height: 150,
+                          borderRadius: "50%",
+                          cursor: "pointer",
+                          transition: "0.3s",
+                          "&:hover": {
+                            opacity: 0.8,
+                          },
+                        }}
+                        onClick={() => fileInputRef.current?.click()}
+                      />
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        hidden
+                        accept="image/jpeg,image/png"
+                        onChange={handleAvatarChange}
+                      />
+                      {errors.avatar_url && (
+                        <Typography color="error" fontSize="14px">
+                          {errors.avatar_url.message}
+                        </Typography>
+                      )}
+                    </Box>
                     {/* input 1: họ tên artist */}
                     <Box
                       sx={{
@@ -369,14 +466,15 @@ export default function RegisterArtist() {
                               displayEmpty
                             >
                               <MenuItem value="">Chọn Tỉnh/Thành phố</MenuItem>
-                              {provinces.map((p) => (
-                                <MenuItem
-                                  key={p.ProvinceID}
-                                  value={p.ProvinceID}
-                                >
-                                  {p.ProvinceName}
-                                </MenuItem>
-                              ))}
+                              {provinces &&
+                                provinces.map((p) => (
+                                  <MenuItem
+                                    key={p.ProvinceID}
+                                    value={p.ProvinceID}
+                                  >
+                                    {p.ProvinceName}
+                                  </MenuItem>
+                                ))}
                             </Select>
                             <FormHelperText>
                               {errors.province_id?.message}
@@ -643,11 +741,21 @@ export default function RegisterArtist() {
             )}
             {activeStep === 3 && (
               <Box px={5} py={3}>
-                <Typography variant="h5" fontWeight="bold" gutterBottom>
-                  Xác nhận thông tin
-                </Typography>
-
                 <Stack spacing={2} mt={2}>
+                  <Box
+                    sx={{ display: "flex", flexDirection: "column", gap: 1 }}
+                  >
+                    <Typography>Ảnh đại diện</Typography>
+                    <Avatar
+                      src={previewUrl}
+                      alt="Avatar Preview"
+                      sx={{
+                        width: 150,
+                        height: 150,
+                        borderRadius: "50%",
+                      }}
+                    />
+                  </Box>
                   <Box
                     sx={{
                       display: "flex",
@@ -661,7 +769,6 @@ export default function RegisterArtist() {
                     </Typography>
                     <Typography>{watch("name")}</Typography>
                   </Box>
-
                   <Box
                     sx={{
                       display: "flex",
@@ -675,7 +782,6 @@ export default function RegisterArtist() {
                     </Typography>
                     <Typography>{watch("phone_number")}</Typography>
                   </Box>
-
                   <Box
                     sx={{
                       display: "flex",
@@ -694,7 +800,6 @@ export default function RegisterArtist() {
                         : "Studio"}
                     </Typography>
                   </Box>
-
                   {watch("address_type") ===
                     ARTIST_WORKING_LOCATION_TYPE.STUDIO && (
                     <Box
@@ -711,7 +816,6 @@ export default function RegisterArtist() {
                       <Typography>{watch("location_name")}</Typography>
                     </Box>
                   )}
-
                   <Box
                     sx={{
                       display: "flex",
@@ -777,7 +881,6 @@ export default function RegisterArtist() {
                       ))}
                     </Stack>
                   </Box>
-
                   <Box>
                     <Typography variant="subtitle2" color="textSecondary">
                       Hình ảnh/video về layout makeup bạn đã thực hiện
@@ -846,29 +949,7 @@ export default function RegisterArtist() {
                 <Button
                   variant="contained"
                   size="large"
-                  onClick={async () => {
-                    const payload = {
-                      name: watch("name"),
-                      phone_number: watch("phone_number"),
-                      portfolio_url: watch("portfolio_urls"),
-                      bio: "",
-                      avatar_url: "",
-                      address_type: watch("address_type"),
-                      location_name: watch("location_name"),
-                      ward_code: Number(watch("ward_code")),
-                      district_id: Number(watch("district_id")),
-                      province_id: Number(watch("province_id")),
-                      street_name: watch("street_name"),
-                      media_url: watch("media_urls"),
-                    };
-                    try {
-                      // await yourApi.registerArtist(payload);
-                      toast.success("Đăng ký thành công!");
-                      navigate("/");
-                    } catch (e) {
-                      toast.error("Đăng ký thất bại, thử lại.");
-                    }
-                  }}
+                  onClick={() => onSubmit()}
                 >
                   Gửi hồ sơ
                 </Button>

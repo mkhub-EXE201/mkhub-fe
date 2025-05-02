@@ -10,14 +10,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@base-ui-components/react": "^1.0.0-alpha.8",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@floating-ui/react": "^0.27.8",
     "@hookform/resolvers": "^5.0.1",
     "@mui/icons-material": "^7.0.1",
     "@mui/joy": "^5.0.0-beta.52",
     "@mui/material": "^7.0.1",
     "axios": "^1.8.4",
-    "motion": "^12.6.5",
+    "motion": "^12.9.4",
     "react": "^19.0.0",
     "react-countup": "^6.5.3",
     "react-dom": "^19.0.0",

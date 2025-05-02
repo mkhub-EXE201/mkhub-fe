@@ -1,5 +1,7 @@
 import {
+  Avatar,
   Box,
+  Button,
   Chip,
   InputAdornment,
   TextField,
@@ -10,6 +12,8 @@ import logo from "../assets/logo.png";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import { Link } from "react-router-dom";
 import { AppContext } from "../contexts/app.context";
+import Popover from "./Popover";
+import path from "../constants/path";
 
 export default function Headers() {
   const { isAuthenticated, profile } = useContext(AppContext);
@@ -47,7 +51,7 @@ export default function Headers() {
         >
           <img
             src={logo}
-            onClick={() => <Link to={"/"} />}
+            onClick={() => <Link to={path.home} />}
             alt="header-logo"
             style={{
               width: "100px",
@@ -56,13 +60,16 @@ export default function Headers() {
             }}
           />
           <Link
-            to={"/explore"}
+            to={path.explore}
             style={{ textDecoration: "none", color: "inherit" }}
           >
             <Typography color="white">Khám phá</Typography>
           </Link>
 
-          <Link to={"/"} style={{ textDecoration: "none", color: "inherit" }}>
+          <Link
+            to={path.home}
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
             <Typography color="white">Cộng đồng</Typography>
           </Link>
         </Box>
@@ -77,7 +84,7 @@ export default function Headers() {
           }}
         >
           <Link
-            to={"/register-artist"}
+            to={path.registerArtist}
             style={{
               textDecoration: "none",
               color: "inherit",
@@ -106,13 +113,13 @@ export default function Headers() {
           {!isAuthenticated ? (
             <>
               <Link
-                to={"/login"}
+                to={path.login}
                 style={{ textDecoration: "none", color: "inherit" }}
               >
                 <Typography color="white">Đăng nhập</Typography>
               </Link>
               <Link
-                to={"/register"}
+                to={path.register}
                 style={{ textDecoration: "none", color: "inherit" }}
               >
                 <Typography color="white">Đăng kí</Typography>
@@ -120,12 +127,81 @@ export default function Headers() {
             </>
           ) : (
             <>
-              <img
-                src={profile.avatar_url}
-                width={40}
-                height={40}
-                style={{ borderRadius: 50 }}
-              />
+              <Popover
+                renderPopover={
+                  <Box
+                    sx={{
+                      position: "relative",
+                      borderRadius: 1,
+                      bgcolor: "white",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        color: "black",
+                      }}
+                    >
+                      <Button
+                        sx={{
+                          py: 1,
+                          px: 1.5,
+                          justifyContent: "flex-start",
+                          color: "black",
+                          textTransform: "none",
+                          "&:hover": {
+                            backgroundColor: (theme) => theme.palette.lightGray,
+                          },
+                        }}
+                      >
+                        Thông tin tài khoản
+                      </Button>
+
+                      <Button
+                        sx={{
+                          mt: 1,
+                          py: 1,
+                          px: 1.5,
+                          justifyContent: "flex-start",
+                          color: "black",
+                          textTransform: "none",
+                          "&:hover": {
+                            backgroundColor: (theme) => theme.palette.lightGray,
+                          },
+                        }}
+                      >
+                        Yêu cầu của tôi
+                      </Button>
+
+                      <Button
+                        sx={{
+                          mt: 1,
+                          py: 1,
+                          px: 1.5,
+                          justifyContent: "flex-start",
+                          color: "black",
+                          textTransform: "none",
+                          "&:hover": {
+                            backgroundColor: (theme) => theme.palette.lightGray,
+                          },
+                        }}
+                      >
+                        Đăng xuất
+                      </Button>
+                    </Box>
+                  </Box>
+                }
+              >
+                <Avatar
+                  src={profile.avatar_url}
+                  alt="avatar"
+                  sx={{
+                    width: 40,
+                    height: 40,
+                  }}
+                />
+              </Popover>
             </>
           )}
         </Box>

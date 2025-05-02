@@ -28,8 +28,12 @@ export const REGISTER_ARTIST_MESSAGE = {
   PORTFOLIO_IS_INVALID: "Đường dẫn không hợp lệ.",
   PORTFOLIO_URL_MUST_BE_AT_LEAST_ONE: "Vui lòng nhập ít nhất 1 liên kết.",
   PORTFOLIO_URL_MUST_BE_AT_MOST_FIVE: "Chỉ được nhập tối đa 5 liên kết.",
+  PORTFOLIO_URL_HAS_EXISTED:
+    "Đường dẫn cho tài khoản này đã tồn tại. Vui lòng nhập cái khác",
   MEDIA_URL_IS_REQUIRED: "Vui lòng tải lên hình ảnh/video của bạn.",
   MEDIA_URL_TYPE_MUST_BE_IMAGE_OR_VIDEO: "Tệp phải là hình ảnh hoặc video",
   MEDIA_URL_MUST_BE_AT_LEAST_ONE: "Vui lòng đăng ít nhất 1 tấm ảnh/video",
   MEDIA_URL_MUST_BE_AT_MOST_FIVE: "Chỉ được đăng tối đa 5 tấm ảnh/video.",
+  AVATAR_URL_MUST_BE_IMAGE: "Avatar phải là ảnh.",
+  AVATAR_URL_SIZE_MUST_BE_LESS_THAN_2_MB: "Avatar phải nhỏ hơn 2MB.",
 };
