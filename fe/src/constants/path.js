@@ -6,6 +6,8 @@ const path = {
   explore: "/explore",
   logout: "/logout",
   registerArtist: "/register-artist",
+  onboardingArtist: "/onboarding/overview",
+  forgotPassword: "/forgot-password",
 };
 
 export default path;

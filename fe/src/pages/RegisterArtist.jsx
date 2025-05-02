@@ -22,7 +22,7 @@ import locationApi from "../apis/locations.apis";
 import toast from "react-hot-toast";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { data, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { registerArtistSchema } from "../schemas/registerArtistSchema";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
@@ -31,6 +31,7 @@ import { useDropzone } from "react-dropzone";
 import RemoveIcon from "@mui/icons-material/Remove";
 import mediaApis from "../apis/media.apis";
 import artistApis from "../apis/artists.apis";
+import path from "../constants/path";
 const steps = [
   "Thông tin artist",
   "Nhận diện độ tin cậy",
@@ -56,6 +57,7 @@ export default function RegisterArtist() {
   const [previewUrl, setPreviewUrl] = useState(
     "https://mkhub.s3.us-east-1.amazonaws.com/avatar/default_avt.jpg"
   );
+  const [isSumitting, setIsSubmitting] = useState(false);
 
   const {
     register,
@@ -166,6 +168,7 @@ export default function RegisterArtist() {
   };
 
   const onSubmit = async () => {
+    setIsSubmitting(true);
     // 1. upload avatar
     const avatarFormData = new FormData();
     avatarFormData.append("folderName", "avatar");
@@ -201,7 +204,11 @@ export default function RegisterArtist() {
     console.log(payload);
 
     response = await artistApis.registerArtist(payload);
-    console.log(response.data);
+    if (response.status === HttpStatusCode.Ok) {
+      setIsSubmitting(false);
+      toast.success(response.data.message);
+      navigate(path.home);
+    }
   };
 
   const { fields, append, remove } = useFieldArray({
@@ -257,7 +264,7 @@ export default function RegisterArtist() {
 
   return (
     <Box>
-      <OnboardingNavBar />
+      <OnboardingNavBar content={"Đăng kí trở thành Makeup Artist"} />
       {/* stepper  */}
       <Box sx={{ margin: 10, boxShadow: 2, padding: 2 }}>
         <Stepper activeStep={activeStep}>
@@ -949,6 +956,7 @@ export default function RegisterArtist() {
                 <Button
                   variant="contained"
                   size="large"
+                  disabled={isSumitting}
                   onClick={() => onSubmit()}
                 >
                   Gửi hồ sơ
