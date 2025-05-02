@@ -1,5 +1,11 @@
-import axios from "axios";
-import { loginUrl, logoutUrl, registerUrl } from "../apis/users.apis";
+import axios, { HttpStatusCode } from "axios";
+import {
+  loginUrl,
+  logoutUrl,
+  refreshTokenUrl,
+  registerUrl,
+  userRoute,
+} from "../apis/users.apis";
 import {
   clearLocalStorage,
   getAccessTokenFromLocalStorage,
@@ -8,11 +14,16 @@ import {
   setProfileToLocalStorage,
   setRefreshTokenToLocalStorage,
 } from "./auth";
+import toast from "react-hot-toast";
+import {
+  isAxiosExpiredTokenError,
+  isAxiosUnauthorizedError,
+} from "./errors.type";
 class Http {
   instance;
-  accessToken;
-  refreshToken;
-  refreshTokenRequest;
+  accessToken = "";
+  refreshToken = "";
+  refreshTokenRequest = null;
   constructor() {
     this.accessToken = getAccessTokenFromLocalStorage();
     this.refreshToken = getRefreshTokenFromLocalStorage();
@@ -34,8 +45,9 @@ class Http {
       (error) => {
         return Promise.reject(error);
       }
-    ),
-      this.instance.interceptors.response.use((response) => {
+    );
+    this.instance.interceptors.response.use(
+      (response) => {
         const { url } = response.config;
         if (url.includes(loginUrl) || url.includes(registerUrl)) {
           this.accessToken = response.data.result.access_token;
@@ -44,11 +56,82 @@ class Http {
           setRefreshTokenToLocalStorage(this.refreshToken);
           setProfileToLocalStorage(response.data.result.user);
         } else if (url.includes(logoutUrl)) {
+          clearLocalStorage();
           this.accessToken = "";
           this.refreshToken = "";
-          clearLocalStorage();
         }
         return response;
+      },
+      (error) => {
+        if (
+          ![
+            HttpStatusCode.UnprocessableEntity,
+            HttpStatusCode.Unauthorized,
+          ].includes(error.response.status)
+        ) {
+          console.log("lỗi nè: ", error.response.data, error.message);
+
+          const data = error.response.data;
+          const message = data.message || error.message;
+          toast.error(message);
+        }
+        if (isAxiosUnauthorizedError(error)) {
+          const config = error.response?.config || { headers: {}, url: "" };
+          const { url } = config;
+          if (
+            isAxiosExpiredTokenError(error) &&
+            !url.includes(refreshTokenUrl)
+          ) {
+            this.refreshTokenRequest = this.refreshTokenRequest
+              ? this.refreshTokenRequest
+              : this.handleRefreshToken().finally(() => {
+                  setTimeout(() => {
+                    this.refreshTokenRequest = null;
+                  }, 10000);
+                });
+
+            return this.refreshTokenRequest.then(({ access_token }) => {
+              return this.instance({
+                ...config,
+                headers: {
+                  ...config.headers,
+                  authorization: `Bearer ${access_token}`,
+                },
+              });
+            });
+          }
+          toast.error(
+            error.response?.data.data?.message || error.response?.data.message
+          );
+          clearLocalStorage();
+          this.accessToken = "";
+          this.refreshToken = "";
+        }
+        return Promise.reject(error);
+      }
+    );
+  }
+  handleRefreshToken() {
+    return this.instance
+      .post(`${userRoute}/${refreshTokenUrl}`, {
+        refresh_token: this.refreshToken,
+      })
+      .then(async (response) => {
+        this.accessToken = response.data.result.access_token;
+        this.refreshToken = response.data.result.refresh_token;
+
+        setAccessTokenToLocalStorage(this.accessToken);
+        setRefreshTokenToLocalStorage(this.refreshToken);
+        return {
+          access_token: this.accessToken,
+          refresh_token: this.refreshToken,
+        };
+      })
+      .catch(async (error) => {
+        clearLocalStorage();
+        this.accessToken = "";
+        this.refreshToken = "";
+        throw error;
       });
   }
 }

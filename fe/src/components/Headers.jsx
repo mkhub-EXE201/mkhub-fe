@@ -14,7 +14,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { AppContext } from "../contexts/app.context";
 import Popover from "./Popover";
 import path from "../constants/path";
-import { getRefreshTokenFromLocalStorage } from "../utils/auth";
 import userApis from "../apis/users.apis";
 import { HttpStatusCode } from "axios";
 import toast from "react-hot-toast";
@@ -25,8 +24,7 @@ export default function Headers() {
     useContext(AppContext);
 
   const handleLogout = async () => {
-    const refresh_token = getRefreshTokenFromLocalStorage();
-    const response = await userApis.logout(refresh_token);
+    const response = await userApis.logout();
     if (response.status === HttpStatusCode.Ok) {
       setIsAuthenticated(false);
       setProfile(null);
@@ -104,7 +102,7 @@ export default function Headers() {
           }}
         >
           <Link
-            to={path.registerArtist}
+            to={path.onboardingArtist}
             style={{
               textDecoration: "none",
               color: "inherit",

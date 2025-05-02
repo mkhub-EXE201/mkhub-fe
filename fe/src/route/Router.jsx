@@ -7,6 +7,7 @@ import ForgotPassword from "../pages/ForgotPassword";
 import Profile from "../pages/Profile";
 import Explore from "../pages/Explore";
 import RegisterArtist from "../pages/RegisterArtist";
+import OnboardingArtist from "../pages/OnboardingArtist";
 
 const AppRouter = () => {
   return (
@@ -19,6 +20,7 @@ const AppRouter = () => {
         <Route path="/profile" element={<Profile />} />
         <Route path="/explore" element={<Explore />} />
         <Route path="/register-artist" element={<RegisterArtist />} />
+        <Route path="/onboarding/overview" element={<OnboardingArtist />} />
       </Routes>
     </Router>
   );
