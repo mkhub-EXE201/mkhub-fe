@@ -10,6 +10,7 @@ import RegisterArtist from "../pages/RegisterArtist";
 import OnboardingArtist from "../pages/OnboardingArtist";
 import { AppContext } from "../contexts/app.context";
 import path from "../constants/path";
+import NotFound from "../pages/NotFound";
 
 export const ProtectedRoute = () => {
   const { isAuthenticated } = useContext(AppContext);
@@ -35,6 +36,7 @@ const AppRouter = () => {
       path: path.forgotPassword,
       element: <ForgotPassword />,
     },
+    { path: "*", element: <NotFound /> },
     {
       path: "",
       element: <RejectedRoute />,
