@@ -11,6 +11,9 @@ import OnboardingArtist from "../pages/OnboardingArtist";
 import { AppContext } from "../contexts/app.context";
 import path from "../constants/path";
 import NotFound from "../pages/NotFound";
+import AdminDashboard from "../pages/admin/AdminDashboard";
+import UserManagement from "../pages/admin/UserManagement";
+import AdminLayout from "../layouts/AdminLayout";
 
 export const ProtectedRoute = () => {
   const { isAuthenticated } = useContext(AppContext);
@@ -35,6 +38,14 @@ const AppRouter = () => {
     {
       path: path.forgotPassword,
       element: <ForgotPassword />,
+    },
+    {
+      path: path.adminDashboard,
+      element: <AdminLayout>{<AdminDashboard />}</AdminLayout>,
+    },
+    {
+      path: "/admin/users/overview",
+      element: <AdminLayout>{<UserManagement />}</AdminLayout>,
     },
     { path: "*", element: <NotFound /> },
     {

@@ -8,6 +8,7 @@ const path = {
   registerArtist: "/register-artist",
   onboardingArtist: "/onboarding/overview",
   forgotPassword: "/forgot-password",
+  adminDashboard: "/admin",
 };
 
 export default path;
