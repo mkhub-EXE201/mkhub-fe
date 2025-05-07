@@ -13,12 +13,14 @@ import {
   setAccessTokenToLocalStorage,
   setProfileToLocalStorage,
   setRefreshTokenToLocalStorage,
+  setRoleToLocalStorage,
 } from "./auth";
 import toast from "react-hot-toast";
 import {
   isAxiosExpiredTokenError,
   isAxiosUnauthorizedError,
 } from "./errors.type";
+import { USER_ROLE } from "../constants/enum";
 class Http {
   instance;
   accessToken = "";
@@ -55,6 +57,19 @@ class Http {
           setAccessTokenToLocalStorage(this.accessToken);
           setRefreshTokenToLocalStorage(this.refreshToken);
           setProfileToLocalStorage(response.data.result.user);
+          let role = USER_ROLE.ADMIN;
+          if (
+            response.data.result.user.role === USER_ROLE.MEMBER &&
+            response.data.result.user.is_artist
+          ) {
+            role = USER_ROLE.ARTIST;
+          } else if (
+            response.data.result.user.role === USER_ROLE.MEMBER &&
+            !response.data.result.user.is_artist
+          ) {
+            role = USER_ROLE.MEMBER;
+          }
+          setRoleToLocalStorage(role);
         } else if (url.includes(logoutUrl)) {
           clearLocalStorage();
           this.accessToken = "";

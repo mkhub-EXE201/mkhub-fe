@@ -22,3 +22,9 @@ export const clearLocalStorage = () => {
   localStorage.removeItem("refresh_token");
   localStorage.removeItem("profile");
 };
+export const getRoleFromLocalStorage = () => {
+  return localStorage.getItem("role") || "";
+};
+export const setRoleToLocalStorage = (role) => {
+  localStorage.setItem("role", role);
+};

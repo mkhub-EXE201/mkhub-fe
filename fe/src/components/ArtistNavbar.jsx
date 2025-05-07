@@ -5,13 +5,30 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import logo from "../assets/logo.png";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import path from "../constants/path";
-
+import artistApis from "../apis/artists.apis";
+import { AppContext } from "../contexts/app.context";
+import HttpStatusCode from "../constants/httpStatus";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import TelegramIcon from "@mui/icons-material/Telegram";
 export default function ArtistNavbar() {
+  const { profile } = useContext(AppContext);
+  const [artistProfile, setArtistProfile] = useState({});
+
+  useEffect(() => {
+    const getArtistProfile = async () => {
+      const response = await artistApis.getArtistProfile(profile.id);
+      if (response.status === HttpStatusCode.Ok) {
+        setArtistProfile(response.data.result);
+      }
+    };
+    getArtistProfile();
+  }, []);
   return (
     <Box
       sx={{
@@ -117,16 +134,20 @@ export default function ArtistNavbar() {
           alignItems: "center",
         }}
       >
-        <Button variant="contained" sx={{ borderRadius: "50px" }}>
-          Trở thành makeup artist
-        </Button>
-
-        <Box>
+        <Link to={path.home}>
+          <Button variant="contained" sx={{ borderRadius: "50px" }}>
+            Chuyển sang chế độ người dùng
+          </Button>
+        </Link>
+        <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+          <CalendarMonthIcon sx={{ width: 40, height: 40 }} />
+          <NotificationsIcon sx={{ width: 40, height: 40 }} />
+          <TelegramIcon sx={{ width: 40, height: 40 }} />
           <img
-            src="https://t4.ftcdn.net/jpg/05/49/98/39/360_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL.jpg"
+            src={artistProfile.avatar_url}
             width={50}
             height={50}
-            style={{ objectFit: "contain" }}
+            style={{ objectFit: "cover", borderRadius: "50%" }}
           />
         </Box>
       </Box>
