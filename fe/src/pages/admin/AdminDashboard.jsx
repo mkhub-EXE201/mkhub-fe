@@ -5,6 +5,7 @@ import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
 import { Box, Card, Typography } from "@mui/material";
 
 export default function AdminDashboard() {
+  console.log("AdminDashboard");
   return (
     <>
       {/* số users */}

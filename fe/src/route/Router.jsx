@@ -14,15 +14,41 @@ import NotFound from "../pages/NotFound";
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import UserManagement from "../pages/admin/UserManagement";
 import AdminLayout from "../layouts/AdminLayout";
+import ArtistDashboard from "../pages/ArtistDashboard";
+import { USER_ROLE } from "../constants/enum";
 
 export const ProtectedRoute = () => {
-  const { isAuthenticated } = useContext(AppContext);
-  return !isAuthenticated ? <Navigate to="/login" replace /> : <Outlet />;
+  const { isAuthenticated, profile } = useContext(AppContext);
+  if (!isAuthenticated) {
+    if (profile?.role === USER_ROLE.MEMBER && profile?.is_artist) {
+      return <Navigate to={path.artistDashboard} replace />;
+    }
+    if (profile?.role === USER_ROLE.MEMBER && !profile?.is_artist) {
+      console.log(456);
+      return <Navigate to={path.home} replace />;
+    }
+    if (profile?.role === USER_ROLE.ADMIN) {
+      return <Navigate to={path.adminDashboard} replace />;
+    }
+  }
+  return <Outlet />;
 };
 
 export const RejectedRoute = () => {
-  const { isAuthenticated } = useContext(AppContext);
-  return !isAuthenticated ? <Outlet /> : <Navigate to="/" replace />;
+  const { isAuthenticated, profile } = useContext(AppContext);
+  if (isAuthenticated) {
+    if (profile?.role === USER_ROLE.MEMBER && !profile?.is_artist) {
+      return <Navigate to={path.home} replace />;
+    }
+    if (profile?.role === USER_ROLE.MEMBER && profile?.is_artist) {
+      return <Navigate to={path.artistDashboard} replace />;
+    }
+    if (profile?.role === USER_ROLE.ADMIN) {
+      return <Navigate to={path.adminDashboard} replace />;
+    }
+  }
+
+  return <Outlet />;
 };
 
 const AppRouter = () => {
@@ -40,32 +66,34 @@ const AppRouter = () => {
       element: <ForgotPassword />,
     },
     {
-      path: path.adminDashboard,
-      element: <AdminLayout>{<AdminDashboard />}</AdminLayout>,
-    },
-    {
-      path: "/admin/users/overview",
-      element: <AdminLayout>{<UserManagement />}</AdminLayout>,
-    },
-    { path: "*", element: <NotFound /> },
-    {
-      path: "",
-      element: <RejectedRoute />,
-      children: [
-        { path: path.login, element: <Login /> },
-        { path: path.register, element: <Register /> },
-      ],
-    },
-    {
       path: "",
       element: <ProtectedRoute />,
       children: [
+        {
+          path: path.adminDashboard,
+          element: <AdminLayout>{<AdminDashboard />}</AdminLayout>,
+        },
+        {
+          path: path.userManagement,
+          element: <AdminLayout>{<UserManagement />}</AdminLayout>,
+        },
+        { path: path.artistDashboard, element: <ArtistDashboard /> },
         { path: path.onboardingArtist, element: <OnboardingArtist /> },
         { path: path.registerArtist, element: <RegisterArtist /> },
         {
           path: path.profile,
           element: <Profile />,
         },
+      ],
+    },
+    { path: "*", element: <NotFound /> },
+
+    {
+      path: "",
+      element: <RejectedRoute />,
+      children: [
+        { path: path.login, element: <Login /> },
+        { path: path.register, element: <Register /> },
       ],
     },
   ]);

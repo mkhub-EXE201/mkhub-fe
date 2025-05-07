@@ -46,7 +46,22 @@ export default function Login() {
       if (response.status === HttpStatusCode.Ok) {
         setIsAuthenticated(true);
         setProfile(response.data.result.user);
-        navigate("/");
+
+        if (
+          response.data.result.user.role === "MEMBER" &&
+          response.data.result.user.is_artist
+        ) {
+          navigate("/artist");
+        }
+        if (
+          response.data.result.user.role === "MEMBER" &&
+          !response.data.result.user.is_artist
+        ) {
+          navigate("/");
+        }
+        if (response.data.result.user.role === "ADMIN") {
+          navigate("/admin");
+        }
         toast.success(response.data.message, {
           position: "top-center",
         });
