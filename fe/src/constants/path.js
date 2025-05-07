@@ -10,7 +10,12 @@ const path = {
   forgotPassword: "/forgot-password",
   adminDashboard: "/admin",
   userManagement: "/admin/users/overview",
-  artistDashboard: "/artist",
+  artistPortfolioManagement: "/artist/portfolio",
+  artistPostManagement: "/artist/posts",
+  artistSericeManagement: "/artist/services",
+  artistScheduleManagement: "/artist/schedules",
+  artistChatManagement: "/artist/inbox",
+  artistNotificationManagement: "/artist/notifications",
 };
 
 export default path;

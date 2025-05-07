@@ -25,6 +25,7 @@ import userApis from "../apis/users.apis";
 import toast from "react-hot-toast";
 import { useContext } from "react";
 import { AppContext } from "../contexts/app.context";
+import path from "../constants/path";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -51,16 +52,16 @@ export default function Login() {
           response.data.result.user.role === "MEMBER" &&
           response.data.result.user.is_artist
         ) {
-          navigate("/artist");
+          navigate(path.artistPortfolioManagement);
         }
         if (
           response.data.result.user.role === "MEMBER" &&
           !response.data.result.user.is_artist
         ) {
-          navigate("/");
+          navigate(path.home);
         }
         if (response.data.result.user.role === "ADMIN") {
-          navigate("/admin");
+          navigate(path.adminDashboard);
         }
         toast.success(response.data.message, {
           position: "top-center",

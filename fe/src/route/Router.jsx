@@ -14,8 +14,9 @@ import NotFound from "../pages/NotFound";
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import UserManagement from "../pages/admin/UserManagement";
 import AdminLayout from "../layouts/AdminLayout";
-import ArtistDashboard from "../pages/ArtistDashboard";
 import { USER_ROLE } from "../constants/enum";
+import ArtistLayout from "../layouts/ArtistLayout";
+import ArtistPortfolio from "../pages/artist/ArtistPortfolio";
 
 export const ProtectedRoute = () => {
   const { isAuthenticated, profile } = useContext(AppContext);
@@ -77,7 +78,10 @@ const AppRouter = () => {
           path: path.userManagement,
           element: <AdminLayout>{<UserManagement />}</AdminLayout>,
         },
-        { path: path.artistDashboard, element: <ArtistDashboard /> },
+        {
+          path: path.artistPortfolioManagement,
+          element: <ArtistLayout>{<ArtistPortfolio />}</ArtistLayout>,
+        },
         { path: path.onboardingArtist, element: <OnboardingArtist /> },
         { path: path.registerArtist, element: <RegisterArtist /> },
         {
