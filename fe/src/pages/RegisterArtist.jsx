@@ -201,7 +201,6 @@ export default function RegisterArtist() {
       province_id: watch("province_id"),
       email: "phm.giamy@gmail.com",
     };
-    console.log(payload);
 
     response = await artistApis.registerArtist(payload);
     if (response.status === HttpStatusCode.Ok) {

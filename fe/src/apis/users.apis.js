@@ -7,6 +7,7 @@ export const registerUrl = "register";
 export const loginWithGoogle = "oauth/google";
 export const logoutUrl = "logout";
 export const refreshTokenUrl = "refresh-token";
+export const getAllUsers = "all";
 
 const userApis = {
   login: (body) => http.post(`/${userRoute}/${loginUrl}`, body),
@@ -21,5 +22,6 @@ const userApis = {
       refresh_token: getRefreshTokenFromLocalStorage(),
     });
   },
+  getAllUsers: () => http.get(`${userRoute}/${getAllUsers}`),
 };
 export default userApis;
