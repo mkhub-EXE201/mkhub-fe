@@ -39,8 +39,7 @@ export default function Login() {
   } = useForm({
     resolver: yupResolver(loginSchema),
   });
-  const { setIsAuthenticated, setProfile, setRole, role } =
-    useContext(AppContext);
+  const { setIsAuthenticated, setProfile, setRole } = useContext(AppContext);
   const [showPassword, setShowPassword] = useState(false);
 
   const handleFormSubmit = handleSubmit(async (data) => {

@@ -11,6 +11,7 @@ const path = {
   adminDashboard: "/admin",
   userManagement: "/admin/users/overview",
   artistPortfolioManagement: "/artist/portfolio",
+  artistMediaManagement: "/artist/media",
   artistPostManagement: "/artist/posts",
   artistSericeManagement: "/artist/services",
   artistScheduleManagement: "/artist/schedules",

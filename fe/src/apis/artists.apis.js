@@ -12,5 +12,7 @@ const artistApis = {
       `${corsProxy}https://www.google.com/s2/favicons?domain=${domain}&sz=${size}`
     );
   },
+  getArtistPhotos: (user_id) => http.get(`${artistUrl}/${user_id}/photos`),
+  getArtistPosts: (user_id) => http.get(`${artistUrl}/${user_id}/posts`),
 };
 export default artistApis;
