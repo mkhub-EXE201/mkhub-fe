@@ -8,6 +8,7 @@ const theme = createTheme({
     },
     darkBrown: "#493628",
     lightGray: "#F6F6F6",
+    mediumGray: "#67686c",
     darkPink: "#ED1E79",
     lightBlue: "#AEDCF4",
     lightPink: "#FEC9D9",

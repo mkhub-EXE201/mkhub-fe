@@ -4,6 +4,7 @@ import artistApis from "../../apis/artists.apis";
 import { AppContext } from "../../contexts/app.context";
 import toast from "react-hot-toast";
 import ArtistProfile from "../../components/ArtistProfile";
+import ArtistAddress from "../../components/ArtistAddress";
 
 function a11yProps(index) {
   return {
@@ -75,20 +76,7 @@ export default function ArtistPortfolio() {
                 <ArtistProfile portfolio={portfolio} />
               </>
             )}
-            {value === 1 && (
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 2,
-                  padding: 3,
-                }}
-              >
-                <Typography variant="body1">
-                  Chưa có địa chỉ nào được thêm vào
-                </Typography>
-              </Box>
-            )}
+            {value === 1 && <ArtistAddress />}
           </Box>
         )}
       </Box>

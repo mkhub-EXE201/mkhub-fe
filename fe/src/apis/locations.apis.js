@@ -17,5 +17,17 @@ const locationApi = {
       params: { district_id: districtId },
     });
   },
+  async getWardNameByCode(wardCode, district_id) {
+    return await http.get(
+      `${locationUrl}/wards/${wardCode}?district_id=${district_id}`
+    );
+  },
+
+  getDistrictNameByCode: (districtId, province_id) =>
+    http.get(
+      `${locationUrl}/districts/${districtId}?province_id=${province_id}`
+    ),
+  getProvinceNameByCode: (provinceId) =>
+    http.get(`${locationUrl}/provinces/${provinceId}`),
 };
 export default locationApi;
