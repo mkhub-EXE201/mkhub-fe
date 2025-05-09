@@ -17,11 +17,18 @@ import path from "../constants/path";
 import userApis from "../apis/users.apis";
 import { HttpStatusCode } from "axios";
 import toast from "react-hot-toast";
+import { USER_ROLE } from "../constants/enum";
 
 export default function Headers() {
   const navigate = useNavigate();
-  const { isAuthenticated, setIsAuthenticated, profile, setProfile } =
-    useContext(AppContext);
+  const {
+    isAuthenticated,
+    setIsAuthenticated,
+    profile,
+    setProfile,
+    role,
+    setRole,
+  } = useContext(AppContext);
 
   const handleLogout = async () => {
     const response = await userApis.logout();
@@ -102,7 +109,16 @@ export default function Headers() {
           }}
         >
           <Link
-            to={path.onboardingArtist}
+            to={
+              role === USER_ROLE.ARTIST
+                ? path.artistPortfolioManagement
+                : path.onboardingArtist
+            }
+            onClick={() =>
+              setRole(
+                role === USER_ROLE.ARTIST ? USER_ROLE.MEMBER : USER_ROLE.ARTIST
+              )
+            }
             style={{
               textDecoration: "none",
               color: "inherit",
@@ -124,7 +140,9 @@ export default function Headers() {
               }}
             >
               <Typography sx={{ color: "white" }}>
-                Trở thành Makeup Artist
+                {role === USER_ROLE.ARTIST
+                  ? "Trở thành Makeup Artist"
+                  : "Chuyển sang chế độ Artist"}
               </Typography>
             </Box>
           </Link>

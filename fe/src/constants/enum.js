@@ -8,4 +8,5 @@ export const REGISTER_ARTIST_MAX_MEDIA_FILES = 5;
 export const USER_ROLE = {
   ADMIN: "ADMIN",
   MEMBER: "MEMBER",
+  ARTIST: "ARTIST",
 };

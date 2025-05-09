@@ -1,6 +1,9 @@
-/* eslint-disable react/prop-types */
-import { Box, Tab, Tabs, Typography } from "@mui/material";
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { Box, Skeleton, Tab, Tabs, Typography } from "@mui/material";
+import artistApis from "../../apis/artists.apis";
+import { AppContext } from "../../contexts/app.context";
+import toast from "react-hot-toast";
+import ArtistProfile from "../../components/ArtistProfile";
 
 function a11yProps(index) {
   return {
@@ -8,108 +11,84 @@ function a11yProps(index) {
     "aria-controls": `simple-tabpanel-${index}`,
   };
 }
+
 export default function ArtistPortfolio() {
+  const { profile } = useContext(AppContext);
+  const [loading, setLoading] = useState(true);
+  const [portfolio, setPortfolio] = useState([]);
   const [value, setValue] = useState(0);
+
+  useEffect(() => {
+    const getArtistPortfolio = async () => {
+      try {
+        const response = await artistApis.getArtistProfile(profile.id);
+        setPortfolio(response.data.result);
+        console.log(response.data.result);
+      } catch (error) {
+        toast.error(error.message || error.response.data.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    getArtistPortfolio();
+  }, []);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
+
   return (
     <Box sx={{ margin: 4 }}>
       <Typography
-        sx={{
-          fontSize: 36,
-          fontWeight: "500",
-          color: (theme) => theme.palette.darkPink,
-        }}
+        variant="h1"
+        sx={{ color: (theme) => theme.palette.primary.main }}
       >
-        Portfolio
+        Hồ sơ cá nhân
       </Typography>
-      {/* gallery - thư viện ảnh/video post */}
-      <Box sx={{ marginY: 4 }}>
-        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-          <Tabs
-            value={value}
-            onChange={handleChange}
-            aria-label="basic tabs example"
-          >
-            <Tab label="Ảnh" {...a11yProps(0)} />
-            <Tab label="Video" {...a11yProps(1)} />
-            <Tab label="Album" {...a11yProps(2)} />
-          </Tabs>
-        </Box>
-        {value === 0 && (
+      <Box>
+        {loading ? (
           <Box
             sx={{
               display: "flex",
+              flexDirection: "column",
+              gap: 3,
               alignItems: "center",
-              justifyContent: "space-between",
+              justifyContent: "center",
             }}
           >
-            <Box sx={{ p: 3 }}>Ảnh của bạn</Box>
-            <Typography
-              sx={{
-                paddingY: 1,
-                paddingX: 2,
-                "&:hover": {
-                  cursor: "pointer",
-                  borderRadius: 2,
-                  bgcolor: (theme) => theme.palette.lightGray,
-                },
-              }}
-            >
-              Thêm ảnh +
-            </Typography>
+            <Skeleton variant="circular" width={100} height={100} />
+            <Skeleton variant="rectangular" width={310} height={60} />
+            <Skeleton variant="rounded" width={310} height={60} />
           </Box>
-        )}
-
-        {value === 1 && (
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <Box sx={{ p: 3 }}>Video của bạn</Box>
-            <Typography
-              sx={{
-                paddingY: 1,
-                paddingX: 2,
-                "&:hover": {
-                  cursor: "pointer",
-                  borderRadius: 2,
-                  bgcolor: (theme) => theme.palette.lightGray,
-                },
-              }}
+        ) : (
+          <Box sx={{ marginY: 4 }}>
+            <Tabs
+              value={value}
+              onChange={handleChange}
+              aria-label="basic tabs example"
             >
-              Thêm video +
-            </Typography>
-          </Box>
-        )}
-
-        {value === 2 && (
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <Box sx={{ p: 3 }}>Album của bạn</Box>
-            <Typography
-              sx={{
-                paddingY: 1,
-                paddingX: 2,
-                "&:hover": {
-                  cursor: "pointer",
-                  borderRadius: 2,
-                  bgcolor: (theme) => theme.palette.lightGray,
-                },
-              }}
-            >
-              Thêm album +
-            </Typography>
+              <Tab label="Thông tin cá nhân" {...a11yProps(0)} />
+              <Tab label="Sổ địa chỉ" {...a11yProps(1)} />
+            </Tabs>
+            {value === 0 && (
+              <>
+                <ArtistProfile portfolio={portfolio} />
+              </>
+            )}
+            {value === 1 && (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 2,
+                  padding: 3,
+                }}
+              >
+                <Typography variant="body1">
+                  Chưa có địa chỉ nào được thêm vào
+                </Typography>
+              </Box>
+            )}
           </Box>
         )}
       </Box>

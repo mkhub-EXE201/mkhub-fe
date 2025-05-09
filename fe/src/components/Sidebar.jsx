@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import Box from "@mui/material/Box";
 import { AppContext } from "../contexts/app.context";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Skeleton, Typography } from "@mui/material";
 import artistApis from "../apis/artists.apis";
 import HttpStatusCode from "../constants/httpStatus";
@@ -11,9 +11,23 @@ import path from "../constants/path";
 export default function Sidebar() {
   const navigate = useNavigate();
   const { profile } = useContext(AppContext);
+  const location = useLocation();
   const [portfolioUrl, setPortfolioUrl] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedItem, setSelectedItem] = useState("portfolio");
+  const [selectedItem, setSelectedItem] = useState("");
+  useEffect(() => {
+    const pathToItemMap = {
+      [path.artistPortfolioManagement]: "portfolio",
+      [path.artistMediaManagement]: "media",
+      [path.artistPostManagement]: "post",
+      [path.artistSericeManagement]: "service",
+      [path.artistScheduleManagement]: "schedule",
+      [path.artistChatManagement]: "chat",
+      [path.artistNotificationManagement]: "notifications",
+    };
+
+    setSelectedItem(pathToItemMap[location.pathname] || "");
+  }, [location.pathname]);
 
   useEffect(() => {
     const getArtistProfile = async () => {
@@ -26,8 +40,7 @@ export default function Sidebar() {
     getArtistProfile();
   }, []);
 
-  const handleItemClick = (item, path) => {
-    setSelectedItem(item);
+  const handleItemClick = (path) => {
     navigate(path);
   };
 
@@ -64,96 +77,94 @@ export default function Sidebar() {
                 Hồ sơ cá nhân
               </Typography>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                <Link style={{ color: "white", textDecoration: "none" }}>
-                  <Typography
-                    sx={{
-                      fontSize: 20,
-                      color:
-                        selectedItem === "portfolio" ? "primary.main" : "white",
-                    }}
-                    onClick={() =>
-                      handleItemClick("portfolio", path.artistPortfolio)
-                    }
-                  >
-                    Quản lý portfolio
-                  </Typography>
-                </Link>
-                <Link style={{ color: "white", textDecoration: "none" }}>
-                  <Typography
-                    onClick={() => {
-                      handleItemClick("post", path.artistPostManagement);
-                    }}
-                    sx={{
-                      fontSize: 20,
-                      color: selectedItem === "post" ? "primary.main" : "white",
-                    }}
-                  >
-                    Quản lý bài đăng
-                  </Typography>
-                </Link>
-                <Link style={{ color: "white", textDecoration: "none" }}>
-                  <Typography
-                    onClick={() => {
-                      handleItemClick("service", path.artistSericeManagement);
-                    }}
-                    sx={{
-                      fontSize: 20,
-                      color:
-                        selectedItem === "service" ? "primary.main" : "white",
-                    }}
-                  >
-                    Quản lý dịch vụ
-                  </Typography>
-                </Link>
-                <Link style={{ color: "white", textDecoration: "none" }}>
-                  <Typography
-                    onClick={() => {
-                      handleItemClick(
-                        "schedule",
-                        path.artistScheduleManagement
-                      );
-                    }}
-                    sx={{
-                      fontSize: 20,
-                      color:
-                        selectedItem === "schedule" ? "primary.main" : "white",
-                    }}
-                  >
-                    Quản lý lịch trình
-                  </Typography>
-                </Link>
-                <Link style={{ color: "white", textDecoration: "none" }}>
-                  <Typography
-                    onClick={() => {
-                      handleItemClick("chat", path.artistChatManagement);
-                    }}
-                    sx={{
-                      fontSize: 20,
-                      color: selectedItem === "chat" ? "primary.main" : "white",
-                    }}
-                  >
-                    Quản lý chat
-                  </Typography>
-                </Link>
-                <Link style={{ color: "white", textDecoration: "none" }}>
-                  <Typography
-                    onClick={() => {
-                      handleItemClick(
-                        "notifications",
-                        path.artistNotificationManagement
-                      );
-                    }}
-                    sx={{
-                      fontSize: 20,
-                      color:
-                        selectedItem === "notifications"
-                          ? "primary.main"
-                          : "white",
-                    }}
-                  >
-                    Quản lý thông báo
-                  </Typography>
-                </Link>
+                <Typography
+                  sx={{
+                    fontSize: 20,
+                    cursor: "pointer",
+                    color:
+                      selectedItem === "portfolio" ? "primary.main" : "white",
+                  }}
+                  onClick={() =>
+                    handleItemClick(path.artistPortfolioManagement)
+                  }
+                >
+                  Quản lý Portfolio
+                </Typography>
+                <Typography
+                  sx={{
+                    fontSize: 20,
+                    cursor: "pointer",
+                    color: selectedItem === "media" ? "primary.main" : "white",
+                  }}
+                  onClick={() => handleItemClick(path.artistMediaManagement)}
+                >
+                  Quản lý ảnh/video
+                </Typography>
+                <Typography
+                  onClick={() => {
+                    handleItemClick(path.artistPostManagement);
+                  }}
+                  sx={{
+                    fontSize: 20,
+                    cursor: "pointer",
+                    color: selectedItem === "post" ? "primary.main" : "white",
+                  }}
+                >
+                  Quản lý bài đăng
+                </Typography>
+                <Typography
+                  onClick={() => {
+                    handleItemClick(path.artistSericeManagement);
+                  }}
+                  sx={{
+                    fontSize: 20,
+                    cursor: "pointer",
+                    color:
+                      selectedItem === "service" ? "primary.main" : "white",
+                  }}
+                >
+                  Quản lý dịch vụ
+                </Typography>
+                <Typography
+                  onClick={() => {
+                    handleItemClick(path.artistScheduleManagement);
+                  }}
+                  sx={{
+                    fontSize: 20,
+                    cursor: "pointer",
+                    color:
+                      selectedItem === "schedule" ? "primary.main" : "white",
+                  }}
+                >
+                  Quản lý lịch trình
+                </Typography>
+                <Typography
+                  onClick={() => {
+                    handleItemClick(path.artistChatManagement);
+                  }}
+                  sx={{
+                    fontSize: 20,
+                    cursor: "pointer",
+                    color: selectedItem === "chat" ? "primary.main" : "white",
+                  }}
+                >
+                  Quản lý chat
+                </Typography>
+                <Typography
+                  onClick={() => {
+                    handleItemClick(path.artistNotificationManagement);
+                  }}
+                  sx={{
+                    fontSize: 20,
+                    cursor: "pointer",
+                    color:
+                      selectedItem === "notifications"
+                        ? "primary.main"
+                        : "white",
+                  }}
+                >
+                  Quản lý thông báo
+                </Typography>
               </Box>
               <Box>
                 <Box sx={{ display: "flex", gap: 2 }}></Box>

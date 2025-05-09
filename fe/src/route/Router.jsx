@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, { useContext } from "react";
 import { Outlet, Navigate, useRoutes } from "react-router-dom";
 import Login from "../pages/Login";
@@ -17,38 +18,48 @@ import AdminLayout from "../layouts/AdminLayout";
 import { USER_ROLE } from "../constants/enum";
 import ArtistLayout from "../layouts/ArtistLayout";
 import ArtistPortfolio from "../pages/artist/ArtistPortfolio";
+import ArtistPostManagement from "../pages/artist/ArtistPostManagement";
+import ArtistMedia from "../pages/artist/ArtistMedia";
 
-export const ProtectedRoute = () => {
-  const { isAuthenticated, profile } = useContext(AppContext);
+export const ProtectedRoute = ({ isAdmin, isArtist }) => {
+  const { isAuthenticated, role } = useContext(AppContext);
+
   if (!isAuthenticated) {
-    if (profile?.role === USER_ROLE.MEMBER && profile?.is_artist) {
-      return <Navigate to={path.artistDashboard} replace />;
+    return <Navigate to={path.home} replace />;
+  }
+
+  if (isAdmin && role !== USER_ROLE.ADMIN) {
+    console.log(role);
+    if (role === USER_ROLE.ARTIST) {
+      return <Navigate to={path.artistPortfolioManagement} replace />;
     }
-    if (profile?.role === USER_ROLE.MEMBER && !profile?.is_artist) {
-      console.log(456);
-      return <Navigate to={path.home} replace />;
-    }
-    if (profile?.role === USER_ROLE.ADMIN) {
+    return <Navigate to={path.home} replace />;
+  }
+
+  if (isArtist && role !== USER_ROLE.ARTIST) {
+    console.log(role);
+    if (role === USER_ROLE.ADMIN) {
       return <Navigate to={path.adminDashboard} replace />;
     }
+    return <Navigate to={path.home} replace />;
   }
   return <Outlet />;
 };
 
 export const RejectedRoute = () => {
-  const { isAuthenticated, profile } = useContext(AppContext);
+  const { isAuthenticated, role } = useContext(AppContext);
+
   if (isAuthenticated) {
-    if (profile?.role === USER_ROLE.MEMBER && !profile?.is_artist) {
+    if (role === USER_ROLE.ARTIST) {
+      return <Navigate to={path.artistPortfolioManagement} replace />;
+    }
+    if (role === USER_ROLE.MEMBER) {
       return <Navigate to={path.home} replace />;
     }
-    if (profile?.role === USER_ROLE.MEMBER && profile?.is_artist) {
-      return <Navigate to={path.artistDashboard} replace />;
-    }
-    if (profile?.role === USER_ROLE.ADMIN) {
+    if (role === USER_ROLE.ADMIN) {
       return <Navigate to={path.adminDashboard} replace />;
     }
   }
-
   return <Outlet />;
 };
 
@@ -68,7 +79,7 @@ const AppRouter = () => {
     },
     {
       path: "",
-      element: <ProtectedRoute />,
+      element: <ProtectedRoute isAdmin />,
       children: [
         {
           path: path.adminDashboard,
@@ -78,10 +89,30 @@ const AppRouter = () => {
           path: path.userManagement,
           element: <AdminLayout>{<UserManagement />}</AdminLayout>,
         },
+      ],
+    },
+    {
+      path: "",
+      element: <ProtectedRoute isArtist />,
+      children: [
         {
           path: path.artistPortfolioManagement,
           element: <ArtistLayout>{<ArtistPortfolio />}</ArtistLayout>,
         },
+        {
+          path: path.artistMediaManagement,
+          element: <ArtistLayout>{<ArtistMedia />}</ArtistLayout>,
+        },
+        {
+          path: path.artistPostManagement,
+          element: <ArtistLayout>{<ArtistPostManagement />}</ArtistLayout>,
+        },
+      ],
+    },
+    {
+      path: "",
+      element: <ProtectedRoute />,
+      children: [
         { path: path.onboardingArtist, element: <OnboardingArtist /> },
         { path: path.registerArtist, element: <RegisterArtist /> },
         {
