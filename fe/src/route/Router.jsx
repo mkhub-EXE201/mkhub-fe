@@ -20,6 +20,7 @@ import ArtistLayout from "../layouts/ArtistLayout";
 import ArtistPortfolio from "../pages/artist/ArtistPortfolio";
 import ArtistPostManagement from "../pages/artist/ArtistPostManagement";
 import ArtistMedia from "../pages/artist/ArtistMedia";
+import ArtistManagement from "../pages/admin/ArtistManagement";
 
 export const ProtectedRoute = ({ isAdmin, isArtist }) => {
   const { isAuthenticated, role } = useContext(AppContext);
@@ -88,6 +89,10 @@ const AppRouter = () => {
         {
           path: path.userManagement,
           element: <AdminLayout>{<UserManagement />}</AdminLayout>,
+        },
+        {
+          path: path.artistManagement,
+          element: <AdminLayout>{<ArtistManagement />}</AdminLayout>,
         },
       ],
     },

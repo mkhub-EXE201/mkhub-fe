@@ -10,3 +10,9 @@ export const USER_ROLE = {
   MEMBER: "MEMBER",
   ARTIST: "ARTIST",
 };
+
+export const ARTIST_APPLICATION_STATUS = {
+  PENDING: "Chờ duyệt",
+  APPROVED: "Đã duyệt",
+  REJECTED: "Từ chối",
+};
