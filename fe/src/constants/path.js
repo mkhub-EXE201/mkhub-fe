@@ -17,6 +17,7 @@ const path = {
   artistScheduleManagement: "/artist/schedules",
   artistChatManagement: "/artist/inbox",
   artistNotificationManagement: "/artist/notifications",
+  artistManagement: "/admin/artists/management",
 };
 
 export default path;

@@ -1,4 +1,3 @@
-import { get } from "react-hook-form";
 import http from "../utils/http";
 
 export const artistLocationUrl = "artist-locations";

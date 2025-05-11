@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React from "react";
+import React, { useContext } from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import MuiDrawer from "@mui/material/Drawer";
@@ -13,24 +13,27 @@ import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
 import NotificationsNoneOutlined from "@mui/icons-material/NotificationsNoneOutlined";
 import AccountCircleOutlined from "@mui/icons-material/AccountCircleOutlined";
 import CalendarMonthOutlined from "@mui/icons-material/CalendarMonthOutlined";
 import logo from "../assets/logo.png";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
-
-import { InputAdornment, TextField } from "@mui/material";
-import BookmarkAddedIcon from "@mui/icons-material/BookmarkAdded";
+import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
+import { Avatar, Button, InputAdornment, TextField } from "@mui/material";
 
 import DashboardCustomizeOutlined from "@mui/icons-material/DashboardCustomizeOutlined";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { AppContext } from "../contexts/app.context";
+import path from "../constants/path";
+import Popover from "../components/Popover";
+import userApis from "../apis/users.apis";
+import HttpStatusCode from "../constants/httpStatus";
+import toast from "react-hot-toast";
 const drawerWidth = 300;
 const adminMenus = [
   { label: "Dashboard", icon: <DashboardCustomizeOutlined />, to: "/admin" },
@@ -47,8 +50,8 @@ const adminMenus = [
   },
   {
     label: "Kiểm duyệt Makeup Artist",
-    icon: <BookmarkAddedIcon />,
-    to: "/admin/users/overview",
+    icon: <VerifiedUserIcon />,
+    to: "/admin/artists/management",
   },
 ];
 
@@ -118,8 +121,22 @@ const Drawer = styled(MuiDrawer, {
 }));
 
 export default function AdminLayout({ children }) {
+  const { profile, setIsAuthenticated, setProfile } = useContext(AppContext);
+  const navigate = useNavigate();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
+
+  const handleLogout = async () => {
+    const response = await userApis.logout();
+    if (response.status === HttpStatusCode.Ok) {
+      setIsAuthenticated(false);
+      setProfile(null);
+      toast.success(response.data.message, {
+        position: "top-center",
+      });
+    }
+    navigate(path.home);
+  };
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -231,13 +248,73 @@ export default function AdminLayout({ children }) {
               "&:hover": { opacity: 0.8 },
             }}
           >
-            <img
-              src="https://t4.ftcdn.net/jpg/05/49/98/39/360_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL.jpg"
-              width={40}
-              height={40}
-              style={{ borderRadius: "50%" }}
-            />
-            <Typography>phmgiamy</Typography>
+            <Popover
+              renderPopover={
+                <Box
+                  sx={{
+                    position: "relative",
+                    borderRadius: 1,
+                    bgcolor: "white",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      color: "black",
+                    }}
+                  >
+                    <Link to={path.profile}>
+                      <Button
+                        sx={{
+                          py: 1,
+                          px: 1.5,
+                          justifyContent: "flex-start",
+                          color: "black",
+                          textTransform: "none",
+                          "&:hover": {
+                            backgroundColor: (theme) => theme.palette.lightGray,
+                          },
+                        }}
+                      >
+                        Thông tin tài khoản
+                      </Button>
+                    </Link>
+
+                    <Button
+                      onClick={() => handleLogout()}
+                      sx={{
+                        mt: 1,
+                        py: 1,
+                        px: 1.5,
+                        justifyContent: "flex-start",
+                        color: "black",
+                        textTransform: "none",
+                        "&:hover": {
+                          backgroundColor: (theme) => theme.palette.lightGray,
+                        },
+                      }}
+                    >
+                      Đăng xuất
+                    </Button>
+                  </Box>
+                </Box>
+              }
+            >
+              <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
+                <Avatar
+                  src={profile?.avatar_url}
+                  alt="avatar"
+                  sx={{
+                    width: 40,
+                    height: 40,
+                  }}
+                />
+                <Typography sx={{ fontSize: 12 }}>
+                  {profile?.last_name} {profile?.first_name}
+                </Typography>
+              </Box>
+            </Popover>
             <KeyboardArrowDownIcon />
           </Box>
         </Toolbar>
