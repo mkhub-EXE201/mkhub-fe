@@ -12,7 +12,18 @@ export const USER_ROLE = {
 };
 
 export const ARTIST_APPLICATION_STATUS = {
+  PENDING: "PENDING",
+  APPROVED: "APPROVED",
+  REJECTED: "REJECTED",
+};
+
+export const ARTIST_APPLICATION_STATUS_DISPLAY = {
   PENDING: "Chờ duyệt",
   APPROVED: "Đã duyệt",
   REJECTED: "Từ chối",
+};
+
+export const ARTIST_WORKING_LOCATION_TYPE_DISPLAY = {
+  HOME: "Tại nhà",
+  STUDIO: "Studio",
 };

@@ -36,4 +36,8 @@ export const REGISTER_ARTIST_MESSAGE = {
   MEDIA_URL_MUST_BE_AT_MOST_FIVE: "Chỉ được đăng tối đa 5 tấm ảnh/video.",
   AVATAR_URL_MUST_BE_IMAGE: "Avatar phải là ảnh.",
   AVATAR_URL_SIZE_MUST_BE_LESS_THAN_2_MB: "Avatar phải nhỏ hơn 2MB.",
+  APPLICATION_IS_REQUIRED: "Vui lòng chọn trạng thái xét duyệt.",
+  APPLICATION_STATUS_IS_INVALID: "Trạng thái xét duyệt không hợp lệ.",
+  REASON_MUST_BE_BETWEEN_8_AND_50_CHARACTER:
+    "Lý do phải có độ dài từ 8 đến 50 ký tự.",
 };
