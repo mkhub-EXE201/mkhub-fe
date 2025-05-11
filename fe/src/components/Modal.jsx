@@ -18,10 +18,14 @@ import {
   FormControl,
   FormHelperText,
   InputLabel,
+  Chip,
+  IconButton,
 } from "@mui/material";
-import { formatDateTime } from "../utils/utils";
+import CloseIcon from "@mui/icons-material/Close";
+import { formatDateTime, getStatusColor } from "../utils/utils";
 import {
   ARTIST_APPLICATION_STATUS,
+  ARTIST_APPLICATION_STATUS_DISPLAY,
   ARTIST_WORKING_LOCATION_TYPE_DISPLAY,
 } from "../constants/enum";
 import { useState, useEffect } from "react";
@@ -149,10 +153,31 @@ export default function Modal({ open, onClose, selectedApplication }) {
               p: 4,
             }}
           >
-            <Typography id="modal-title" variant="h6" component="h2">
-              Thông tin chi tiết
-            </Typography>
-
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <Typography id="modal-title" variant="h6" component="h2">
+                Thông tin chi tiết
+              </Typography>
+              <Chip
+                label={
+                  ARTIST_APPLICATION_STATUS_DISPLAY[selectedApplication?.status]
+                }
+                sx={{
+                  marginY: 1,
+                  paddingX: 2,
+                  fontWeight: "600",
+                  color: "white",
+                  bgcolor: getStatusColor(selectedApplication?.status),
+                }}
+              />
+            </Box>
+            selectedApplication?.status
             {/* Stepper ở dưới phần thông tin */}
             <Box sx={{ mt: 4 }}>
               <Stepper activeStep={activeStep} orientation="vertical">
