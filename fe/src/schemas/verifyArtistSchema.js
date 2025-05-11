@@ -10,8 +10,19 @@ export const verifyArtistSchema = Yup.object().shape({
       REGISTER_ARTIST_MESSAGE.APPLICATION_STATUS_IS_INVALID
     ),
 
-  reason: Yup.string()
-    .min(8, REGISTER_ARTIST_MESSAGE.REASON_MUST_BE_BETWEEN_8_AND_50_CHARACTER)
-    .max(50, REGISTER_ARTIST_MESSAGE.REASON_MUST_BE_BETWEEN_8_AND_50_CHARACTER)
-    .nullable(),
+  reason: Yup.string().when("verify_status", {
+    is: ARTIST_APPLICATION_STATUS.REJECTED,
+    then: (schema) =>
+      schema
+        .required(REGISTER_ARTIST_MESSAGE.REASON_IS_REQUIRED)
+        .min(
+          8,
+          REGISTER_ARTIST_MESSAGE.REASON_MUST_BE_BETWEEN_8_AND_50_CHARACTER
+        )
+        .max(
+          50,
+          REGISTER_ARTIST_MESSAGE.REASON_MUST_BE_BETWEEN_8_AND_50_CHARACTER
+        ),
+    otherwise: (schema) => schema.notRequired(),
+  }),
 });

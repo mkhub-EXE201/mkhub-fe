@@ -11,7 +11,6 @@ import {
   StepLabel,
   StepContent,
   Button,
-  Paper,
   TextField,
   Grid,
   MenuItem,
@@ -31,15 +30,19 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { verifyArtistSchema } from "../schemas/verifyArtistSchema";
+import adminApis from "../apis/admin.apis";
+import toast from "react-hot-toast";
+import HttpStatusCode from "../constants/httpStatus";
 
 export default function Modal({ open, onClose, selectedApplication }) {
   const [wardName, setWardName] = useState("");
   const [districtName, setDistrictName] = useState("");
   const [provinceName, setProvinceName] = useState("");
-  console.log(selectedApplication);
+
   const {
     register,
     watch,
+    trigger,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(verifyArtistSchema),
@@ -88,7 +91,7 @@ export default function Modal({ open, onClose, selectedApplication }) {
     }
   }, [selectedApplication]);
 
-  const handleNext = () => {
+  const handleNext = async () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
@@ -96,10 +99,29 @@ export default function Modal({ open, onClose, selectedApplication }) {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  const handleReset = () => {
-    setActiveStep(0);
-  };
+  const handleSubmit = async () => {
+    if (steps.length === 4 && activeStep === 3) {
+      const stepFields = ["reason", "verify_status"];
+      const isStepValid = await trigger(stepFields);
+      if (!isStepValid) return;
+    }
 
+    try {
+      const response = await adminApis.verifyArtistApplication(
+        selectedApplication.id,
+        {
+          status: watch("verify_status"),
+          reason: watch("reason"),
+        }
+      );
+      if (response.status === HttpStatusCode.Ok) {
+        toast.success(response.data.result.message);
+      }
+      await adminApis.getArtistApplicationsByStatus("");
+    } catch (error) {
+      toast.error(error.message || error.response.data.message);
+    }
+  };
   return (
     <div>
       <MuiModal
@@ -139,7 +161,9 @@ export default function Modal({ open, onClose, selectedApplication }) {
                     <StepLabel
                       optional={
                         index === steps.length - 1 ? (
-                          <Typography variant="caption">Last step</Typography>
+                          <Typography variant="caption">
+                            Bước cuối cùng
+                          </Typography>
                         ) : null
                       }
                     >
@@ -364,13 +388,23 @@ export default function Modal({ open, onClose, selectedApplication }) {
                       <Box sx={{ mb: 2 }}>
                         <Button
                           variant="contained"
-                          onClick={handleNext}
+                          onClick={() => {
+                            if (
+                              index === steps.length - 1 &&
+                              steps.length === 4
+                            ) {
+                              handleSubmit();
+                            } else {
+                              handleNext();
+                            }
+                          }}
                           sx={{ mt: 1, mr: 1 }}
                         >
-                          {index === steps.length - 1
+                          {index === steps.length - 1 && steps.length === 4
                             ? "Hoàn thành"
                             : "Tiếp theo"}
                         </Button>
+
                         <Button
                           disabled={index === 0}
                           onClick={handleBack}
@@ -384,16 +418,13 @@ export default function Modal({ open, onClose, selectedApplication }) {
                 ))}
               </Stepper>
 
-              {activeStep === steps.length && (
+              {/* {activeStep === steps.length && (
                 <Paper square elevation={0} sx={{ p: 3 }}>
                   <Typography>
                     All steps completed - you&apos;re finished
                   </Typography>
-                  <Button onClick={handleReset} sx={{ mt: 1, mr: 1 }}>
-                    Reset
-                  </Button>
                 </Paper>
-              )}
+              )} */}
             </Box>
           </Box>
         </Fade>

@@ -11,7 +11,7 @@ import adminApis from "../../apis/admin.apis";
 import HttpStatusCode from "../../constants/httpStatus";
 import { ARTIST_APPLICATION_STATUS_DISPLAY } from "../../constants/enum";
 import { formatDateTime, getStatusColor } from "../../utils/utils";
-import { Box, styled, Typography } from "@mui/material";
+import { Box, Skeleton, styled, Typography } from "@mui/material";
 import Modal from "../../components/Modal";
 
 const StyledTableCell = styled(TableCell)(() => ({
@@ -56,48 +56,52 @@ export default function ArtistManagement() {
         Danh sách đăng kí MKUB Artist
       </Typography>
 
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table" stickyHeader>
-          <TableHead>
-            <TableRow>
-              <StyledTableCell>STT</StyledTableCell>
-              <StyledTableCell>Tên</StyledTableCell>
-              <StyledTableCell>Email</StyledTableCell>
-              <StyledTableCell>Ngày đăng kí</StyledTableCell>
-              <StyledTableCell>Lượt gửi</StyledTableCell>
-              <StyledTableCell>Trạng thái</StyledTableCell>
-              <StyledTableCell>Lý do</StyledTableCell>
-              <StyledTableCell>Hành động</StyledTableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {applications.map((row, index) => (
-              <TableRow key={row.id}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{row.name}</TableCell>
-                <TableCell>{row.email}</TableCell>
-                <TableCell>{formatDateTime(row.created_at)}</TableCell>
-                <TableCell>{row.number_of_submission}</TableCell>
-                <TableCell sx={{ color: getStatusColor(row.status) }}>
-                  {ARTIST_APPLICATION_STATUS_DISPLAY[row.status]}
-                </TableCell>
-                <TableCell>{row.reason}</TableCell>
-                <TableCell
-                  sx={{
-                    "&:hover": {
-                      cursor: "pointer",
-                      bgcolor: (theme) => theme.palette.lightGray,
-                    },
-                  }}
-                  onClick={() => handleOpen(row)}
-                >
-                  Chi tiết
-                </TableCell>
+      {loading ? (
+        <Skeleton />
+      ) : (
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} aria-label="simple table" stickyHeader>
+            <TableHead>
+              <TableRow>
+                <StyledTableCell>STT</StyledTableCell>
+                <StyledTableCell>Tên</StyledTableCell>
+                <StyledTableCell>Email</StyledTableCell>
+                <StyledTableCell>Ngày đăng kí</StyledTableCell>
+                <StyledTableCell>Lượt gửi</StyledTableCell>
+                <StyledTableCell>Trạng thái</StyledTableCell>
+                <StyledTableCell>Lý do</StyledTableCell>
+                <StyledTableCell>Hành động</StyledTableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {applications.map((row, index) => (
+                <TableRow key={row.id}>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{row.name}</TableCell>
+                  <TableCell>{row.email}</TableCell>
+                  <TableCell>{formatDateTime(row.created_at)}</TableCell>
+                  <TableCell>{row.number_of_submission}</TableCell>
+                  <TableCell sx={{ color: getStatusColor(row.status) }}>
+                    {ARTIST_APPLICATION_STATUS_DISPLAY[row.status]}
+                  </TableCell>
+                  <TableCell>{row.reason}</TableCell>
+                  <TableCell
+                    sx={{
+                      "&:hover": {
+                        cursor: "pointer",
+                        bgcolor: (theme) => theme.palette.lightGray,
+                      },
+                    }}
+                    onClick={() => handleOpen(row)}
+                  >
+                    Chi tiết
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
 
       {/* Modal Chi Tiết */}
       <Modal
