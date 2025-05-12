@@ -22,8 +22,8 @@ import ArtistPostManagement from "../pages/artist/ArtistPostManagement";
 import ArtistMedia from "../pages/artist/ArtistMedia";
 import ArtistManagement from "../pages/admin/ArtistManagement";
 import Artists from "../pages/Artists";
-import ArtistProfile from "../components/ArtistProfile";
 import ArtistDetail from "../pages/ArtistDetail";
+import ArtistServiceManagement from "../pages/artist/ArtistServiceManagement";
 
 export const ProtectedRoute = ({ isAdmin, isArtist }) => {
   const { isAuthenticated, role } = useContext(AppContext);
@@ -89,6 +89,7 @@ const AppRouter = () => {
       path: path.artistDetail,
       element: <ArtistDetail />,
     },
+    // protect route - admin
     {
       path: "",
       element: <ProtectedRoute isAdmin />,
@@ -107,6 +108,7 @@ const AppRouter = () => {
         },
       ],
     },
+    // protect route - artist
     {
       path: "",
       element: <ProtectedRoute isArtist />,
@@ -123,8 +125,13 @@ const AppRouter = () => {
           path: path.artistPostManagement,
           element: <ArtistLayout>{<ArtistPostManagement />}</ArtistLayout>,
         },
+        {
+          path: path.artistSericeManagement,
+          element: <ArtistLayout>{<ArtistServiceManagement />}</ArtistLayout>,
+        },
       ],
     },
+    // protect route - user
     {
       path: "",
       element: <ProtectedRoute />,
@@ -138,7 +145,7 @@ const AppRouter = () => {
       ],
     },
     { path: "*", element: <NotFound /> },
-
+    // reject route
     {
       path: "",
       element: <RejectedRoute />,

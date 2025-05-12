@@ -1,6 +1,6 @@
 import * as Yup from "yup";
-import { REGISTER_ARTIST_MESSAGE } from "../constants/message";
 import { ARTIST_WORKING_LOCATION_TYPE } from "../constants/enum";
+import { REGISTER_ARTIST_MESSAGE } from "../constants/message";
 
 export const registerArtistSchema = Yup.object().shape({
   name: Yup.string()

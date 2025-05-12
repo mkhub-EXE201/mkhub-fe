@@ -42,3 +42,29 @@ export const REGISTER_ARTIST_MESSAGE = {
   REASON_MUST_BE_BETWEEN_8_AND_50_CHARACTER:
     "Lý do phải có độ dài từ 8 đến 50 ký tự.",
 };
+export const ARTIST_SERVICE_MESSAGES = {
+  SERVICE_NAME_NOT_EMPTY: "Vui lòng nhập tên cho gói makeup.",
+  SERVICE_DESCRIPTION_NOT_EMPTY: "Vui lòng nhập mô tả cho gói makeup.",
+  SERVICE_DESCRIPTION_LENGTH_SHOULD_BE_BETWEEN_8_AND_50_CHARACTERS:
+    "Mô tả của gói makeup phải có độ dài từ 8-50 ký tự.",
+  SERVICE_GROUP_SIZE_NOT_EMPTY: "Vui lòng nhập số lượng người cho gói makeup.",
+  SERVICE_GROUP_SIZE_MUST_BE_NUMBER:
+    "Số lượng người cho gói makeup phải là số.",
+  SERVICE_GROUP_SIZE_IS_INVALID: "Số lượng người phải từ 1 đến 50.",
+  SERVICE_MIN_PRICE_NOT_EMPTY: "Vui lòng nhập giá tối thiểu cho gói makeup.",
+  SERVICE_MIN_PRICE_MUST_BE_NUMBER: "Giá tối thiểu phải là số.",
+  SERVICE_MAX_PRICE_NOT_EMPTY: "Vui lòng nhập giá tối đa cho gói makeup.",
+  SERVICE_MAX_PRICE_MUST_BE_NUMBER: "Giá tối đa phải là số.",
+  SERVICE_MIN_PRICE_MUST_BE_SMALLER_THAN_MAX_PRICE:
+    "Giá tối thiểu phải nhỏ hơn giá tối đa.",
+  SERVICE_DURATION_NOT_EMPTY: "Vui lòng nhập thời gian thực hiện gói makeup.",
+  SERVICE_DURATION_MUST_BE_NUMBER: "Thời gian thực hiện phải là số.",
+  SERVICE_DURATION_IS_INVALID: "Thời gian thực hiện không được nhỏ hơn 0.",
+  THUMBNAIL_MUST_BE_IMAGE: "Ảnh bìa cho gói dịch vụ phải là hình ảnh.",
+  THUMBNAIL_SIZE_MUST_BE_LESS_THAN_2_MB:
+    "Ảnh bìa cho gói dịch vụ phải nhỏ hơn 2MB.",
+  SERVICE_IMG_IS_REQUIRED: "Vui lòng tải lên hình ảnh/video của bạn.",
+  SERVICE_IMG_TYPE_MUST_BE_IMAGE_OR_VIDEO: "Tệp phải là hình ảnh hoặc video",
+  SERVICE_IMG_MUST_BE_AT_LEAST_ONE: "Vui lòng đăng ít nhất 1 tấm ảnh/video",
+  SERVICE_IMG_MUST_BE_AT_MOST_FIVE: "Chỉ được đăng tối đa 5 tấm ảnh/video.",
+};

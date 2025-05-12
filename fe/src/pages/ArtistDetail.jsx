@@ -47,14 +47,14 @@ export default function ArtistDetail() {
     };
   }
 
-  useEffect(() => {
-    const getArtistProfileDetail = async () => {
-      try {
-        const response = await userApis.getArtistDetail(id);
-        if (response.status === HttpStatusCode.Ok) {
-          setProfile(response.data.result);
-          setServices(response.data.result.services);
+  const getArtistProfileDetail = async () => {
+    try {
+      const response = await userApis.getArtistDetail(id);
+      if (response.status === HttpStatusCode.Ok) {
+        setProfile(response.data.result);
+        setServices(response.data.result.services);
 
+        const locationsData = await Promise.all(
           response.data.result.locations.map(async (item) => {
             const wardName = await locationApi.getWardNameByCode(
               item.ward_code,
@@ -67,23 +67,26 @@ export default function ArtistDetail() {
             const provinceName = await locationApi.getProvinceNameByCode(
               item.province_id
             );
-            setLocations((prev) => [
-              ...prev,
-              {
-                streetName: item.street_name,
-                wardName: districtName.data.result,
-                districtName: districtName.data.result,
-                provinceName: provinceName.data.result,
-              },
-            ]);
-          });
-        }
-      } catch (error) {
-        toast.error(error.message || error.response.data.msg);
-      } finally {
-        setIsLoading(false);
+
+            return {
+              streetName: item.street_name,
+              wardName: wardName.data.result,
+              districtName: districtName.data.result,
+              provinceName: provinceName.data.result,
+            };
+          })
+        );
+
+        setLocations(locationsData);
       }
-    };
+    } catch (error) {
+      toast.error(error.message || error.response.data.msg);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     getArtistProfileDetail();
   }, []);
 
@@ -150,11 +153,16 @@ export default function ArtistDetail() {
                   </Typography>
                   {/* Address */}
                   <Box
-                    sx={{ display: "flex", flexDirection: "column", gap: 1 }}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 1,
+                      marginY: 1,
+                    }}
                   >
-                    {locations.map((item) => (
+                    {locations.map((item, index) => (
                       <Box
-                        key={item}
+                        key={index}
                         sx={{ display: "flex", alignItems: "center", gap: 1 }}
                       >
                         <LocationPinIcon />
@@ -223,7 +231,6 @@ export default function ArtistDetail() {
                     borderRadius: 5,
                     fontWeight: "bold",
                     cursor: "pointer",
-                    alignSelf: "center",
                     whiteSpace: "nowrap",
                     "&:hover": {
                       opacity: 0.9,

@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Box,
   Button,
   InputAdornment,
@@ -6,16 +7,31 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
-
 import { AppContext } from "../contexts/app.context";
 import path from "../constants/path";
+import userApis from "../apis/users.apis";
+import HttpStatusCode from "../constants/httpStatus";
+import toast from "react-hot-toast";
+import Popover from "./Popover";
 
 export default function Navbar() {
-  const { isAuthenticated } = useContext(AppContext);
-
+  const { isAuthenticated, profile, setIsAuthenticated, setProfile } =
+    useContext(AppContext);
+  const navigate = useNavigate();
+  const handleLogout = async () => {
+    const response = await userApis.logout();
+    if (response.status === HttpStatusCode.Ok) {
+      setIsAuthenticated(false);
+      setProfile(null);
+      toast.success(response.data.message, {
+        position: "top-center",
+      });
+    }
+    navigate(path.home);
+  };
   return (
     <Box
       sx={{
@@ -141,12 +157,84 @@ export default function Navbar() {
           </>
         ) : (
           <Box>
-            <img
-              src="https://t4.ftcdn.net/jpg/05/49/98/39/360_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL.jpg"
-              width={50}
-              height={50}
-              style={{ objectFit: "contain" }}
-            />
+            <Popover
+              renderPopover={
+                <Box
+                  sx={{
+                    position: "relative",
+                    borderRadius: 1,
+                    bgcolor: "white",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      color: "black",
+                    }}
+                  >
+                    <Link to={path.profile}>
+                      <Button
+                        sx={{
+                          py: 1,
+                          px: 1.5,
+                          justifyContent: "flex-start",
+                          color: "black",
+                          textTransform: "none",
+                          "&:hover": {
+                            backgroundColor: (theme) => theme.palette.lightGray,
+                          },
+                        }}
+                      >
+                        Thông tin tài khoản
+                      </Button>
+                    </Link>
+
+                    <Button
+                      sx={{
+                        mt: 1,
+                        py: 1,
+                        px: 1.5,
+                        justifyContent: "flex-start",
+                        color: "black",
+                        textTransform: "none",
+                        "&:hover": {
+                          backgroundColor: (theme) => theme.palette.lightGray,
+                        },
+                      }}
+                    >
+                      Yêu cầu của tôi
+                    </Button>
+
+                    <Button
+                      onClick={() => handleLogout()}
+                      sx={{
+                        mt: 1,
+                        py: 1,
+                        px: 1.5,
+                        justifyContent: "flex-start",
+                        color: "black",
+                        textTransform: "none",
+                        "&:hover": {
+                          backgroundColor: (theme) => theme.palette.lightGray,
+                        },
+                      }}
+                    >
+                      Đăng xuất
+                    </Button>
+                  </Box>
+                </Box>
+              }
+            >
+              <Avatar
+                src={profile.avatar_url}
+                alt="avatar"
+                sx={{
+                  width: 40,
+                  height: 40,
+                }}
+              />
+            </Popover>
           </Box>
         )}
       </Box>
