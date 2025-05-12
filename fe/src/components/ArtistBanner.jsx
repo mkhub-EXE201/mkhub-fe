@@ -3,6 +3,7 @@ import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
 import { Box, Chip, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import ArtistCarousel from "./ArtistCarousel";
+import path from "../constants/path";
 
 export default function ArtistBanner() {
   return (
@@ -48,7 +49,7 @@ export default function ArtistBanner() {
               }}
             >
               <Link
-                to={"/"}
+                to={path.artists}
                 style={{
                   textDecoration: "none",
                   color: "inherit",
