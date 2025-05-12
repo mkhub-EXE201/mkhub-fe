@@ -24,11 +24,14 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import Footer from "../components/Footer";
+import LocationPinIcon from "@mui/icons-material/LocationPin";
+import locationApi from "../apis/locations.apis";
 
 export default function ArtistDetail() {
   const { id } = useParams();
   const [profile, setProfile] = useState();
   const [services, setServices] = useState([]);
+  const [locations, setLocations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [value, setValue] = useState(0);
@@ -51,6 +54,29 @@ export default function ArtistDetail() {
         if (response.status === HttpStatusCode.Ok) {
           setProfile(response.data.result);
           setServices(response.data.result.services);
+
+          response.data.result.locations.map(async (item) => {
+            const wardName = await locationApi.getWardNameByCode(
+              item.ward_code,
+              item.district_id
+            );
+            const districtName = await locationApi.getDistrictNameByCode(
+              item.district_id,
+              item.province_id
+            );
+            const provinceName = await locationApi.getProvinceNameByCode(
+              item.province_id
+            );
+            setLocations((prev) => [
+              ...prev,
+              {
+                streetName: item.street_name,
+                wardName: districtName.data.result,
+                districtName: districtName.data.result,
+                provinceName: provinceName.data.result,
+              },
+            ]);
+          });
         }
       } catch (error) {
         toast.error(error.message || error.response.data.msg);
@@ -122,7 +148,32 @@ export default function ArtistDetail() {
                   <Typography sx={{ fontSize: "16px", marginBottom: 2 }}>
                     {profile.bio}
                   </Typography>
-
+                  {/* Address */}
+                  <Box
+                    sx={{ display: "flex", flexDirection: "column", gap: 1 }}
+                  >
+                    {locations.map((item) => (
+                      <Box
+                        key={item}
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <LocationPinIcon />
+                        <Typography
+                          sx={{
+                            fontSize: "14px",
+                            wordBreak: "break-word",
+                          }}
+                        >
+                          {item.streetName}
+                          {", "}
+                          {item.wardName}
+                          {", "}
+                          {item.districtName}
+                          {", "} {item.provinceName}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
                   {/* Portfolio link */}
                   <Box
                     sx={{ display: "flex", flexDirection: "column", gap: 1 }}
@@ -138,9 +189,24 @@ export default function ArtistDetail() {
                             fontSize: "14px",
                             color: (theme) => theme.palette.primary.main,
                             wordBreak: "break-word",
+                            "& a": {
+                              color: "text.primary",
+                              textDecoration: "none",
+                              transition: "all 0.2s",
+                            },
+                            "& a:hover": {
+                              color: "primary.main",
+                              textDecoration: "underline",
+                            },
                           }}
                         >
-                          {item}
+                          <a
+                            href={item}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {item}
+                          </a>
                         </Typography>
                       </Box>
                     ))}
