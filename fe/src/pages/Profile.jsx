@@ -1,189 +1,159 @@
-import { Box, Typography } from "@mui/material";
-import React from "react";
-import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
-import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
-import SendIcon from "@mui/icons-material/Send";
-import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone"; // đã là outlined
-import logo from "../assets/logo.png";
-import { Link } from "react-router-dom";
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import ReviewsIcon from "@mui/icons-material/Reviews";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import { Box, Divider, Tab, Tabs, Typography } from "@mui/material";
+import React, { useEffect } from "react";
+import Navbar from "../components/Navbar";
+import { useState } from "react";
+import Skeleton from "../components/Skeleton";
+import userApis from "../apis/users.apis";
+import HttpStatusCode from "../constants/httpStatus";
+import toast from "react-hot-toast";
 
 export default function Profile() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [profile, setProfile] = useState();
+  const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [value, setValue] = useState(0);
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
+
+  function a11yProps(index) {
+    return {
+      id: `simple-tab-${index}`,
+      "aria-controls": `simple-tabpanel-${index}`,
+    };
+  }
+
+  useEffect(() => {
+    try {
+      const getOwnProfile = async () => {
+        const response = await userApis.getMe();
+        if (response.status === HttpStatusCode.Ok) {
+          setProfile(response.data.result);
+          console.log(response.data.result);
+        }
+      };
+      getOwnProfile();
+    } catch (error) {
+      toast.error(error.message || error.response.data.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100vh",
-        width: "250px",
-        border: "1px solid #e0e0e0",
-        paddingY: 3,
-        paddingX: 2,
-      }}
-    >
-      {/* logo */}
+    <Box>
+      <Navbar />
       <Box>
-        <img src={logo} width={150} />
-      </Box>
-      {/* home */}
-      <Link to={"/"} style={{ textDecoration: "none", color: "inherit" }}>
-        <Box
-          sx={{
-            cursor: "pointer",
-            paddingX: 1,
-            paddingY: 2,
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            gap: 2,
-            ":hover": {
-              borderRadius: "10px",
-              backgroundColor: (theme) => theme.palette.lightGray,
-            },
-          }}
-        >
-          <HomeOutlinedIcon sx={{ width: 30, height: 30 }} />
-          <Typography>Trang chủ</Typography>
-        </Box>
-      </Link>
-      {/* search */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          paddingX: 1,
-          paddingY: 2,
-          cursor: "pointer",
-          alignItems: "center",
-          gap: 2,
-          ":hover": {
-            borderRadius: "10px",
-            backgroundColor: (theme) => theme.palette.lightGray,
-          },
-        }}
-      >
-        <SearchOutlinedIcon sx={{ width: 30, height: 30 }} />
-        <Typography>Tìm kiếm</Typography>
-      </Box>
-      {/* thông tin tài khoản */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          paddingX: 1,
-          paddingY: 2,
-          cursor: "pointer",
-          gap: 2,
-          ":hover": {
-            borderRadius: "10px",
-            backgroundColor: (theme) => theme.palette.lightGray,
-          },
-        }}
-      >
-        <AccountCircleIcon sx={{ width: 30, height: 30 }} />
-        <Typography>Thông tin tài khoản</Typography>
-      </Box>
-      {/* tin nhắn */}
-      <Link to={"/"} style={{ textDecoration: "none", color: "inherit" }}>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            cursor: "pointer",
-            paddingX: 1,
-            paddingY: 2,
-            gap: 2,
-            ":hover": {
-              borderRadius: "10px",
-              backgroundColor: (theme) => theme.palette.lightGray,
-            },
-          }}
-        >
-          <SendIcon sx={{ width: 30, height: 30 }} />
-          <Typography>Tin nhắn</Typography>
-        </Box>
-      </Link>
-      {/* thông báo */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          paddingX: 1,
-          paddingY: 2,
-          cursor: "pointer",
-          gap: 2,
-          ":hover": {
-            borderRadius: "10px",
-            backgroundColor: (theme) => theme.palette.lightGray,
-          },
-        }}
-      >
-        <NotificationsNoneIcon sx={{ width: 30, height: 30 }} />
-        <Typography>Thông báo</Typography>
-      </Box>
-      {/* Lịch hẹn */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          paddingX: 1,
-          paddingY: 2,
-          cursor: "pointer",
-          gap: 2,
-          ":hover": {
-            borderRadius: "10px",
-            backgroundColor: (theme) => theme.palette.lightGray,
-          },
-        }}
-      >
-        <CalendarMonthIcon sx={{ width: 30, height: 30 }} />
-        <Typography>Lịch hẹn</Typography>
-      </Box>
-      {/* đánh giá của tôi */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          paddingX: 1,
-          paddingY: 2,
-          cursor: "pointer",
-          gap: 2,
-          ":hover": {
-            borderRadius: "10px",
-            backgroundColor: (theme) => theme.palette.lightGray,
-          },
-        }}
-      >
-        <ReviewsIcon sx={{ width: 30, height: 30 }} />
-        <Typography>Đánh giá của tôi</Typography>
-      </Box>
-      {/* sổ địa chỉ */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          paddingX: 1,
-          paddingY: 2,
-          cursor: "pointer",
-          gap: 2,
-          ":hover": {
-            borderRadius: "10px",
-            backgroundColor: (theme) => theme.palette.lightGray,
-          },
-        }}
-      >
-        <LocationOnIcon sx={{ width: 30, height: 30 }} />
-        <Typography>Sổ địa chỉ</Typography>
+        {isLoading ? (
+          <Skeleton />
+        ) : (
+          <Box sx={{ padding: 3 }}>
+            <Box
+              sx={{
+                padding: 3,
+                margin: "0 auto",
+                marginTop: 5,
+                borderRadius: 5,
+                // border: "1px solid black",
+                width: { xs: "90%", md: "85%" },
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 3,
+                  flexWrap: "wrap",
+                }}
+              >
+                {/* Avatar */}
+                <Box
+                  component="img"
+                  src={profile?.avatar_url}
+                  sx={{
+                    width: 100,
+                    height: 100,
+                    objectFit: "cover",
+                    borderRadius: "50%",
+                    flexShrink: 0,
+                  }}
+                  alt="Artist Avatar"
+                />
+
+                {/* Thông tin Artist */}
+                <Box sx={{ flexGrow: 1 }}>
+                  <Typography
+                    sx={{
+                      fontSize: "24px",
+                      fontWeight: "bold",
+                      marginBottom: 1,
+                    }}
+                  >
+                    {profile?.last_name} {profile?.first_name}
+                  </Typography>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "row",
+                      gap: 1,
+                      alignItems: "center",
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        marginBottom: 1,
+                      }}
+                    >
+                      {profile?.email}
+                    </Typography>
+                    <Divider orientation="vertical" flexItem />
+                    <Typography
+                      sx={{ fontSize: "16px", color: "gray", marginBottom: 1 }}
+                    >
+                      {profile?.phone_number}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+            </Box>
+            <Box sx={{ marginX: 10, padding: 2 }}>
+              <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+                <Tabs
+                  value={value}
+                  onChange={handleChange}
+                  aria-label="basic tabs example"
+                >
+                  <Tab label="Lịch hẹn makeup" {...a11yProps(0)} />
+                  <Tab label="Sổ địa chỉ" {...a11yProps(1)} />
+                  <Tab label="Ưu đãi của tôi" {...a11yProps(2)} />
+                </Tabs>
+              </Box>
+              {value === 0 && (
+                <>
+                  <Typography>Ahihi</Typography>
+                </>
+              )}
+            </Box>
+          </Box>
+        )}
       </Box>
     </Box>
+  );
+}
+function CustomTabPanel(props) {
+  // eslint-disable-next-line react/prop-types
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+    </div>
   );
 }
