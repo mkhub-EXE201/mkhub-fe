@@ -21,6 +21,9 @@ import ArtistPortfolio from "../pages/artist/ArtistPortfolio";
 import ArtistPostManagement from "../pages/artist/ArtistPostManagement";
 import ArtistMedia from "../pages/artist/ArtistMedia";
 import ArtistManagement from "../pages/admin/ArtistManagement";
+import Artists from "../pages/Artists";
+import ArtistProfile from "../components/ArtistProfile";
+import ArtistDetail from "../pages/ArtistDetail";
 
 export const ProtectedRoute = ({ isAdmin, isArtist }) => {
   const { isAuthenticated, role } = useContext(AppContext);
@@ -77,6 +80,14 @@ const AppRouter = () => {
     {
       path: path.forgotPassword,
       element: <ForgotPassword />,
+    },
+    {
+      path: path.artists,
+      element: <Artists />,
+    },
+    {
+      path: path.artistDetail,
+      element: <ArtistDetail />,
     },
     {
       path: "",

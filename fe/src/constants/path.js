@@ -18,6 +18,8 @@ const path = {
   artistChatManagement: "/artist/inbox",
   artistNotificationManagement: "/artist/notifications",
   artistManagement: "/admin/artists/management",
+  artists: "/artists",
+  artistDetail: `/artists/:id/profile`,
 };
 
 export default path;
