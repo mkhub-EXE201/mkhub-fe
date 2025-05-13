@@ -13,21 +13,28 @@ import {
   Avatar,
   IconButton,
 } from "@mui/material";
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { addNewArtistServiceSchema } from "../../schemas/addNewArtistServiceSchema";
 import { useDropzone } from "react-dropzone";
 import RemoveIcon from "@mui/icons-material/Remove";
+import artistServiceApis from "../../apis/artistServices.apis";
+import HttpStatusCode from "../../constants/httpStatus";
+import toast from "react-hot-toast";
+import mediaApis from "../../apis/media.apis";
 
 export default function ArtistServiceManagement() {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const [loading, setLoading] = useState(true);
+  const [services, setServices] = useState([]);
+  const [activeStep, setActiveStep] = useState(0);
+
   const {
     register,
     watch,
-    control,
     setValue,
     trigger,
     formState: { errors },
@@ -48,12 +55,27 @@ export default function ArtistServiceManagement() {
   const [previewUrl, setPreviewUrl] = useState(
     "https://mkhub.s3.us-east-1.amazonaws.com/avatar/default_avt.jpg"
   );
-  const [activeStep, setActiveStep] = useState(0);
   const steps = [
     "Thông tin cơ bản",
     "Hình ảnh mô tả",
     "Xác nhận trước khi gửi",
   ];
+
+  useEffect(() => {
+    const getOneServices = async () => {
+      try {
+        const response = await artistServiceApis.getOneAllServices();
+        if (response.status === HttpStatusCode.Ok) {
+          setServices(response.data.result);
+        }
+      } catch (error) {
+        toast.error(error.message || error.response.data.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    getOneServices();
+  }, []);
   const handleNext = async () => {
     let stepFields = [];
     if (activeStep === 0) {
@@ -62,11 +84,13 @@ export default function ArtistServiceManagement() {
         "description",
         "duration",
         "group_size",
+        "thumbnail",
         "max_price",
         "min_price",
       ];
+    } else if (activeStep === 1) {
+      stepFields = ["service_img"];
     }
-
     if (stepFields.length > 0) {
       const isStepValid = await trigger(stepFields);
       if (!isStepValid) return;
@@ -85,7 +109,46 @@ export default function ArtistServiceManagement() {
       setPreviewUrl(URL.createObjectURL(file));
     }
   };
-  const handleSubmit = async () => {};
+  const handleSubmit = async () => {
+    try {
+      // upload thumbnail
+      const avatarFormData = new FormData();
+      avatarFormData.append("folderName", "services_thumbnails");
+      avatarFormData.append("images", watch("thumbnail"));
+      let response = await mediaApis.uploadImage(avatarFormData);
+      const thumbnail = response.data.result[0];
+      // upload service_img
+      const files = watch("service_img") || [];
+      const serviceMediaFormData = new FormData();
+      serviceMediaFormData.append("folderName", "services");
+      files.forEach((file) => {
+        serviceMediaFormData.append("images", file);
+      });
+      await mediaApis.uploadImage(serviceMediaFormData);
+
+      response = await mediaApis.uploadImage(serviceMediaFormData);
+      const service_img = response.data.result;
+
+      const payload = {
+        service_name: watch("service_name"),
+        description: watch("description"),
+        group_size: Number(watch("group_size")),
+        min_price: Number(watch("min_price")),
+        max_price: Number(watch("max_price")),
+        duration: Number(watch("duration")),
+        thumbnail,
+        service_img,
+      };
+      console.log(payload);
+      response = await artistServiceApis.addNewService(payload);
+      if (response.status === HttpStatusCode.Ok) {
+        toast.success(response.data.result.message);
+        handleClose();
+      }
+    } catch (error) {
+      toast.error(error.message || error.response.data.message);
+    }
+  };
 
   const onDrop = (acceptedFiles) => {
     const currentFiles = watch("service_img") || [];
@@ -478,10 +541,12 @@ export default function ArtistServiceManagement() {
                 <Box sx={{ mb: 2, mt: 2 }}>
                   <Button
                     variant="contained"
-                    onClick={handleNext}
+                    onClick={
+                      activeStep === steps.length ? handleNext : handleSubmit
+                    }
                     sx={{ mr: 1 }}
                   >
-                    Tiếp theo
+                    {activeStep === steps.length ? "Gửi" : "Tiếp theo"}
                   </Button>
                   <Button onClick={handleBack} disabled={activeStep === 0}>
                     Quay lại
