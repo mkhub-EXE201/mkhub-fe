@@ -31,7 +31,8 @@ class Http {
     this.refreshToken = getRefreshTokenFromLocalStorage();
     this.refreshTokenRequest = null;
     this.instance = axios.create({
-      baseURL: "http://localhost:3000",
+      // baseURL: "http://localhost:3000",
+      baseURL: "https://mkhub-be.onrender.com",
       timeout: 10000,
       headers: {
         "Content-Type": "application/json",
