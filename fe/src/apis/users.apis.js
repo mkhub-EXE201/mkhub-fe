@@ -12,7 +12,7 @@ export const getAllUsers = "all";
 const userApis = {
   login: (body) => http.post(`/${userRoute}/${loginUrl}`, body),
   register: (body) => http.post(`/${userRoute}/${registerUrl}`, body),
-  loginWithGoogle: () => http.get(`/${userRoute}/${loginUrl}`),
+  loginWithGoogle: () => http.get(`/${userRoute}/${loginWithGoogle}`),
   logout: () =>
     http.post(`${userRoute}/${logoutUrl}`, {
       refresh_token: getRefreshTokenFromLocalStorage(),
