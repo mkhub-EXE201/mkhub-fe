@@ -3,61 +3,76 @@ import PropTypes from "prop-types";
 import { Box, Typography } from "@mui/material";
 import PlaceIcon from "@mui/icons-material/Place";
 
+// Common styles extracted for better maintenance
+const styles = {
+    card: {
+        border: "1px solid #ccc",
+        borderRadius: 2,
+        padding: 2,
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
+        boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.15)",
+        backgroundColor: "#fff",
+    },
+    profileContainer: {
+        display: "flex",
+        alignItems: "center",
+        gap: 2,
+    },
+    avatar: {
+        borderRadius: "50%",
+        width: 50,
+        height: 50,
+        objectFit: "cover",
+    },
+    locationContainer: {
+        display: "flex",
+        gap: "5px",
+    },
+    service: {
+        fontSize: 14
+    },
+    dateTime: {
+        fontSize: 12,
+        color: "#666"
+    }
+};
+
 const ScheduleCard = ({ appointment }) => {
+    const {
+        id,
+        avatar,
+        artistName,
+        location,
+        service,
+        time,
+        date
+    } = appointment;
+
     return (
-        <Box
-            sx={{
-                border: "1px solid #ccc",
-                borderRadius: 2,
-                padding: 2,
-                display: "flex",
-                flexDirection: "column",
-                gap: 2,
-                boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.15)",
-                backgroundColor: "#fff",
-            }}
-        >
-            <Box
-                sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 2,
-                }}
-            >
+        <Box sx={styles.card}>
+            <Box sx={styles.profileContainer}>
                 <img
-                    src={appointment.avatar}
-                    alt={`Artist ${appointment.id}`}
-                    style={{
-                        borderRadius: "50%",
-                        width: 50,
-                        height: 50,
-                        objectFit: "cover",
-                    }}
+                    src={avatar}
+                    alt={`Artist ${id}`}
+                    style={styles.avatar}
                 />
                 <Box>
                     <Typography fontWeight={500}>
-                        {appointment.artistName || `Artist ${appointment.id}`}
+                        {artistName || `Artist ${id}`}
                     </Typography>
-                    <Box
-                        sx={{
-                            display: "flex",
-                            gap: "5px",
-                        }}
-                    >
+                    <Box sx={styles.locationContainer}>
                         <PlaceIcon sx={{ fontSize: 16 }} />
                         <Typography sx={{ fontSize: 13 }}>
-                            {appointment.location || "Bình Thạnh, Hồ Chí Minh"}
+                            {location || "Bình Thạnh, Hồ Chí Minh"}
                         </Typography>
                     </Box>
                 </Box>
             </Box>
-            <Typography sx={{ fontSize: 14 }}>
-                {appointment.service}
-            </Typography>
-            <Typography
-                sx={{ fontSize: 12, color: "#666" }}
-            >
-                {appointment.time} - {appointment.date}
+            <Typography sx={styles.service}>{service}</Typography>
+            <Typography sx={styles.dateTime}>
+                {time} - {date}
             </Typography>
         </Box>
     );

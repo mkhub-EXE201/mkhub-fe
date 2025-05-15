@@ -5,6 +5,7 @@ const theme = createTheme({
     mode: "light",
     primary: {
       main: "#F13067",
+      dark: "#D12A58", // Adding explicit dark variant for consistency
     },
     darkBrown: "#493628",
     lightGray: "#F6F6F6",
@@ -73,7 +74,65 @@ const theme = createTheme({
         },
       },
     },
+    // New component for FullCalendar styling
+    MuiCssBaseline: {
+      styleOverrides: {
+        // Global styles for FullCalendar
+        ".fc-addEvent-button, .fc-button-primary.fc-addEvent-button": {
+          backgroundColor: "#F13067 !important",
+          borderColor: "#F13067 !important",
+          color: "#fff !important",
+          fontSize: "15px !important",
+          padding: "8px 18px !important",
+          borderRadius: "20px !important",
+          "&:hover": {
+            backgroundColor: "#D12A58 !important",
+            borderColor: "#D12A58 !important",
+          },
+          "&:focus": {
+            boxShadow: "0 0 0 0.2rem rgba(241, 48, 103, 0.25) !important",
+          },
+          "&:not(:disabled)": {
+            backgroundColor: "#F13067 !important",
+            borderColor: "#F13067 !important",
+          },
+          "&:not(:disabled):hover": {
+            backgroundColor: "#D12A58 !important",
+            borderColor: "#D12A58 !important",
+          }
+        },
+        ".fc-button-primary": {
+          backgroundColor: "#F13067 !important",
+          borderColor: "#F13067 !important",
+          "&:hover": {
+            backgroundColor: "#D12A58 !important",
+            borderColor: "#D12A58 !important",
+          },
+          "&:focus": {
+            boxShadow: "0 0 0 0.2rem rgba(241, 48, 103, 0.25) !important",
+          }
+        }
+      }
+    }
   },
+  // Custom calendar theme section
+  calendar: {
+    buttons: {
+      addEvent: {
+        backgroundColor: "#F13067",
+        borderColor: "#F13067",
+        hoverBackgroundColor: "#D12A58",
+        hoverBorderColor: "#D12A58",
+        borderRadius: "20px",
+      }
+    },
+    scrollbar: {
+      color: "#FEC9D9" // Light pink color for scrollbars
+    },
+    box: {
+      backgroundColor: "#FEC9D9" // Light pink color for boxes
+    }
+  }
 });
 
 export default theme;
