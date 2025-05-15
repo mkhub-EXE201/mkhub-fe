@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Box, Skeleton, Tab, Tabs, Typography } from "@mui/material";
 import PlaceIcon from "@mui/icons-material/Place";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import avatar from "../../assets/profile.svg";
+import { format } from "date-fns";
 
 function a11yProps(index) {
     return {
@@ -13,6 +17,7 @@ function a11yProps(index) {
 export default function ArtistScheduleManagement() {
     const [loading, setLoading] = useState(true);
     const [value, setValue] = useState(0);
+    const [selectedDate, setSelectedDate] = useState(new Date(2025, 2, 7)); // Default to March 7, 2025
 
     useEffect(() => {
         // Simulate API call
@@ -26,11 +31,43 @@ export default function ArtistScheduleManagement() {
         setValue(newValue);
     };
 
+    const handleDateChange = (newDate) => {
+        setSelectedDate(newDate);
+    };
+
+    // Sample schedule data with dates matching the calendar (March 2025)
     const scheduleData = [
-        { id: 1, time: "5:00 PM", date: "Thu, 5/03/2025", service: "Makeup hàng ngày concept nhẹ nhàng" },
-        { id: 2, time: "5:00 PM", date: "Thu, 5/03/2025", service: "Makeup hàng ngày concept nhẹ nhàng" },
-        { id: 3, time: "5:00 PM", date: "Thu, 5/03/2025", service: "Makeup hàng ngày concept nhẹ nhàng" },
+        {
+            id: 1,
+            time: "5:00 PM",
+            date: "Thu, 5/03/2025",
+            service: "Makeup hàng ngày concept nhẹ nhàng",
+            fullDate: new Date(2025, 2, 5), // March 5, 2025
+        },
+        {
+            id: 2,
+            time: "5:00 PM",
+            date: "Thu, 5/03/2025",
+            service: "Makeup hàng ngày concept nhẹ nhàng",
+            fullDate: new Date(2025, 2, 5), // March 5, 2025
+        },
+        {
+            id: 3,
+            time: "5:00 PM",
+            date: "Thu, 5/03/2025",
+            service: "Makeup hàng ngày concept nhẹ nhàng",
+            fullDate: new Date(2025, 2, 5), // March 5, 2025
+        },
     ];
+
+    // Filter schedule data based on selected date
+    const filteredSchedule = scheduleData.filter((item) => {
+        return (
+            item.fullDate.getDate() === selectedDate.getDate() &&
+            item.fullDate.getMonth() === selectedDate.getMonth() &&
+            item.fullDate.getFullYear() === selectedDate.getFullYear()
+        );
+    });
 
     return (
         <Box sx={{ margin: 4 }}>
@@ -67,76 +104,123 @@ export default function ArtistScheduleManagement() {
                             <Tab label="Đã hủy" {...a11yProps(2)} />
                         </Tabs>
                         {value === 0 && (
-                            <Box
-                                sx={{
-                                    boxShadow: 2,
-                                    width: "70%",
-                                    height: "100%",
-                                    padding: 3,
-                                }}
-                            >
-                                <Typography sx={{ fontWeight: "600", fontSize: 16 }}>
-                                    Lịch hẹn
-                                </Typography>
+                            <Box sx={{ display: "flex", gap: 3, marginTop: 3 }}>
+                                {/* Schedule Cards Section (LEFT SIDE) */}
                                 <Box
                                     sx={{
-                                        display: "grid",
-                                        gridTemplateColumns: "repeat(3, 1fr)",
-                                        gap: 3,
-                                        marginTop: 2,
+                                        boxShadow: 2,
+                                        width: "50%", // Changed from 70% to 50%
+                                        height: "100%",
+                                        padding: 3,
+                                        borderRadius: 2,
                                     }}
                                 >
-                                    {scheduleData.map((item) => (
+                                    <Typography sx={{ fontWeight: "600", fontSize: 16 }}>
+                                        Lịch hẹn - {format(selectedDate, "dd/MM/yyyy")}
+                                    </Typography>
+                                    {filteredSchedule.length > 0 ? (
                                         <Box
-                                            key={item.id}
                                             sx={{
-                                                border: "1px solid #ccc",
-                                                borderRadius: 2,
-                                                padding: 2,
-                                                display: "flex",
-                                                flexDirection: "column",
-                                                gap: 2,
-                                                boxShadow: 1,
-                                                backgroundColor: "#fff",
+                                                display: "grid",
+                                                gridTemplateColumns: "repeat(2, 1fr)",
+                                                gap: 3,
+                                                marginTop: 2,
                                             }}
                                         >
-                                            <Box
-                                                sx={{
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    gap: 2,
-                                                }}
-                                            >
-                                                <img
-                                                    src={avatar}
-                                                    alt={`Artist ${item.id}`}
-                                                    style={{ borderRadius: "50%", width: 60, height: 60 }}
-                                                />
-                                                <Box>
-                                                    <Typography fontWeight={500}>
-                                                        Artist {item.id}
-                                                    </Typography>
+                                            {filteredSchedule.map((item) => (
+                                                <Box
+                                                    key={item.id}
+                                                    sx={{
+                                                        border: "1px solid #ccc",
+                                                        borderRadius: 2,
+                                                        padding: 2,
+                                                        display: "flex",
+                                                        flexDirection: "column",
+                                                        gap: 2,
+                                                        boxShadow: 1,
+                                                        backgroundColor: "#fff",
+                                                    }}
+                                                >
                                                     <Box
                                                         sx={{
                                                             display: "flex",
-                                                            gap: "5px",
+                                                            alignItems: "center",
+                                                            gap: 2,
                                                         }}
                                                     >
-                                                        <PlaceIcon sx={{ fontSize: 16 }} />
-                                                        <Typography sx={{ fontSize: 13 }}>
-                                                            Bình Thạnh, Hồ Chí Minh
-                                                        </Typography>
+                                                        <img
+                                                            src={avatar}
+                                                            alt={`Artist ${item.id}`}
+                                                            style={{
+                                                                borderRadius: "50%",
+                                                                width: 60,
+                                                                height: 60,
+                                                            }}
+                                                        />
+                                                        <Box>
+                                                            <Typography fontWeight={500}>
+                                                                Artist {item.id}
+                                                            </Typography>
+                                                            <Box
+                                                                sx={{
+                                                                    display: "flex",
+                                                                    gap: "5px",
+                                                                }}
+                                                            >
+                                                                <PlaceIcon sx={{ fontSize: 16 }} />
+                                                                <Typography sx={{ fontSize: 13 }}>
+                                                                    Bình Thạnh, Hồ Chí Minh
+                                                                </Typography>
+                                                            </Box>
+                                                        </Box>
                                                     </Box>
+                                                    <Typography sx={{ fontSize: 14 }}>
+                                                        {item.service}
+                                                    </Typography>
+                                                    <Typography
+                                                        sx={{ fontSize: 12, color: "#666" }}
+                                                    >
+                                                        {item.time} - {item.date}
+                                                    </Typography>
                                                 </Box>
-                                            </Box>
-                                            <Typography sx={{ fontSize: 14 }}>
-                                                {item.service}
-                                            </Typography>
-                                            <Typography sx={{ fontSize: 12, color: "#666" }}>
-                                                {item.time} - {item.date}
-                                            </Typography>
+                                            ))}
                                         </Box>
-                                    ))}
+                                    ) : (
+                                        <Typography sx={{ marginTop: 2 }}>
+                                            Không có lịch hẹn cho ngày này.
+                                        </Typography>
+                                    )}
+                                </Box>
+
+                                {/* Calendar Section (RIGHT SIDE) */}
+                                <Box
+                                    sx={{
+                                        boxShadow: 2,
+                                        borderRadius: 2,
+                                        padding: 2,
+                                        backgroundColor: "#fff",
+                                        width: "50%", // Changed from 30% to 50%
+                                    }}
+                                >
+                                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                        <DateCalendar
+                                            value={selectedDate}
+                                            onChange={handleDateChange}
+                                            views={["day"]}
+                                            showDaysOutsideCurrentMonth
+                                            displayWeekNumber={false}
+                                            sx={{
+                                                "& .MuiPickersDay-root.Mui-selected": {
+                                                    backgroundColor: (theme) =>
+                                                        theme.palette.primary.main,
+                                                    color: "#fff",
+                                                },
+                                                "& .MuiPickersDay-today": {
+                                                    border: "1px solid #ccc",
+                                                },
+                                            }}
+                                        />
+                                    </LocalizationProvider>
                                 </Box>
                             </Box>
                         )}
@@ -144,7 +228,7 @@ export default function ArtistScheduleManagement() {
                             <Box
                                 sx={{
                                     boxShadow: 2,
-                                    width: "70%",
+                                    width: "100%",
                                     height: "100%",
                                     padding: 3,
                                 }}
@@ -153,14 +237,14 @@ export default function ArtistScheduleManagement() {
                                     Lịch cá nhân
                                 </Typography>
                                 {/* Add personal schedule content here */}
-                                <Typography>Personal schedule content goes here.</Typography>
+                                <Typography>Lịch cá nhân...</Typography>
                             </Box>
                         )}
                         {value === 2 && (
                             <Box
                                 sx={{
                                     boxShadow: 2,
-                                    width: "70%",
+                                    width: "100%",
                                     height: "100%",
                                     padding: 3,
                                 }}
@@ -169,7 +253,7 @@ export default function ArtistScheduleManagement() {
                                     Lịch đã hủy
                                 </Typography>
                                 {/* Add canceled schedule content here */}
-                                <Typography>Canceled schedule content goes here.</Typography>
+                                <Typography> Lịch đã huỷ... </Typography>
                             </Box>
                         )}
                     </Box>
