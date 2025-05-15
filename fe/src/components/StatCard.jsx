@@ -1,7 +1,6 @@
 import CountUp from "react-countup";
 import { Box, Typography, Grid } from "@mui/material";
 import React from "react";
-import { formatNumber } from "../utils/utils";
 import Counter from "./Counter";
 
 export default function StatCard() {
@@ -27,7 +26,7 @@ export default function StatCard() {
         }}
       >
         {/* lượt đăng kí */}
-        <Grid item xs={12} sm={6} md={6}>
+        <Grid gridSize={{ xs: 12, sm: 6, md: 6 }}>
           <Box>
             <Typography
               sx={{
@@ -42,7 +41,7 @@ export default function StatCard() {
             >
               Lượt đăng kí
             </Typography>
-            <Typography
+            <Box
               sx={{
                 fontSize: {
                   xs: "24px",
@@ -54,12 +53,12 @@ export default function StatCard() {
               }}
             >
               <Counter targetNumber={1000} />
-            </Typography>
+            </Box>
           </Box>
         </Grid>
 
         {/* Makeup Artist */}
-        <Grid item xs={12} sm={6} md={6}>
+        <Grid xs={12} sm={6} md={6}>
           <Box>
             <Typography
               sx={{
@@ -74,7 +73,7 @@ export default function StatCard() {
             >
               Makeup Artist
             </Typography>
-            <Typography
+            <Box
               sx={{
                 fontSize: {
                   xs: "24px",
@@ -86,12 +85,12 @@ export default function StatCard() {
               }}
             >
               <Counter targetNumber={400} />
-            </Typography>
+            </Box>
           </Box>
         </Grid>
 
         {/* lượt chốt lịch */}
-        <Grid item xs={12} sm={6} md={6}>
+        <Grid xs={12} sm={6} md={6}>
           <Box>
             <Typography
               sx={{
@@ -106,7 +105,7 @@ export default function StatCard() {
             >
               Lượt chốt lịch
             </Typography>
-            <Typography
+            <Box
               sx={{
                 fontSize: {
                   xs: "24px",
@@ -119,12 +118,12 @@ export default function StatCard() {
             >
               {/* <CountUp start={24950} end={25000} duration={5.0} separator="," /> */}
               <Counter targetNumber={2000} />
-            </Typography>
+            </Box>
           </Box>
         </Grid>
 
         {/* đánh giá */}
-        <Grid item xs={12} sm={6} md={6}>
+        <Grid gridSize={{ xs: 12, sm: 6, md: 6 }}>
           <Box>
             <Typography
               sx={{

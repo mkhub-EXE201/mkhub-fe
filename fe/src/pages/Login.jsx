@@ -25,6 +25,8 @@ import userApis from "../apis/users.apis";
 import toast from "react-hot-toast";
 import { useContext } from "react";
 import { AppContext } from "../contexts/app.context";
+import path from "../constants/path";
+import { USER_ROLE } from "../constants/enum";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -37,7 +39,7 @@ export default function Login() {
   } = useForm({
     resolver: yupResolver(loginSchema),
   });
-  const { setIsAuthenticated, setProfile } = useContext(AppContext);
+  const { setIsAuthenticated, setProfile, setRole } = useContext(AppContext);
   const [showPassword, setShowPassword] = useState(false);
 
   const handleFormSubmit = handleSubmit(async (data) => {
@@ -45,10 +47,28 @@ export default function Login() {
       const response = await userApis.login(data);
       if (response.status === HttpStatusCode.Ok) {
         setIsAuthenticated(true);
+        setProfile(response.data.result.user);
 
-        navigate("/");
+        if (
+          response.data.result.user.role === "MEMBER" &&
+          response.data.result.user.is_artist
+        ) {
+          setRole(USER_ROLE.ARTIST);
+          navigate(path.artistPortfolioManagement);
+        }
+        if (
+          response.data.result.user.role === "MEMBER" &&
+          !response.data.result.user.is_artist
+        ) {
+          setRole(USER_ROLE.MEMBER);
+          navigate(path.home);
+        }
+        if (response.data.result.user.role === "ADMIN") {
+          setRole(USER_ROLE.ADMIN);
+          navigate(path.adminDashboard);
+        }
         toast.success(response.data.message, {
-          position: "top-right",
+          position: "top-center",
         });
       }
     } catch (error) {

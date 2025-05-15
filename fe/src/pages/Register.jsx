@@ -42,8 +42,6 @@ export default function Register() {
 
   const handleRegister = handleSubmit(async (data) => {
     try {
-      console.log(123);
-
       const response = await userApis.register(data);
       if (response.status === HttpStatusCode.Ok) {
         navigate("/login");
@@ -377,11 +375,11 @@ export default function Register() {
                     fullWidth
                     variant={
                       watch("first_name") &&
-                        watch("last_name") &&
-                        watch("email") &&
-                        watch("phone_number") &&
-                        watch("password") &&
-                        watch("confirm_password")
+                      watch("last_name") &&
+                      watch("email") &&
+                      watch("phone_number") &&
+                      watch("password") &&
+                      watch("confirm_password")
                         ? "contained"
                         : "outlined"
                     }
@@ -399,11 +397,11 @@ export default function Register() {
                       borderRadius: "20px",
                       cursor:
                         watch("first_name") &&
-                          watch("last_name") &&
-                          watch("email") &&
-                          watch("phone_number") &&
-                          watch("password") &&
-                          watch("confirm_password")
+                        watch("last_name") &&
+                        watch("email") &&
+                        watch("phone_number") &&
+                        watch("password") &&
+                        watch("confirm_password")
                           ? "pointer"
                           : "not-allowed",
                     }}

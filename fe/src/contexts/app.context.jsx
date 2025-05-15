@@ -4,12 +4,29 @@ import {
   getAccessTokenFromLocalStorage,
   getProfileFromLocalStorage,
 } from "../utils/auth";
+import { USER_ROLE } from "../constants/enum";
 
+const checkUserRole = () => {
+  const profile = getProfileFromLocalStorage();
+  let role = null;
+  if (profile) {
+    if (profile.role === USER_ROLE.ADMIN) {
+      role = USER_ROLE.ADMIN;
+    } else if (profile.role === USER_ROLE.MEMBER && profile.is_artist) {
+      role = USER_ROLE.ARTIST;
+    } else {
+      role = USER_ROLE.MEMBER;
+    }
+  }
+  return role;
+};
 const initialAppContext = {
   isAuthenticated: Boolean(getAccessTokenFromLocalStorage()),
   setIsAuthenticated: () => null,
   profile: getProfileFromLocalStorage(),
   setProfile: () => null,
+  role: checkUserRole(),
+  setRole: () => null,
   reset: () => null,
 };
 
@@ -20,9 +37,11 @@ export const AppProvider = ({ children }) => {
     initialAppContext.isAuthenticated
   );
   const [profile, setProfile] = useState(initialAppContext.profile);
+  const [role, setRole] = useState(initialAppContext.role);
   const reset = () => {
     setIsAuthenticated(false);
     setProfile(null);
+    setRole(null);
   };
   return (
     <AppContext.Provider
@@ -31,6 +50,8 @@ export const AppProvider = ({ children }) => {
         setIsAuthenticated,
         profile,
         setProfile,
+        role,
+        setRole,
         reset,
       }}
     >

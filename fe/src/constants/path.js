@@ -1,0 +1,25 @@
+const path = {
+  home: "/",
+  profile: "/profile/me",
+  login: "/login",
+  register: "/register",
+  explore: "/explore",
+  logout: "/logout",
+  registerArtist: "/register-artist",
+  onboardingArtist: "/onboarding/overview",
+  forgotPassword: "/forgot-password",
+  adminDashboard: "/admin",
+  userManagement: "/admin/users/overview",
+  artistPortfolioManagement: "/artist/portfolio",
+  artistMediaManagement: "/artist/media",
+  artistPostManagement: "/artist/posts",
+  artistSericeManagement: "/artist/services",
+  artistScheduleManagement: "/artist/schedules",
+  artistChatManagement: "/artist/inbox",
+  artistNotificationManagement: "/artist/notifications",
+  artistManagement: "/admin/artists/management",
+  artists: "/artists",
+  artistDetail: `/artists/:id/profile`,
+};
+
+export default path;
