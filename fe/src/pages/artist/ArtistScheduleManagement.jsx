@@ -6,6 +6,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import avatar from "../../assets/artist-banner.jpg";
 import { format } from "date-fns";
+import { vi } from "date-fns/locale";
 import theme from "../../theme/theme";
 
 function a11yProps(index) {
@@ -18,7 +19,7 @@ function a11yProps(index) {
 export default function ArtistScheduleManagement() {
     const [loading, setLoading] = useState(true);
     const [value, setValue] = useState(0);
-    const [selectedDate, setSelectedDate] = useState(new Date(2025, 2, 7)); // Default to March 7, 2025
+    const [selectedDate, setSelectedDate] = useState(new Date(2025, 4, 15)); // Default to May 15, 2025 (current date)
     const isLaptop = useMediaQuery('(max-width:1024px)');
 
     useEffect(() => {
@@ -37,35 +38,35 @@ export default function ArtistScheduleManagement() {
         setSelectedDate(newDate);
     };
 
-    // Sample schedule data with dates matching the calendar (March 2025)
+    // Sample schedule data with appointments focused on May 15, 2025
     const scheduleData = [
         {
             id: 1,
-            time: "5:00 PM",
-            date: "Thu, 5/03/2025",
+            time: "9:00 AM",
+            date: "T5, 15/05/2025",
             service: "Makeup hàng ngày concept nhẹ nhàng",
-            fullDate: new Date(2025, 2, 5), // March 5, 2025
+            fullDate: new Date(2025, 4, 15), // May 15, 2025
         },
         {
             id: 2,
-            time: "5:00 PM",
-            date: "Thu, 5/03/2025",
-            service: "Makeup hàng ngày concept nhẹ nhàng",
-            fullDate: new Date(2025, 2, 5), // March 5, 2025
+            time: "11:30 AM",
+            date: "T5, 15/05/2025",
+            service: "Makeup chụp ảnh quảng cáo",
+            fullDate: new Date(2025, 4, 15), // May 15, 2025
         },
         {
             id: 3,
-            time: "5:00 PM",
-            date: "Thu, 5/03/2025",
-            service: "Makeup hàng ngày concept nhẹ nhàng",
-            fullDate: new Date(2025, 2, 5), // March 5, 2025
+            time: "2:00 PM",
+            date: "T5, 15/05/2025",
+            service: "Makeup sự kiện ra mắt sản phẩm",
+            fullDate: new Date(2025, 4, 15), // May 15, 2025
         },
         {
             id: 4,
-            time: "7:30 PM",
-            date: "Thu, 5/03/2025",
+            time: "5:30 PM",
+            date: "T5, 15/05/2025",
             service: "Makeup dự tiệc cưới cao cấp",
-            fullDate: new Date(2025, 2, 5), // March 5, 2025
+            fullDate: new Date(2025, 4, 15), // May 15, 2025
         },
     ];
 
@@ -165,7 +166,7 @@ export default function ArtistScheduleManagement() {
                                                         display: "flex",
                                                         flexDirection: "column",
                                                         gap: 2,
-                                                        boxShadow: 1,
+                                                        boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.15)",
                                                         backgroundColor: "#fff",
                                                     }}
                                                 >
@@ -233,13 +234,17 @@ export default function ArtistScheduleManagement() {
                                         justifyContent: "center",
                                     }}
                                 >
-                                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
                                         <DateCalendar
                                             value={selectedDate}
                                             onChange={handleDateChange}
                                             views={["day"]}
                                             showDaysOutsideCurrentMonth
                                             displayWeekNumber={false}
+                                            localeText={{
+                                                calendarWeekNumberHeaderText: "Tuần",
+                                                calendarWeekNumberText: (weekNumber) => `${weekNumber}`,
+                                            }}
                                             sx={{
                                                 '& .MuiPickersDay-root.Mui-selected': {
                                                     backgroundColor: "#F13067 !important",
