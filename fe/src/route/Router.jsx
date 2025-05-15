@@ -24,6 +24,7 @@ import ArtistManagement from "../pages/admin/ArtistManagement";
 import Artists from "../pages/Artists";
 import ArtistDetail from "../pages/ArtistDetail";
 import ArtistServiceManagement from "../pages/artist/ArtistServiceManagement";
+import ArtistScheduleManagement from "../pages/artist/ArtistScheduleManagement";
 
 export const ProtectedRoute = ({ isAdmin, isArtist }) => {
   const { isAuthenticated, role } = useContext(AppContext);
@@ -129,6 +130,11 @@ const AppRouter = () => {
           path: path.artistSericeManagement,
           element: <ArtistLayout>{<ArtistServiceManagement />}</ArtistLayout>,
         },
+        {
+          path: path.artistScheduleManagement,
+          element: <ArtistLayout>{<ArtistScheduleManagement />}</ArtistLayout>,
+        },
+
       ],
     },
     // protect route - user
