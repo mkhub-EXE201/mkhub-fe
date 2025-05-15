@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Box, Skeleton, Tab, Tabs, Typography } from "@mui/material";
+import { Box, Skeleton, Tab, Tabs, Typography, useMediaQuery } from "@mui/material";
 import PlaceIcon from "@mui/icons-material/Place";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import avatar from "../../assets/profile.svg";
 import { format } from "date-fns";
+import theme from "../../theme/theme";
 
 function a11yProps(index) {
     return {
@@ -18,6 +19,7 @@ export default function ArtistScheduleManagement() {
     const [loading, setLoading] = useState(true);
     const [value, setValue] = useState(0);
     const [selectedDate, setSelectedDate] = useState(new Date(2025, 2, 7)); // Default to March 7, 2025
+    const isLaptop = useMediaQuery('(max-width:1024px)');
 
     useEffect(() => {
         // Simulate API call
@@ -73,7 +75,7 @@ export default function ArtistScheduleManagement() {
         <Box sx={{ margin: 4 }}>
             <Typography
                 variant="h1"
-                sx={{ color: (theme) => theme.palette.primary.main }}
+                sx={{ color: theme.palette.primary.main }}
             >
                 Quản lý lịch hẹn
             </Typography>
@@ -104,12 +106,17 @@ export default function ArtistScheduleManagement() {
                             <Tab label="Đã hủy" {...a11yProps(2)} />
                         </Tabs>
                         {value === 0 && (
-                            <Box sx={{ display: "flex", gap: 3, marginTop: 3 }}>
+                            <Box sx={{
+                                display: "flex",
+                                flexDirection: isLaptop ? "column" : "row",
+                                gap: 3,
+                                marginTop: 3
+                            }}>
                                 {/* Schedule Cards Section (LEFT SIDE) */}
                                 <Box
                                     sx={{
                                         boxShadow: 2,
-                                        width: "50%", // Changed from 70% to 50%
+                                        width: isLaptop ? "100%" : "50%",
                                         height: "100%",
                                         padding: 3,
                                         borderRadius: 2,
@@ -122,7 +129,7 @@ export default function ArtistScheduleManagement() {
                                         <Box
                                             sx={{
                                                 display: "grid",
-                                                gridTemplateColumns: "repeat(2, 1fr)",
+                                                gridTemplateColumns: isLaptop ? "1fr" : "repeat(2, 1fr)",
                                                 gap: 3,
                                                 marginTop: 2,
                                             }}
@@ -199,7 +206,9 @@ export default function ArtistScheduleManagement() {
                                         borderRadius: 2,
                                         padding: 2,
                                         backgroundColor: "#fff",
-                                        width: "50%", // Changed from 30% to 50%
+                                        width: isLaptop ? "100%" : "50%",
+                                        display: "flex",
+                                        justifyContent: "center",
                                     }}
                                 >
                                     <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -211,13 +220,30 @@ export default function ArtistScheduleManagement() {
                                             displayWeekNumber={false}
                                             sx={{
                                                 "& .MuiPickersDay-root.Mui-selected": {
-                                                    backgroundColor: (theme) =>
-                                                        theme.palette.primary.main,
-                                                    color: "#fff",
+                                                    backgroundColor: theme.palette.primary.main,
+                                                    color: theme.palette.white,
                                                 },
                                                 "& .MuiPickersDay-today": {
                                                     border: "1px solid #ccc",
                                                 },
+                                                "& .MuiDayCalendar-header": {
+                                                    color: theme.palette.primary.main,
+                                                },
+                                                "& .MuiPickersDay-root:hover": {
+                                                    backgroundColor: theme.palette.lightPink,
+                                                },
+                                                "& .MuiPickersCalendarHeader-label": {
+                                                    color: theme.palette.primary.main,
+                                                    fontWeight: "bold",
+                                                },
+                                                // Calendar buttons
+                                                "& .MuiButtonBase-root.MuiIconButton-root": {
+                                                    color: theme.palette.primary.main,
+                                                },
+                                                "& .MuiPickersArrowSwitcher-root": {
+                                                    color: theme.palette.primary.main,
+                                                },
+                                                maxWidth: "100%"
                                             }}
                                         />
                                     </LocalizationProvider>
