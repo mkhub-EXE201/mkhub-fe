@@ -4,7 +4,7 @@ import PlaceIcon from "@mui/icons-material/Place";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
-import avatar from "../../assets/profile.svg";
+import avatar from "../../assets/artist-banner.jpg";
 import { format } from "date-fns";
 import theme from "../../theme/theme";
 
@@ -58,6 +58,13 @@ export default function ArtistScheduleManagement() {
             time: "5:00 PM",
             date: "Thu, 5/03/2025",
             service: "Makeup hàng ngày concept nhẹ nhàng",
+            fullDate: new Date(2025, 2, 5), // March 5, 2025
+        },
+        {
+            id: 4,
+            time: "7:30 PM",
+            date: "Thu, 5/03/2025",
+            service: "Makeup dự tiệc cưới cao cấp",
             fullDate: new Date(2025, 2, 5), // March 5, 2025
         },
     ];
@@ -129,9 +136,23 @@ export default function ArtistScheduleManagement() {
                                         <Box
                                             sx={{
                                                 display: "grid",
-                                                gridTemplateColumns: isLaptop ? "1fr" : "repeat(2, 1fr)",
+                                                gridTemplateColumns: "1fr",
                                                 gap: 3,
                                                 marginTop: 2,
+                                                maxHeight: "450px",
+                                                overflowY: "auto",
+                                                paddingRight: 1,
+                                                "&::-webkit-scrollbar": {
+                                                    width: "6px",
+                                                },
+                                                "&::-webkit-scrollbar-track": {
+                                                    backgroundColor: "#f1f1f1",
+                                                    borderRadius: "10px",
+                                                },
+                                                "&::-webkit-scrollbar-thumb": {
+                                                    backgroundColor: theme.palette.ochre.lightGrey,
+                                                    borderRadius: "10px",
+                                                },
                                             }}
                                         >
                                             {filteredSchedule.map((item) => (
@@ -160,8 +181,9 @@ export default function ArtistScheduleManagement() {
                                                             alt={`Artist ${item.id}`}
                                                             style={{
                                                                 borderRadius: "50%",
-                                                                width: 60,
-                                                                height: 60,
+                                                                width: 50,
+                                                                height: 50,
+                                                                objectFit: "cover",
                                                             }}
                                                         />
                                                         <Box>
@@ -219,9 +241,16 @@ export default function ArtistScheduleManagement() {
                                             showDaysOutsideCurrentMonth
                                             displayWeekNumber={false}
                                             sx={{
-                                                "& .MuiPickersDay-root.Mui-selected": {
-                                                    backgroundColor: theme.palette.primary.main,
-                                                    color: theme.palette.white,
+                                                '& .MuiPickersDay-root.Mui-selected': {
+                                                    backgroundColor: "#F13067 !important",
+                                                    color: "#fff !important",
+                                                    fontWeight: "bold",
+                                                    '&:hover, &:focus': {
+                                                        backgroundColor: "#F13067 !important",
+                                                    },
+                                                    '&:not(.Mui-selected)': {
+                                                        borderColor: "#F13067",
+                                                    },
                                                 },
                                                 "& .MuiPickersDay-today": {
                                                     border: "1px solid #ccc",
