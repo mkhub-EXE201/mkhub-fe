@@ -6,6 +6,7 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
+import theme from "../theme/theme";
 
 const FullCalendarComponent = ({ events, selectedDate, onAddEvent }) => {
     const calendarRef = useRef(null);
@@ -43,7 +44,7 @@ const FullCalendarComponent = ({ events, selectedDate, onAddEvent }) => {
                 events={events}
                 slotMinTime="09:00:00"
                 slotMaxTime="18:00:00"
-                slotDuration="01:00:00" // 1-hour slots
+                slotDuration="00:30:00" // 30-minute slots for larger height
                 slotLabelInterval="01:00" // Labels every hour
                 allDaySlot={false} // Hide all-day slot
                 height="auto"
@@ -59,17 +60,23 @@ const FullCalendarComponent = ({ events, selectedDate, onAddEvent }) => {
                         click: onAddEvent,
                     },
                 }}
-                eventContent={(arg) => (
-                    <div style={{
-                        padding: 10,
-                        borderRadius: 5,
-                        fontSize: '15px',
-                        fontWeight: 500,
-                        lineHeight: 1.3
-                    }}>
-                        {arg.event.title}
-                    </div>
-                )}
+                eventContent={(arg) => {
+                    const startTime = new Date(arg.event.start).toLocaleTimeString('vi', { hour: '2-digit', minute: '2-digit', hour12: false });
+                    const endTime = arg.event.end ? new Date(arg.event.end).toLocaleTimeString('vi', { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
+
+                    return (
+                        <div style={{
+                            padding: 8,
+                            borderRadius: 5,
+                            fontSize: '13px',
+                            fontWeight: 500,
+                            lineHeight: 1.2
+                        }}>
+                            <div style={{ fontSize: '12px' }}>{startTime} - {endTime}</div>
+                            <div>{arg.event.title}</div>
+                        </div>
+                    );
+                }}
                 slotLabelFormat={{
                     hour: "numeric",
                     minute: "2-digit",
@@ -99,7 +106,21 @@ const FullCalendarComponent = ({ events, selectedDate, onAddEvent }) => {
                         fontSize: "15px"
                     },
                     "& .fc-timegrid-slot": {
-                        height: "85px !important"
+                        height: "110px !important"
+                    },
+                    "& .fc-timegrid-slot-lane": {
+                        height: "110px !important"
+                    },
+                    // Hide 30-minute dividers - more comprehensive fix
+                    "& .fc-timegrid-slot.fc-timegrid-slot-minor": {
+                        borderTop: "0",
+                        borderBottom: "0"
+                    },
+                    "& .fc-timegrid-slot-minor": {
+                        borderStyle: "none"
+                    },
+                    "& .fc-timegrid-slot-minor .fc-timegrid-slot-lane": {
+                        borderTop: "0"
                     },
                     "& .fc-timegrid-cols table": {
                         width: "100%",
@@ -128,8 +149,8 @@ const FullCalendarComponent = ({ events, selectedDate, onAddEvent }) => {
                         fontWeight: 500
                     },
                     "& .fc-button": {
-                        backgroundColor: "#F13067",
-                        borderColor: "#F13067",
+                        backgroundColor: theme.palette.primary.main,
+                        borderColor: theme.palette.primary.main,
                         color: "#fff",
                         fontSize: "15px",
                         padding: "8px 18px",
@@ -138,7 +159,21 @@ const FullCalendarComponent = ({ events, selectedDate, onAddEvent }) => {
                             borderColor: "#d42857",
                         },
                         "&:focus": {
-                            boxShadow: "0 0 0 0.2rem rgba(241, 48, 103, 0.5)",
+                            boxShadow: `0 0 0 0.2rem ${theme.palette.primary.main}40`,
+                        },
+                    },
+                    "& .fc-addEvent-button": {
+                        backgroundColor: theme.palette.primary.main + " !important",
+                        borderColor: theme.palette.primary.main + " !important",
+                        color: "#fff",
+                        fontSize: "15px",
+                        padding: "8px 18px",
+                        "&:hover": {
+                            backgroundColor: "#d42857 !important",
+                            borderColor: "#d42857 !important",
+                        },
+                        "&:focus": {
+                            boxShadow: `0 0 0 0.2rem ${theme.palette.primary.main}40`,
                         },
                     },
                 }}
