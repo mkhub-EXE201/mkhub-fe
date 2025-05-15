@@ -24,21 +24,21 @@ export default function ArtistScheduleManagement() {
     const calendarEvents = [
         {
             id: '1',
-            title: 'Makeup client A',
+            title: 'Makeup hàng ngày concept nhẹ nhàng',
             start: '2025-05-15T10:00:00',
             end: '2025-05-15T12:00:00',
             color: '#F13067'
         },
         {
             id: '2',
-            title: 'Photo shoot session',
+            title: 'Makeup hàng ngày concept nhẹ nhàng',
             start: '2025-05-16T13:00:00',
             end: '2025-05-16T14:30:00',
             color: '#F13067'
         },
         {
             id: '3',
-            title: 'Wedding makeup',
+            title: 'Makeup hàng ngày concept nhẹ nhàng',
             start: '2025-05-17T09:00:00',
             end: '2025-05-17T11:00:00',
             color: '#F13067'
