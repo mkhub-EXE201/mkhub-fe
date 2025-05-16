@@ -6,7 +6,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import path from "../constants/path";
@@ -16,19 +16,28 @@ import HttpStatusCode from "../constants/httpStatus";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import TelegramIcon from "@mui/icons-material/Telegram";
+import { USER_ROLE } from "../constants/enum";
 export default function ArtistNavbar() {
-  const { profile } = useContext(AppContext);
+  const { profile, setRole } = useContext(AppContext);
+  const navigate = useNavigate();
   const [artistProfile, setArtistProfile] = useState({});
 
   useEffect(() => {
     const getArtistProfile = async () => {
       const response = await artistApis.getArtistProfile(profile.id);
       if (response.status === HttpStatusCode.Ok) {
+        console.log(response.data.result.avatar_url);
         setArtistProfile(response.data.result);
       }
     };
     getArtistProfile();
   }, []);
+
+  const handleNavigation = () => {
+    setRole(USER_ROLE.MEMBER);
+    navigate(path.home);
+  };
+
   return (
     <Box
       sx={{
@@ -134,11 +143,14 @@ export default function ArtistNavbar() {
           alignItems: "center",
         }}
       >
-        <Link to={path.home}>
-          <Button variant="contained" sx={{ borderRadius: "50px" }}>
-            Chuyển sang chế độ người dùng
-          </Button>
-        </Link>
+        <Button
+          variant="contained"
+          sx={{ borderRadius: "50px" }}
+          onClick={() => handleNavigation()}
+        >
+          Chuyển sang chế độ người dùng
+        </Button>
+
         <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
           <CalendarMonthIcon sx={{ width: 40, height: 40 }} />
           <NotificationsIcon sx={{ width: 40, height: 40 }} />

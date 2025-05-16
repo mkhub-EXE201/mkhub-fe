@@ -6,7 +6,11 @@ export const setAccessTokenToLocalStorage = (accessToken) => {
 };
 export const getProfileFromLocalStorage = () => {
   const profile = localStorage.getItem("profile");
-  return profile ? JSON.parse(profile) : null;
+
+  if (!profile || profile === "undefined" || profile === "null") {
+    return null;
+  }
+  return JSON.parse(profile);
 };
 export const setProfileToLocalStorage = (profile) => {
   localStorage.setItem("profile", JSON.stringify(profile));
@@ -21,6 +25,7 @@ export const clearLocalStorage = () => {
   localStorage.removeItem("access_token");
   localStorage.removeItem("refresh_token");
   localStorage.removeItem("profile");
+  localStorage.removeItem("role");
 };
 export const getRoleFromLocalStorage = () => {
   return localStorage.getItem("role") || "";

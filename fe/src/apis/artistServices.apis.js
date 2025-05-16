@@ -4,6 +4,7 @@ export const artistServiceUrl = "services";
 
 const artistServiceApis = {
   addNewService: (payload) => http.post(`${artistServiceUrl}/create`, payload),
-  getOneAllServices: () => http.get(`${artistServiceUrl}/all`),
+  getOneAllServices: (user_id) =>
+    http.get(`${artistServiceUrl}/${user_id}/all`),
 };
 export default artistServiceApis;

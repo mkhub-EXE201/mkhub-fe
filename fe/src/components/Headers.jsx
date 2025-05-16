@@ -108,22 +108,21 @@ export default function Headers() {
             alignItems: "center",
           }}
         >
-          <Link
-            to={
-              role === USER_ROLE.ARTIST
-                ? path.artistPortfolioManagement
-                : path.onboardingArtist
-            }
-            onClick={() =>
-              setRole(
-                role === USER_ROLE.ARTIST ? USER_ROLE.MEMBER : USER_ROLE.ARTIST
-              )
-            }
-            style={{
-              textDecoration: "none",
-              color: "inherit",
+          <Button
+            onClick={() => {
+              if (!isAuthenticated) {
+                navigate(path.login);
+                return;
+              }
+              const nextRole =
+                role === USER_ROLE.MEMBER ? USER_ROLE.ARTIST : USER_ROLE.MEMBER;
+              setRole(nextRole);
+              navigate(
+                nextRole === USER_ROLE.MEMBER
+                  ? path.onboardingArtist
+                  : path.artistPortfolioManagement
+              );
             }}
-            variant="contained"
             sx={{
               borderRadius: "50px",
             }}
@@ -135,17 +134,20 @@ export default function Headers() {
                 paddingY: 1,
                 borderRadius: 50,
                 ":hover": {
-                  backgroundColor: "#DA498D",
+                  opacity: "95%",
                 },
               }}
             >
               <Typography sx={{ color: "white" }}>
-                {role === USER_ROLE.ARTIST
+                {!isAuthenticated
                   ? "Trở thành Makeup Artist"
-                  : "Chuyển sang chế độ Artist"}
+                  : role === USER_ROLE.ARTIST
+                    ? "Chuyển sang chế độ User"
+                    : "Chuyển sang chế độ Makeup Artist"}
               </Typography>
             </Box>
-          </Link>
+          </Button>
+
           {!isAuthenticated ? (
             <>
               <Link
@@ -234,7 +236,10 @@ export default function Headers() {
                 }
               >
                 <Avatar
-                  src={profile.avatar_url}
+                  src={
+                    profile?.avatar_url ||
+                    "https://mkhub.s3.us-east-1.amazonaws.com/avatar/default_avt.jpg"
+                  }
                   alt="avatar"
                   sx={{
                     width: 40,
