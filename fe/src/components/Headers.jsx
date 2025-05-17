@@ -1,13 +1,15 @@
 import {
   Avatar,
+  Badge,
   Box,
   Button,
   Chip,
+  IconButton,
   InputAdornment,
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import logo from "../assets/logo.png";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import { Link, useNavigate } from "react-router-dom";
@@ -19,6 +21,8 @@ import { HttpStatusCode } from "axios";
 import toast from "react-hot-toast";
 import { USER_ROLE } from "../constants/enum";
 import SendIcon from "@mui/icons-material/Send";
+import { useEffect } from "react";
+import { io } from "socket.io-client";
 
 export default function Headers() {
   const navigate = useNavigate();
@@ -30,6 +34,38 @@ export default function Headers() {
     role,
     setRole,
   } = useContext(AppContext);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const socket = io("http://localhost:3000", {
+      transports: ["websocket"],
+      withCredentials: true,
+      query: {
+        userId: profile?.id,
+      },
+    });
+    socket.on("connect", () => {
+      console.log("✅ Connected to socket:", socket.id);
+    });
+
+    socket.on("NOTIFICATION", (noti) => {
+      // Hiển thị toast
+      toast.success(noti.message, {
+        position: "top-right",
+        autoClose: 2000,
+        pauseOnHover: true,
+        draggable: true,
+      });
+
+      setUnreadCount((prev) => prev + 1);
+    });
+
+    return () => {
+      socket.off("NOTIFICATION");
+      socket.off("connect");
+    };
+  }, []);
+
   const handleLogout = async () => {
     const response = await userApis.logout();
     if (response.status === HttpStatusCode.Ok) {
@@ -155,7 +191,13 @@ export default function Headers() {
           </Button>
 
           <Link to={path.chat}>
-            <SendIcon sx={{ color: "white", transform: "rotate(-45deg)" }} />
+            <IconButton>
+              <Badge badgeContent={unreadCount} color="error">
+                <SendIcon
+                  sx={{ color: "white", transform: "rotate(-45deg)" }}
+                />
+              </Badge>
+            </IconButton>
           </Link>
           {!isAuthenticated ? (
             <>

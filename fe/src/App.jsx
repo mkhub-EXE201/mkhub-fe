@@ -22,7 +22,6 @@ function App() {
       console.log("✅ Connected to socket:", socket.id);
     });
     socket.on("NOTIFICATION", (noti) => {
-      console.log("📥 Notification received:", noti);
       toast.success(noti.message, {
         position: "top-right",
         autoClose: 2000,
