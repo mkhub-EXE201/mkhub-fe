@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import Box from "@mui/material/Box";
 import { AppContext } from "../contexts/app.context";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Skeleton, Typography } from "@mui/material";
 import artistApis from "../apis/artists.apis";
 import HttpStatusCode from "../constants/httpStatus";

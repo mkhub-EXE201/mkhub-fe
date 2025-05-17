@@ -20,6 +20,7 @@ export default function ArtistLayout({ children }) {
         <Box
           sx={{
             flex: 2,
+            minWidth: 300,
           }}
         >
           <Sidebar />

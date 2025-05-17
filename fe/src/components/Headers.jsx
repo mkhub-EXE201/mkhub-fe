@@ -18,6 +18,7 @@ import userApis from "../apis/users.apis";
 import { HttpStatusCode } from "axios";
 import toast from "react-hot-toast";
 import { USER_ROLE } from "../constants/enum";
+import SendIcon from "@mui/icons-material/Send";
 
 export default function Headers() {
   const navigate = useNavigate();
@@ -29,7 +30,6 @@ export default function Headers() {
     role,
     setRole,
   } = useContext(AppContext);
-
   const handleLogout = async () => {
     const response = await userApis.logout();
     if (response.status === HttpStatusCode.Ok) {
@@ -114,18 +114,24 @@ export default function Headers() {
                 navigate(path.login);
                 return;
               }
-              const nextRole =
-                role === USER_ROLE.MEMBER ? USER_ROLE.ARTIST : USER_ROLE.MEMBER;
-              setRole(nextRole);
-              navigate(
-                nextRole === USER_ROLE.MEMBER
-                  ? path.onboardingArtist
-                  : path.artistPortfolioManagement
-              );
+
+              if (profile.is_artist) {
+                const nextRole =
+                  role === USER_ROLE.MEMBER
+                    ? USER_ROLE.ARTIST
+                    : USER_ROLE.MEMBER;
+
+                setRole(nextRole);
+                navigate(
+                  nextRole === USER_ROLE.MEMBER
+                    ? path.onboardingArtist
+                    : path.artistPortfolioManagement
+                );
+              } else {
+                navigate(path.onboardingArtist);
+              }
             }}
-            sx={{
-              borderRadius: "50px",
-            }}
+            sx={{ borderRadius: "50px" }}
           >
             <Box
               sx={{
@@ -133,9 +139,7 @@ export default function Headers() {
                 paddingX: 2,
                 paddingY: 1,
                 borderRadius: 50,
-                ":hover": {
-                  opacity: "95%",
-                },
+                ":hover": { opacity: "95%" },
               }}
             >
               <Typography sx={{ color: "white" }}>
@@ -143,11 +147,16 @@ export default function Headers() {
                   ? "Trở thành Makeup Artist"
                   : role === USER_ROLE.ARTIST
                     ? "Chuyển sang chế độ User"
-                    : "Chuyển sang chế độ Makeup Artist"}
+                    : profile.is_artist
+                      ? "Chuyển sang chế độ Makeup Artist"
+                      : "Trở thành Makeup Artist"}
               </Typography>
             </Box>
           </Button>
 
+          <Link to={path.chat}>
+            <SendIcon sx={{ color: "white", transform: "rotate(-45deg)" }} />
+          </Link>
           {!isAuthenticated ? (
             <>
               <Link
