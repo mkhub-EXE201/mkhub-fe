@@ -41,7 +41,6 @@ export const ProtectedRoute = ({ isAdmin, isArtist }) => {
   }
 
   if (isArtist && role !== USER_ROLE.ARTIST) {
-    console.log(role);
     if (role === USER_ROLE.ADMIN) {
       return <Navigate to={path.adminDashboard} replace />;
     }

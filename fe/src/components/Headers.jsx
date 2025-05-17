@@ -1,13 +1,15 @@
 import {
   Avatar,
+  Badge,
   Box,
   Button,
   Chip,
+  IconButton,
   InputAdornment,
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import logo from "../assets/logo.png";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import { Link, useNavigate } from "react-router-dom";
@@ -18,6 +20,9 @@ import userApis from "../apis/users.apis";
 import { HttpStatusCode } from "axios";
 import toast from "react-hot-toast";
 import { USER_ROLE } from "../constants/enum";
+import SendIcon from "@mui/icons-material/Send";
+import { useEffect } from "react";
+import { io } from "socket.io-client";
 
 export default function Headers() {
   const navigate = useNavigate();
@@ -29,6 +34,37 @@ export default function Headers() {
     role,
     setRole,
   } = useContext(AppContext);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const socket = io("http://localhost:3000", {
+      transports: ["websocket"],
+      withCredentials: true,
+      query: {
+        userId: profile?.id,
+      },
+    });
+    socket.on("connect", () => {
+      console.log("✅ Connected to socket:", socket.id);
+    });
+
+    socket.on("NOTIFICATION", (noti) => {
+      // Hiển thị toast
+      toast.success(noti.message, {
+        position: "top-right",
+        autoClose: 2000,
+        pauseOnHover: true,
+        draggable: true,
+      });
+
+      setUnreadCount((prev) => prev + 1);
+    });
+
+    return () => {
+      socket.off("NOTIFICATION");
+      socket.off("connect");
+    };
+  }, []);
 
   const handleLogout = async () => {
     const response = await userApis.logout();
@@ -114,18 +150,24 @@ export default function Headers() {
                 navigate(path.login);
                 return;
               }
-              const nextRole =
-                role === USER_ROLE.MEMBER ? USER_ROLE.ARTIST : USER_ROLE.MEMBER;
-              setRole(nextRole);
-              navigate(
-                nextRole === USER_ROLE.MEMBER
-                  ? path.onboardingArtist
-                  : path.artistPortfolioManagement
-              );
+
+              if (profile.is_artist) {
+                const nextRole =
+                  role === USER_ROLE.MEMBER
+                    ? USER_ROLE.ARTIST
+                    : USER_ROLE.MEMBER;
+
+                setRole(nextRole);
+                navigate(
+                  nextRole === USER_ROLE.MEMBER
+                    ? path.onboardingArtist
+                    : path.artistPortfolioManagement
+                );
+              } else {
+                navigate(path.onboardingArtist);
+              }
             }}
-            sx={{
-              borderRadius: "50px",
-            }}
+            sx={{ borderRadius: "50px" }}
           >
             <Box
               sx={{
@@ -133,9 +175,7 @@ export default function Headers() {
                 paddingX: 2,
                 paddingY: 1,
                 borderRadius: 50,
-                ":hover": {
-                  opacity: "95%",
-                },
+                ":hover": { opacity: "95%" },
               }}
             >
               <Typography sx={{ color: "white" }}>
@@ -143,11 +183,22 @@ export default function Headers() {
                   ? "Trở thành Makeup Artist"
                   : role === USER_ROLE.ARTIST
                     ? "Chuyển sang chế độ User"
-                    : "Chuyển sang chế độ Makeup Artist"}
+                    : profile.is_artist
+                      ? "Chuyển sang chế độ Makeup Artist"
+                      : "Trở thành Makeup Artist"}
               </Typography>
             </Box>
           </Button>
 
+          <Link to={path.chat}>
+            <IconButton>
+              <Badge badgeContent={unreadCount} color="error">
+                <SendIcon
+                  sx={{ color: "white", transform: "rotate(-45deg)" }}
+                />
+              </Badge>
+            </IconButton>
+          </Link>
           {!isAuthenticated ? (
             <>
               <Link
