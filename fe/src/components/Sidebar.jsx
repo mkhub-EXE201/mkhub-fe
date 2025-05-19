@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import Box from "@mui/material/Box";
 import { AppContext } from "../contexts/app.context";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Skeleton, Typography } from "@mui/material";
 import artistApis from "../apis/artists.apis";
 import HttpStatusCode from "../constants/httpStatus";
@@ -10,10 +10,11 @@ import TruncatedText from "./TruncatedText";
 import path from "../constants/path";
 export default function Sidebar() {
   const navigate = useNavigate();
-  const { profile } = useContext(AppContext);
   const location = useLocation();
   const [portfolioUrl, setPortfolioUrl] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [artistProfile, setArtistProfile] = useState({});
+  const { profile } = useContext(AppContext);
   const [selectedItem, setSelectedItem] = useState("");
   useEffect(() => {
     const pathToItemMap = {
@@ -34,6 +35,7 @@ export default function Sidebar() {
       const response = await artistApis.getArtistProfile(profile.id);
       if (response.status === HttpStatusCode.Ok) {
         setPortfolioUrl(response.data.result.portfolio_url);
+        setArtistProfile(response.data.result);
         setIsLoading(false);
       }
     };
@@ -61,7 +63,7 @@ export default function Sidebar() {
               }}
             >
               <img
-                src={profile.avatar_url}
+                src={artistProfile.avatar_url}
                 width={150}
                 height={150}
                 style={{ objectFit: "cover", borderRadius: "50%" }}

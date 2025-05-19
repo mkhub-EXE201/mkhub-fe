@@ -31,8 +31,8 @@ class Http {
     this.refreshToken = getRefreshTokenFromLocalStorage();
     this.refreshTokenRequest = null;
     this.instance = axios.create({
-      // baseURL: "http://localhost:3000",
-      baseURL: "https://mkhub-be.onrender.com",
+      baseURL: "http://localhost:3000",
+      //baseURL: "https://mkhub-be.onrender.com",
       timeout: 10000,
       headers: {
         "Content-Type": "application/json",
@@ -52,7 +52,7 @@ class Http {
     this.instance.interceptors.response.use(
       (response) => {
         const { url } = response.config;
-        if (url.includes(loginUrl) || url.includes(registerUrl)) {
+        if (url.includes(loginUrl)) {
           this.accessToken = response.data.result.access_token;
           this.refreshToken = response.data.result.refresh_token;
           setAccessTokenToLocalStorage(this.accessToken);
@@ -83,12 +83,10 @@ class Http {
           ![
             HttpStatusCode.UnprocessableEntity,
             HttpStatusCode.Unauthorized,
-          ].includes(error.response.status)
+          ].includes(error.response?.status)
         ) {
-          console.log("lỗi nè: ", error.response.data, error.message);
-
-          const data = error.response.data;
-          const message = data.message || error.message;
+          const data = error.response?.data;
+          const message = data?.message || error?.message;
           toast.error(message);
         }
         if (isAxiosUnauthorizedError(error)) {

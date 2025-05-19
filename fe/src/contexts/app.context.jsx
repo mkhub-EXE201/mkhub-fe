@@ -29,12 +29,11 @@ const initialAppContext = {
   setRole: () => null,
   reset: () => null,
 };
-
 export const AppContext = createContext(initialAppContext);
 
 export const AppProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(
-    initialAppContext.isAuthenticated
+    initialAppContext.isAuthenticated || false
   );
   const [profile, setProfile] = useState(initialAppContext.profile);
   const [role, setRole] = useState(initialAppContext.role);

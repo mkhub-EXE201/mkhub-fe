@@ -24,6 +24,8 @@ import { registerSchema } from "../schemas/registerSchema";
 import userApis from "../apis/users.apis";
 import HttpStatusCode from "../constants/httpStatus";
 import { isAxiosUnprocessableEntityError } from "../utils/errors.type";
+import path from "../constants/path";
+import toast from "react-hot-toast";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -40,11 +42,14 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handleRegister = handleSubmit(async (data) => {
+  const handleRegister = async (data) => {
     try {
       const response = await userApis.register(data);
       if (response.status === HttpStatusCode.Ok) {
-        navigate("/login");
+        toast.success(response.data.message, {
+          position: "top-center",
+        });
+        navigate(path.login);
       }
     } catch (error) {
       if (isAxiosUnprocessableEntityError(error)) {
@@ -57,7 +62,7 @@ export default function Register() {
         });
       }
     }
-  });
+  };
 
   const handleTogglePassword = () => {
     setShowPassword(!showPassword);
@@ -184,7 +189,11 @@ export default function Register() {
                 }}
               >
                 {/*form */}
-                <form onSubmit={handleRegister} noValidate autoComplete="off">
+                <form
+                  onSubmit={handleSubmit(handleRegister)}
+                  noValidate
+                  autoComplete="off"
+                >
                   <Box sx={{ display: "flex", gap: 2 }}>
                     <TextField
                       required

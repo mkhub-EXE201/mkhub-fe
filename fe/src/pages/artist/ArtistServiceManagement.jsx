@@ -12,13 +12,12 @@ import {
   TextField,
   Avatar,
   IconButton,
-  Skeleton,
   CardActions,
   CardContent,
   CardMedia,
   Card,
 } from "@mui/material";
-import React, { useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { addNewArtistServiceSchema } from "../../schemas/addNewArtistServiceSchema";
@@ -29,6 +28,8 @@ import HttpStatusCode from "../../constants/httpStatus";
 import toast from "react-hot-toast";
 import mediaApis from "../../apis/media.apis";
 import { formatCurrency } from "../../utils/utils";
+import { AppContext } from "../../contexts/app.context";
+import Skeleton from "../../components/Skeleton";
 
 export default function ArtistServiceManagement() {
   const [open, setOpen] = useState(false);
@@ -37,6 +38,7 @@ export default function ArtistServiceManagement() {
   const [loading, setLoading] = useState(true);
   const [services, setServices] = useState([]);
   const [activeStep, setActiveStep] = useState(0);
+  const { profile } = useContext(AppContext);
 
   const {
     register,
@@ -70,7 +72,7 @@ export default function ArtistServiceManagement() {
   useEffect(() => {
     const getOneServices = async () => {
       try {
-        const response = await artistServiceApis.getOneAllServices();
+        const response = await artistServiceApis.getOneAllServices(profile.id);
         if (response.status === HttpStatusCode.Ok) {
           setServices(response.data.result);
         }
@@ -194,17 +196,19 @@ export default function ArtistServiceManagement() {
   return (
     <Box>
       {loading ? (
-        <Skeleton />
+        <Box sx={{ padding: 3 }}>
+          <Skeleton />
+        </Box>
       ) : (
         <>
           <Box
             sx={{
+              border: "1px solid red",
               display: "flex",
               marginTop: 4,
               marginBottom: 8,
-              paddingX: 3,
+              marginX: 2,
               alignItems: "center",
-              gap: 2,
               justifyContent: "space-between",
             }}
           >
@@ -234,381 +238,360 @@ export default function ArtistServiceManagement() {
                 Thêm gói makeup mới +
               </Typography>
             </Button>
+          </Box>
 
-            <Box>
-              <MuiModal
-                open={open}
-                onClose={handleClose}
-                closeAfterTransition
-                BackdropComponent={Backdrop}
-                BackdropProps={{
-                  timeout: 500,
+          <MuiModal
+            open={open}
+            onClose={handleClose}
+            closeAfterTransition
+            BackdropComponent={Backdrop}
+            BackdropProps={{ timeout: 500 }}
+          >
+            <Fade in={open}>
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  width: 800,
+                  maxHeight: "90vh",
+                  overflowY: "auto",
+                  bgcolor: "background.paper",
+                  borderRadius: 2,
+                  boxShadow: 24,
+                  p: 4,
                 }}
               >
-                <Fade in={open}>
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      top: "50%",
-                      left: "50%",
-                      transform: "translate(-50%, -50%)",
-                      width: 800,
-                      maxHeight: "90vh",
-                      overflowY: "auto",
-                      bgcolor: "background.paper",
-                      borderRadius: 2,
-                      boxShadow: 24,
-                      p: 4,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <Typography id="modal-title" variant="h6" component="h2">
-                        Thêm gói makeup mới
-                      </Typography>
-                    </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Typography id="modal-title" variant="h6" component="h2">
+                    Thêm gói makeup mới
+                  </Typography>
+                </Box>
 
-                    <Box sx={{ mt: 4 }}>
-                      <Stepper activeStep={activeStep}>
-                        {steps.map((label, index) => {
-                          const stepProps = {};
-                          const labelProps = {};
+                <Box sx={{ mt: 4 }}>
+                  <Stepper activeStep={activeStep}>
+                    {steps.map((label, index) => {
+                      const stepProps = {};
+                      const labelProps = {};
 
-                          return (
-                            <Step key={index} {...stepProps}>
-                              <StepLabel {...labelProps}>{label}</StepLabel>
-                            </Step>
-                          );
-                        })}
-                      </Stepper>
+                      return (
+                        <Step key={index} {...stepProps}>
+                          <StepLabel {...labelProps}>{label}</StepLabel>
+                        </Step>
+                      );
+                    })}
+                  </Stepper>
 
-                      <Box sx={{ mt: 4 }}>
-                        {activeStep === 0 && (
-                          <Box
-                            sx={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: 1,
-                            }}
-                          >
-                            <Typography>Ảnh bìa</Typography>
-                            <Avatar
-                              src={previewUrl}
-                              alt="Avatar Preview"
-                              sx={{
-                                width: 150,
-                                height: 150,
-                                cursor: "pointer",
+                  <Box sx={{ mt: 4 }}>
+                    {activeStep === 0 && (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 1,
+                        }}
+                      >
+                        <Typography>Ảnh bìa</Typography>
+                        <Avatar
+                          src={previewUrl}
+                          alt="Avatar Preview"
+                          sx={{
+                            width: 150,
+                            height: 150,
+                            cursor: "pointer",
 
-                                transition: "0.3s",
-                                "&:hover": {
-                                  opacity: 0.8,
-                                },
-                              }}
-                              onClick={() => fileInputRef.current?.click()}
-                            />
-                            <input
-                              ref={fileInputRef}
-                              type="file"
-                              hidden
-                              accept="image/jpeg,image/png"
-                              onChange={handleAvatarChange}
-                            />
-                            {errors.thumbnail && (
-                              <Typography color="error" fontSize="14px">
-                                {errors.thumbnail.message}
-                              </Typography>
-                            )}
-                            <TextField
-                              fullWidth
-                              label="Tên gói makeup"
-                              variant="outlined"
-                              {...register("service_name")}
-                              error={!!errors.service_name}
-                              helperText={errors.service_name?.message || " "}
-                            />
-                            <TextField
-                              fullWidth
-                              label="Mô tả gói dịch vụ"
-                              variant="outlined"
-                              {...register("description")}
-                              error={!!errors.description}
-                              helperText={errors.description?.message || " "}
-                            />
-                            <TextField
-                              fullWidth
-                              label="Số lượng người tối đa cho 1 buổi makeup"
-                              variant="outlined"
-                              {...register("group_size")}
-                              type="number"
-                              error={!!errors.group_size}
-                              helperText={errors.group_size?.message || " "}
-                            />
-                            <Box
-                              sx={{
-                                display: "flex",
-                                flexDirection: "row",
-                                gap: 2,
-                              }}
-                            >
-                              <TextField
-                                fullWidth
-                                label="Giá trị tối thiểu của gói makeup"
-                                variant="outlined"
-                                {...register("min_price")}
-                                error={!!errors.min_price}
-                                helperText={errors.min_price?.message || " "}
-                              />
-                              <TextField
-                                fullWidth
-                                label="Giá trị tối đa của gói makeup"
-                                variant="outlined"
-                                {...register("max_price")}
-                                error={!!errors.max_price}
-                                helperText={errors.max_price?.message || " "}
-                              />
-                            </Box>
-                          </Box>
+                            transition: "0.3s",
+                            "&:hover": {
+                              opacity: 0.8,
+                            },
+                          }}
+                          onClick={() => fileInputRef.current?.click()}
+                        />
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          hidden
+                          accept="image/jpeg,image/png"
+                          onChange={handleAvatarChange}
+                        />
+                        {errors.thumbnail && (
+                          <Typography color="error" fontSize="14px">
+                            {errors.thumbnail.message}
+                          </Typography>
                         )}
-                        {activeStep === 1 && (
-                          <Box
-                            sx={{
-                              display: "flex",
-                              flexDirection: "column",
-                              width: "100%",
-                              rowGap: 2,
-                              paddingX: 5,
-                              paddingY: 2,
-                            }}
-                          >
+                        <TextField
+                          fullWidth
+                          label="Tên gói makeup"
+                          variant="outlined"
+                          {...register("service_name")}
+                          error={!!errors.service_name}
+                          helperText={errors.service_name?.message || " "}
+                        />
+                        <TextField
+                          fullWidth
+                          label="Mô tả gói dịch vụ"
+                          variant="outlined"
+                          {...register("description")}
+                          error={!!errors.description}
+                          helperText={errors.description?.message || " "}
+                        />
+                        <TextField
+                          fullWidth
+                          label="Số lượng người tối đa cho 1 buổi makeup"
+                          variant="outlined"
+                          {...register("group_size")}
+                          type="number"
+                          error={!!errors.group_size}
+                          helperText={errors.group_size?.message || " "}
+                        />
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "row",
+                            gap: 2,
+                          }}
+                        >
+                          <TextField
+                            fullWidth
+                            label="Giá trị tối thiểu của gói makeup"
+                            variant="outlined"
+                            {...register("min_price")}
+                            error={!!errors.min_price}
+                            helperText={errors.min_price?.message || " "}
+                          />
+                          <TextField
+                            fullWidth
+                            label="Giá trị tối đa của gói makeup"
+                            variant="outlined"
+                            {...register("max_price")}
+                            error={!!errors.max_price}
+                            helperText={errors.max_price?.message || " "}
+                          />
+                        </Box>
+                      </Box>
+                    )}
+                    {activeStep === 1 && (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          width: "100%",
+                          rowGap: 2,
+                          paddingX: 5,
+                          paddingY: 2,
+                        }}
+                      >
+                        <Box
+                          {...getRootProps()}
+                          sx={{
+                            border: "2px dashed gray",
+                            p: 2,
+                            textAlign: "center",
+                            borderRadius: 2,
+                          }}
+                        >
+                          <input {...getInputProps()} />
+                          <Typography>
+                            Nhấn hoặc kéo thả hình ảnh/video vào đây
+                          </Typography>
+                        </Box>
+
+                        <Box
+                          mt={2}
+                          sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}
+                        >
+                          {watch("service_img_preview")?.map((item, index) => (
                             <Box
-                              {...getRootProps()}
+                              key={index}
                               sx={{
-                                border: "2px dashed gray",
-                                p: 2,
-                                textAlign: "center",
-                                borderRadius: 2,
+                                width: 120,
+                                height: 120,
+                                position: "relative",
                               }}
                             >
-                              <input {...getInputProps()} />
-                              <Typography>
-                                Nhấn hoặc kéo thả hình ảnh/video vào đây
-                              </Typography>
-                            </Box>
-
-                            <Box
-                              mt={2}
-                              sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}
-                            >
-                              {watch("service_img_preview")?.map(
-                                (item, index) => (
-                                  <Box
-                                    key={index}
+                              {item?.file?.type?.startsWith("image/") ? (
+                                <>
+                                  <img
+                                    src={item.preview}
+                                    alt="preview"
+                                    style={{
+                                      width: "100%",
+                                      height: "100%",
+                                      objectFit: "cover",
+                                      borderRadius: 8,
+                                    }}
+                                  />
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => handleRemoveFile(index)}
                                     sx={{
-                                      width: 120,
-                                      height: 120,
-                                      position: "relative",
+                                      position: "absolute",
+                                      top: 0,
+                                      right: 0,
+                                      bgcolor: "white",
                                     }}
                                   >
-                                    {item?.file?.type?.startsWith("image/") ? (
-                                      <>
-                                        <img
-                                          src={item.preview}
-                                          alt="preview"
-                                          style={{
-                                            width: "100%",
-                                            height: "100%",
-                                            objectFit: "cover",
-                                            borderRadius: 8,
-                                          }}
-                                        />
-                                        <IconButton
-                                          size="small"
-                                          onClick={() =>
-                                            handleRemoveFile(index)
-                                          }
-                                          sx={{
-                                            position: "absolute",
-                                            top: 0,
-                                            right: 0,
-                                            bgcolor: "white",
-                                          }}
-                                        >
-                                          <RemoveIcon fontSize="small" />
-                                        </IconButton>
-                                      </>
-                                    ) : item?.file?.type?.startsWith(
-                                        "video/"
-                                      ) ? (
-                                      <>
-                                        <video
-                                          src={item.preview}
-                                          controls
-                                          style={{
-                                            width: "100%",
-                                            height: "100%",
-                                            objectFit: "cover",
-                                            borderRadius: 8,
-                                          }}
-                                        />
-                                        <IconButton
-                                          size="small"
-                                          onClick={() =>
-                                            handleRemoveFile(index)
-                                          }
-                                          sx={{
-                                            position: "absolute",
-                                            top: 0,
-                                            right: 0,
-                                            bgcolor: "white",
-                                          }}
-                                        >
-                                          <RemoveIcon fontSize="small" />
-                                        </IconButton>
-                                      </>
-                                    ) : (
-                                      <Typography>Không xác định</Typography>
-                                    )}
-                                  </Box>
-                                )
+                                    <RemoveIcon fontSize="small" />
+                                  </IconButton>
+                                </>
+                              ) : item?.file?.type?.startsWith("video/") ? (
+                                <>
+                                  <video
+                                    src={item.preview}
+                                    controls
+                                    style={{
+                                      width: "100%",
+                                      height: "100%",
+                                      objectFit: "cover",
+                                      borderRadius: 8,
+                                    }}
+                                  />
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => handleRemoveFile(index)}
+                                    sx={{
+                                      position: "absolute",
+                                      top: 0,
+                                      right: 0,
+                                      bgcolor: "white",
+                                    }}
+                                  >
+                                    <RemoveIcon fontSize="small" />
+                                  </IconButton>
+                                </>
+                              ) : (
+                                <Typography>Không xác định</Typography>
                               )}
                             </Box>
+                          ))}
+                        </Box>
 
-                            {errors.media_urls && (
-                              <Typography color="error" mt={1}>
-                                {errors.media_urls.message}
-                              </Typography>
-                            )}
-                          </Box>
+                        {errors.media_urls && (
+                          <Typography color="error" mt={1}>
+                            {errors.media_urls.message}
+                          </Typography>
                         )}
-                        {activeStep === 2 && (
+                      </Box>
+                    )}
+                    {activeStep === 2 && (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 2,
+                        }}
+                      >
+                        <Typography variant="h6">Xác nhận thông tin</Typography>
+
+                        <Typography>
+                          <strong>Tên gói:</strong> {watch("service_name")}
+                        </Typography>
+                        <Typography>
+                          <strong>Mô tả:</strong> {watch("description")}
+                        </Typography>
+                        <Typography>
+                          <strong>Số lượng người tối đa:</strong>{" "}
+                          {watch("group_size")}
+                        </Typography>
+                        <Typography>
+                          <strong>Giá tối thiểu:</strong> {watch("min_price")}{" "}
+                          VNĐ
+                        </Typography>
+                        <Typography>
+                          <strong>Giá tối đa:</strong> {watch("max_price")} VNĐ
+                        </Typography>
+
+                        <Box>
+                          <Typography>
+                            <strong>Ảnh thumbnail:</strong>
+                          </Typography>
+                          <Avatar
+                            src={previewUrl}
+                            sx={{ width: 150, height: 150 }}
+                          />
+                        </Box>
+
+                        <Box>
+                          <Typography>
+                            <strong>Hình ảnh mô tả:</strong>
+                          </Typography>
                           <Box
                             sx={{
                               display: "flex",
-                              flexDirection: "column",
+                              flexWrap: "wrap",
                               gap: 2,
                             }}
                           >
-                            <Typography variant="h6">
-                              Xác nhận thông tin
-                            </Typography>
-
-                            <Typography>
-                              <strong>Tên gói:</strong> {watch("service_name")}
-                            </Typography>
-                            <Typography>
-                              <strong>Mô tả:</strong> {watch("description")}
-                            </Typography>
-                            <Typography>
-                              <strong>Số lượng người tối đa:</strong>{" "}
-                              {watch("group_size")}
-                            </Typography>
-                            <Typography>
-                              <strong>Giá tối thiểu:</strong>{" "}
-                              {watch("min_price")} VNĐ
-                            </Typography>
-                            <Typography>
-                              <strong>Giá tối đa:</strong> {watch("max_price")}{" "}
-                              VNĐ
-                            </Typography>
-
-                            <Box>
-                              <Typography>
-                                <strong>Ảnh thumbnail:</strong>
-                              </Typography>
-                              <Avatar
-                                src={previewUrl}
-                                sx={{ width: 150, height: 150 }}
-                              />
-                            </Box>
-
-                            <Box>
-                              <Typography>
-                                <strong>Hình ảnh mô tả:</strong>
-                              </Typography>
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  flexWrap: "wrap",
-                                  gap: 2,
-                                }}
-                              >
-                                {watch("service_img_preview")?.map(
-                                  (item, index) => (
-                                    <Box
-                                      key={index}
-                                      sx={{
-                                        width: 120,
-                                        height: 120,
-                                        position: "relative",
+                            {watch("service_img_preview")?.map(
+                              (item, index) => (
+                                <Box
+                                  key={index}
+                                  sx={{
+                                    width: 120,
+                                    height: 120,
+                                    position: "relative",
+                                  }}
+                                >
+                                  {item?.file?.type?.startsWith("image/") ? (
+                                    <img
+                                      src={item.preview}
+                                      alt="preview"
+                                      style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover",
+                                        borderRadius: 8,
                                       }}
-                                    >
-                                      {item?.file?.type?.startsWith(
-                                        "image/"
-                                      ) ? (
-                                        <img
-                                          src={item.preview}
-                                          alt="preview"
-                                          style={{
-                                            width: "100%",
-                                            height: "100%",
-                                            objectFit: "cover",
-                                            borderRadius: 8,
-                                          }}
-                                        />
-                                      ) : (
-                                        <video
-                                          src={item.preview}
-                                          controls
-                                          style={{
-                                            width: "100%",
-                                            height: "100%",
-                                            objectFit: "cover",
-                                            borderRadius: 8,
-                                          }}
-                                        />
-                                      )}
-                                    </Box>
-                                  )
-                                )}
-                              </Box>
-                            </Box>
+                                    />
+                                  ) : (
+                                    <video
+                                      src={item.preview}
+                                      controls
+                                      style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover",
+                                        borderRadius: 8,
+                                      }}
+                                    />
+                                  )}
+                                </Box>
+                              )
+                            )}
                           </Box>
-                        )}
+                        </Box>
                       </Box>
-
-                      {/* Nút Tiếp theo / Quay lại */}
-                      <Box sx={{ mb: 2, mt: 2 }}>
-                        <Button
-                          variant="contained"
-                          onClick={
-                            activeStep === steps.length
-                              ? handleNext
-                              : handleSubmit
-                          }
-                          sx={{ mr: 1 }}
-                        >
-                          {activeStep === steps.length ? "Gửi" : "Tiếp theo"}
-                        </Button>
-                        <Button
-                          onClick={handleBack}
-                          disabled={activeStep === 0}
-                        >
-                          Quay lại
-                        </Button>
-                      </Box>
-                    </Box>
+                    )}
                   </Box>
-                </Fade>
-              </MuiModal>
-            </Box>
-          </Box>
+
+                  {/* Nút Tiếp theo / Quay lại */}
+                  <Box sx={{ mb: 2, mt: 2 }}>
+                    <Button
+                      variant="contained"
+                      onClick={
+                        activeStep === steps.length ? handleNext : handleSubmit
+                      }
+                      sx={{ mr: 1 }}
+                    >
+                      {activeStep === steps.length ? "Gửi" : "Tiếp theo"}
+                    </Button>
+                    <Button onClick={handleBack} disabled={activeStep === 0}>
+                      Quay lại
+                    </Button>
+                  </Box>
+                </Box>
+              </Box>
+            </Fade>
+          </MuiModal>
+
           <Box sx={{ marginX: 4 }}>
             {services.map((item, index) => (
               <Card
