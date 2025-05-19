@@ -1,9 +1,26 @@
 import React from "react";
-import { Box, Typography, Stepper, Step, StepLabel } from "@mui/material";
+import { Box, Typography, Stepper, Step, StepLabel, StepConnector } from "@mui/material";
+import { styled } from "@mui/system";
 import PlaceIcon from "@mui/icons-material/Place";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import artistBanner from "../../assets/artist-banner.jpg";
+import PersonalScheduleDetails from "./PersonalScheduleDetails";
+
+const CustomConnector = styled(StepConnector)(() => ({
+    "& .MuiStepConnector-line": {
+        border: "none",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "24px",
+    },
+    "& .MuiStepConnector-line::before": {
+        content: '"›"',
+        fontSize: "30px",
+        fontWeight: "bold",
+        color: "black",
+    },
+}));
 
 const styles = {
     tabContent: { display: "flex", flexDirection: "column", gap: 3, marginTop: 3 },
@@ -54,10 +71,11 @@ const styles = {
         marginTop: 2,
     },
     stepIcon: {
-        width: 40,
-        height: 40,
+        width: 48,
+        height: 48,
         borderRadius: "50%",
         backgroundColor: "#F13067",
+        border: "2px solid #FF69B4",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -92,7 +110,6 @@ const customerData = {
     time: "9:00 AM",
 };
 
-// Process steps data
 const processSteps = [
     { id: 1, label: "Chốt lịch", completed: true },
     { id: 2, label: "Đi chuyến đến điểm hẹn", completed: true },
@@ -110,7 +127,6 @@ function PersonalScheduleTab() {
                     Khách hàng
                 </Typography>
 
-                {/* Customer Information Card */}
                 <Box sx={styles.customerInfo}>
                     <Box sx={styles.profileContainer}>
                         <img
@@ -143,37 +159,26 @@ function PersonalScheduleTab() {
                         Quy trình
                     </Typography>
 
-                    <Stepper activeStep={3} alternativeLabel>
-                        {processSteps.map((step, index) => (
+                    <Stepper
+                        activeStep={processSteps.length - 1}
+                        alternativeLabel
+                        connector={<CustomConnector />}
+                    >
+                        {processSteps.map((step) => (
                             <Step key={step.id} completed={step.completed}>
                                 <StepLabel
                                     StepIconComponent={() => (
-                                        <Box sx={{
-                                            ...styles.stepIcon,
-                                            backgroundColor: index <= 3 ? "#F13067" : "#f5f5f5",
-                                        }}>
-                                            {index <= 3 ? (
-                                                <CheckCircleIcon
-                                                    sx={{
-                                                        color: "white",
-                                                        fontSize: 24,
-                                                    }}
-                                                />
-                                            ) : (
-                                                <CheckCircleOutlineIcon
-                                                    sx={{
-                                                        color: "#999",
-                                                        fontSize: 24,
-                                                    }}
-                                                />
-                                            )}
+                                        <Box sx={styles.stepIcon}>
+                                            <CheckCircleIcon
+                                                sx={{
+                                                    color: "white",
+                                                    fontSize: 24,
+                                                }}
+                                            />
                                         </Box>
                                     )}
                                 >
-                                    <Typography sx={{
-                                        ...styles.stepText,
-                                        color: index <= 3 ? "#000" : "#999",
-                                    }}>
+                                    <Typography sx={styles.stepText}>
                                         {step.label}
                                     </Typography>
                                 </StepLabel>
@@ -181,6 +186,9 @@ function PersonalScheduleTab() {
                         ))}
                     </Stepper>
                 </Box>
+
+                {/* Appointment Tabs Section */}
+                <PersonalScheduleDetails />
             </Box>
         </Box>
     );

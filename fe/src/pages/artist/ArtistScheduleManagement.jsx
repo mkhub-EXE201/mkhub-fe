@@ -87,45 +87,22 @@ export default function ArtistScheduleManagement() {
         }
     ];
 
-    // Sample schedule data focused on May 15, 2025
-    const scheduleData = [
-        {
-            id: 1,
-            time: "9:00 AM",
-            date: "T5, 15/05/2025",
-            service: "Makeup hàng ngày concept nhẹ nhàng",
-            fullDate: new Date(2025, 4, 15), // May 15, 2025
-            avatar: avatar,
-            location: "Bình Thạnh, Hồ Chí Minh"
-        },
-        {
-            id: 2,
-            time: "11:30 AM",
-            date: "T5, 15/05/2025",
-            service: "Makeup chụp ảnh quảng cáo",
-            fullDate: new Date(2025, 4, 15), // May 15, 2025
-            avatar: avatar,
-            location: "Bình Thạnh, Hồ Chí Minh"
-        },
-        {
-            id: 3,
-            time: "2:00 PM",
-            date: "T5, 15/05/2025",
-            service: "Makeup sự kiện ra mắt sản phẩm",
-            fullDate: new Date(2025, 4, 15), // May 15, 2025
-            avatar: avatar,
-            location: "Bình Thạnh, Hồ Chí Minh"
-        },
-        {
-            id: 4,
-            time: "5:30 PM",
-            date: "T5, 15/05/2025",
-            service: "Makeup dự tiệc cưới cao cấp",
-            fullDate: new Date(2025, 4, 15), // May 15, 2025
-            avatar: avatar,
-            location: "Bình Thạnh, Hồ Chí Minh"
-        },
-    ];
+    // Sample item data
+    const scheduleItem = {
+        id: 1,
+        time: "9:00 AM",
+        date: "T5, 15/05/2025",
+        service: "Makeup hàng ngày concept nhẹ nhàng",
+        fullDate: new Date(2025, 4, 15), // May 15, 2025
+        avatar: avatar,
+        location: "Bình Thạnh, Hồ Chí Minh"
+    };
+
+    // Create sample schedule with 4 identical items
+    const scheduleData = Array(4).fill().map((_, index) => ({
+        ...scheduleItem,
+        id: index + 1
+    }));
 
     useEffect(() => {
         // Simulate API call
