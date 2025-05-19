@@ -106,7 +106,7 @@ function PersonalScheduleTab() {
         <Box sx={styles.tabContent}>
             {/* Customer Info Section */}
             <Box sx={styles.customerContainer}>
-                <Typography sx={{ fontWeight: "600", fontSize: 16, mb: 2 }}>
+                <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
                     Khách hàng
                 </Typography>
 
@@ -139,7 +139,7 @@ function PersonalScheduleTab() {
 
                 {/* Process Flow Section */}
                 <Box sx={styles.processContainer}>
-                    <Typography sx={{ fontWeight: "600", fontSize: 16, mb: 2 }}>
+                    <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
                         Quy trình
                     </Typography>
 

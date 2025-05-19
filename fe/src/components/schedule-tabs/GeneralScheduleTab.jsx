@@ -62,7 +62,7 @@ function GeneralScheduleTab({ selectedDate, handleDateChange, scheduleData, cale
             <Box sx={styles.dailyViewContainer(isLaptop)}>
                 {/* Schedule Cards Section (LEFT SIDE) */}
                 <Box sx={styles.scheduleCardsContainer(isLaptop)}>
-                    <Typography sx={{ fontWeight: "600", fontSize: 16, mb: 2 }}>
+                      <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
                         Lịch hẹn - {dateUtils.formatDate(selectedDate)}
                     </Typography>
 

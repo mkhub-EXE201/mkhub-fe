@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography, Card, CardContent, Avatar, Chip, Grid } from "@mui/material";
+import { Box, Typography, Card, CardContent, Avatar, Chip, Grid, Divider } from "@mui/material";
 import EventBusyIcon from '@mui/icons-material/EventBusy';
 import PersonIcon from '@mui/icons-material/Person';
 
@@ -15,6 +15,13 @@ const canceledAppointments = Array(5).fill({
 });
 
 const styles = {
+    tabContent: {
+        display: "flex",
+        flexDirection: "column",
+        gap: 3,
+        marginTop: 3,
+        padding: 2
+    },
     card: {
         marginBottom: 2,
         borderRadius: 2,
@@ -39,13 +46,19 @@ const styles = {
         padding: 1.5,
         backgroundColor: '#f5f5f5',
         borderRadius: 1
+    },
+    cardContainer: {
+        padding: 3,
+        boxShadow: 2,
+        borderRadius: 2,
+        backgroundColor: '#fff'
     }
 };
 
 function CanceledAppointmentCards() {
     return (
-        <Box sx={{ p: 3 }}>
-            <Typography variant="h5" sx={{ mb: 3, fontWeight: 600 }}>
+        <Box sx={styles.cardContainer}>
+            <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
                 Lịch đã hủy
             </Typography>
 
@@ -99,4 +112,14 @@ function CanceledAppointmentCards() {
     );
 }
 
-export default CanceledAppointmentCards;
+function CanceledScheduleTab() {
+    return (
+        <Box sx={styles.tabContent}>
+            <CanceledAppointmentCards />
+            <Divider sx={{ my: 2 }} />
+            {/* You can add additional sections here if needed */}
+        </Box>
+    );
+}
+
+export default CanceledScheduleTab;
