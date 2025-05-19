@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Box, Skeleton, Tab, Tabs, Typography, useMediaQuery, Divider } from "@mui/material";
+import { Box, Skeleton, Tab, Tabs, Typography } from "@mui/material";
 import PropTypes from "prop-types";
 import theme from "../../theme/theme";
 import avatar from "../../assets/artist-banner.jpg";
-import ScheduleCalendar from "../../components/ScheduleCalendar";
-import ScheduleCard from "../../components/ScheduleCard";
-import FullCalendarComponent from "../../components/FullCalendar";
-import { dateUtils } from "../../utils/common_utilities";
+import GeneralScheduleTab from "../../components/schedule-tabs/GeneralScheduleTab";
+import PersonalScheduleTab from "../../components/schedule-tabs/PersonalScheduleTab";
+import CanceledScheduleTab from "../../components/schedule-tabs/CanceledScheduleTab";
 
 // Constants
 const TABS = {
@@ -26,53 +25,7 @@ const styles = {
         alignItems: "center",
         justifyContent: "center",
     },
-    contentContainer: { marginY: 4 },
-    tabContent: { display: "flex", flexDirection: "column", gap: 3, marginTop: 3 },
-    scheduleCardsContainer: (isLaptop) => ({
-        boxShadow: 2,
-        width: isLaptop ? "100%" : "50%",
-        height: isLaptop ? "500px" : "100%",
-        padding: 3,
-        borderRadius: 2,
-        display: "flex",
-        flexDirection: "column",
-    }),
-    cardsGrid: {
-        display: "grid",
-        gridTemplateColumns: "1fr",
-        gap: 3,
-        flexGrow: 1,
-        overflowY: "auto",
-        paddingRight: 1,
-        "&::-webkit-scrollbar": {
-            width: "6px",
-        },
-        "&::-webkit-scrollbar-track": {
-            backgroundColor: "#f1f1f1",
-            borderRadius: "10px",
-        },
-        "&::-webkit-scrollbar-thumb": {
-            backgroundColor: theme.palette.ochre.lightGrey,
-            borderRadius: "10px",
-        },
-    },
-    calendarContainer: (isLaptop) => ({
-        width: isLaptop ? "100%" : "50%",
-        height: isLaptop ? "500px" : "100%",
-    }),
-    dailyViewContainer: (isLaptop) => ({
-        display: "flex",
-        flexDirection: isLaptop ? "column" : "row",
-        gap: 3,
-        height: isLaptop ? "auto" : "500px",
-    }),
-    tabPanel: {
-        boxShadow: 2,
-        width: "100%",
-        height: "100%",
-        padding: 3,
-    },
-    tabTitle: { fontWeight: "600", fontSize: 16 }
+    contentContainer: { marginY: 4 }
 };
 
 // Tab Panel component for better code organization
@@ -108,7 +61,6 @@ export default function ArtistScheduleManagement() {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState(TABS.GENERAL);
     const [selectedDate, setSelectedDate] = useState(new Date(2025, 4, 15)); // May 15, 2025
-    const isLaptop = useMediaQuery('(max-width:1024px)');
 
     // Sample calendar events data for FullCalendar
     const calendarEvents = [
@@ -199,11 +151,6 @@ export default function ArtistScheduleManagement() {
         // Implement event adding functionality
     };
 
-    // Filter schedule data based on selected date
-    const filteredSchedule = scheduleData.filter((item) =>
-        dateUtils.isSameDay(item.fullDate, selectedDate)
-    );
-
     if (loading) {
         return (
             <Box sx={styles.container}>
@@ -238,71 +185,23 @@ export default function ArtistScheduleManagement() {
 
                 {/* General Schedule Tab */}
                 <TabPanel value={activeTab} index={TABS.GENERAL}>
-                    <Box sx={styles.tabContent}>
-                        {/* Daily View: Schedule Cards and Calendar */}
-                        <Box sx={styles.dailyViewContainer(isLaptop)}>
-                            {/* Schedule Cards Section (LEFT SIDE) */}
-                            <Box sx={styles.scheduleCardsContainer(isLaptop)}>
-                                <Typography sx={{ fontWeight: "600", fontSize: 16, mb: 2 }}>
-                                    Lịch hẹn - {dateUtils.formatDate(selectedDate)}
-                                </Typography>
-
-                                {filteredSchedule.length > 0 ? (
-                                    <Box sx={styles.cardsGrid}>
-                                        {filteredSchedule.map((appointment) => (
-                                            <ScheduleCard
-                                                key={appointment.id}
-                                                appointment={appointment}
-                                            />
-                                        ))}
-                                    </Box>
-                                ) : (
-                                    <Typography sx={{ marginTop: 2 }}>
-                                        Không có lịch hẹn cho ngày này.
-                                    </Typography>
-                                )}
-                            </Box>
-
-                            {/* Calendar Section (RIGHT SIDE) */}
-                            <Box sx={styles.calendarContainer(isLaptop)}>
-                                <ScheduleCalendar
-                                    selectedDate={selectedDate}
-                                    handleDateChange={handleDateChange}
-                                />
-                            </Box>
-                        </Box>
-
-                        <Divider sx={{ my: 2 }} />
-
-                        {/* Weekly View: FullCalendar */}
-                        <Box>
-                            <FullCalendarComponent
-                                events={calendarEvents}
-                                selectedDate={selectedDate}
-                                onAddEvent={handleAddEvent}
-                            />
-                        </Box>
-                    </Box>
+                    <GeneralScheduleTab
+                        selectedDate={selectedDate}
+                        handleDateChange={handleDateChange}
+                        scheduleData={scheduleData}
+                        calendarEvents={calendarEvents}
+                        onAddEvent={handleAddEvent}
+                    />
                 </TabPanel>
 
                 {/* Personal Schedule Tab */}
                 <TabPanel value={activeTab} index={TABS.PERSONAL}>
-                    <Box sx={styles.tabPanel}>
-                        <Typography sx={styles.tabTitle}>
-                            Lịch cá nhân
-                        </Typography>
-                        <Typography>Lịch cá nhân...</Typography>
-                    </Box>
+                    <PersonalScheduleTab />
                 </TabPanel>
 
                 {/* Canceled Schedule Tab */}
                 <TabPanel value={activeTab} index={TABS.CANCELED}>
-                    <Box sx={styles.tabPanel}>
-                        <Typography sx={styles.tabTitle}>
-                            Lịch đã hủy
-                        </Typography>
-                        <Typography>Lịch đã huỷ...</Typography>
-                    </Box>
+                    <CanceledScheduleTab />
                 </TabPanel>
             </Box>
         </Box>
