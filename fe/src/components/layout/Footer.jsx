@@ -1,6 +1,7 @@
 import { Box, Grid, Typography } from "@mui/material";
 import React from "react";
-import logo from "../assets/brief-logo.png";
+import logo from "../../assets/brief-logo.png";
+
 
 export default function Footer() {
   return (

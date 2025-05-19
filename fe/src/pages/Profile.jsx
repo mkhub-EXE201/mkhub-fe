@@ -1,6 +1,6 @@
 import { Box, Divider, Tab, Tabs, Typography } from "@mui/material";
 import React, { useEffect } from "react";
-import Navbar from "../components/Navbar";
+import Navbar from "../components/layout/Navbar";
 import { useState } from "react";
 import Skeleton from "../components/Skeleton";
 import userApis from "../apis/users.apis";

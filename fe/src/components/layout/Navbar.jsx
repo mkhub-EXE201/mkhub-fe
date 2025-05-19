@@ -8,14 +8,14 @@ import {
 } from "@mui/material";
 import React, { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import logo from "../assets/logo.png";
+import logo from "../../assets/logo.png";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
-import { AppContext } from "../contexts/app.context";
-import path from "../constants/path";
-import userApis from "../apis/users.apis";
-import HttpStatusCode from "../constants/httpStatus";
+import { AppContext } from "../../contexts/app.context";
+import path from "../../constants/path";
+import userApis from "../../apis/users.apis";
+import HttpStatusCode from "../../constants/httpStatus";
 import toast from "react-hot-toast";
-import Popover from "./Popover";
+import Popover from "../Popover";
 
 export default function Navbar() {
   const { isAuthenticated, profile, setIsAuthenticated, setProfile } =

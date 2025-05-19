@@ -14,7 +14,7 @@ import {
   RadioGroup,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import Navbar from "../components/Navbar";
+import Navbar from "../components/layout/Navbar";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import locationApi from "../apis/locations.apis";
 import { HttpStatusCode } from "axios";
@@ -22,7 +22,7 @@ import toast from "react-hot-toast";
 import PlaceIcon from "@mui/icons-material/PlaceOutlined";
 import CategoryIcon from "@mui/icons-material/CategoryOutlined";
 import avatar from "../assets/login.jpeg";
-import Footer from "../components/Footer";
+import Footer from "../components/layout/Footer";
 export default function Explore() {
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);

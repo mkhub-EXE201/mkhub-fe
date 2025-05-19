@@ -10,16 +10,16 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useContext, useState } from "react";
-import logo from "../assets/logo.png";
+import logo from "../../assets/logo.png";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import { Link, useNavigate } from "react-router-dom";
-import { AppContext } from "../contexts/app.context";
-import Popover from "./Popover";
-import path from "../constants/path";
-import userApis from "../apis/users.apis";
+import { AppContext } from "../../contexts/app.context";
+import Popover from "../Popover";
+import path from "../../constants/path";
+import userApis from "../../apis/users.apis";
 import { HttpStatusCode } from "axios";
 import toast from "react-hot-toast";
-import { USER_ROLE } from "../constants/enum";
+import { USER_ROLE } from "../../constants/enum";
 import SendIcon from "@mui/icons-material/Send";
 import { useEffect } from "react";
 import { io } from "socket.io-client";
@@ -406,7 +406,7 @@ export default function Headers() {
                         backgroundColor: (theme) => theme.palette.ochre.light,
                       },
                     }}
-                    onClick={() => {}}
+                    onClick={() => { }}
                   />
                 ))}
             </Box>
@@ -437,7 +437,7 @@ export default function Headers() {
                         backgroundColor: (theme) => theme.palette.ochre.light,
                       },
                     }}
-                    onClick={() => {}}
+                    onClick={() => { }}
                   />
                 ))}
             </Box>

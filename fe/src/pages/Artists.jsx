@@ -2,7 +2,7 @@ import { Box, Typography } from "@mui/material";
 import React, { useEffect } from "react";
 import { useState } from "react";
 import artistApis from "../apis/artists.apis";
-import Navbar from "../components/Navbar";
+import Navbar from "../components/layout/Navbar";
 import HttpStatusCode from "../constants/httpStatus";
 import toast from "react-hot-toast";
 import Skeleton from "../components/Skeleton";

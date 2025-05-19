@@ -9,19 +9,19 @@ import {
 import React, { useContext, useEffect, useState } from "react";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { Link, useNavigate } from "react-router-dom";
-import logo from "../assets/logo.png";
+import logo from "../../assets/logo.png";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
-import path from "../constants/path";
-import artistApis from "../apis/artists.apis";
-import { AppContext } from "../contexts/app.context";
-import HttpStatusCode from "../constants/httpStatus";
+import path from "../../constants/path";
+import artistApis from "../../apis/artists.apis";
+import { AppContext } from "../../contexts/app.context";
+import HttpStatusCode from "../../constants/httpStatus";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import TelegramIcon from "@mui/icons-material/Telegram";
-import { USER_ROLE } from "../constants/enum";
-import userApis from "../apis/users.apis";
+import { USER_ROLE } from "../../constants/enum";
+import userApis from "../../apis/users.apis";
 import toast from "react-hot-toast";
-import Popover from "./Popover";
+import Popover from "../Popover";
 
 export default function ArtistNavbar() {
   const { profile, setRole, setIsAuthenticated, setProfile } =

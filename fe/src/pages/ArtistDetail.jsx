@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useEffect } from "react";
-import Navbar from "../components/Navbar";
+import Navbar from "../components/layout/Navbar";
 import { useParams } from "react-router-dom";
 import { useState } from "react";
 import userApis from "../apis/users.apis";
@@ -24,7 +24,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import Footer from "../components/Footer";
+import Footer from "../components/layout/Footer";
 import LocationPinIcon from "@mui/icons-material/LocationPin";
 import locationApi from "../apis/locations.apis";
 
