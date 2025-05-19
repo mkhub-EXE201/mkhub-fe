@@ -171,9 +171,9 @@ export default function ArtistNavbar() {
         </Button>
 
         <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-          <CalendarMonthIcon sx={{ width: 40, height: 40 }} />
-          <NotificationsIcon sx={{ width: 40, height: 40 }} />
-          <TelegramIcon sx={{ width: 40, height: 40 }} />
+          <CalendarMonthIcon sx={{ width: 30, height: 30 }} />
+          <NotificationsIcon sx={{ width: 30, height: 30 }} />
+          <TelegramIcon sx={{ width: 30, height: 30 }} />
           <Popover
             renderPopover={
               <Box
