@@ -6,12 +6,10 @@ import PropTypes from 'prop-types';
 
 const styles = {
     card: {
-        borderRadius: "12px",
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+        borderRadius: "18px",
+        boxShadow: "0 3px 8px rgba(0, 0, 0, 0.1)",
         transition: "box-shadow 0.3s ease",
-        "&:hover": {
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-        },
+        minHeight: 200,
     },
     tabContainer: {
         width: "100%",
@@ -68,7 +66,12 @@ const styles = {
         minHeight: 300,
         maxWidth: 700,
         flexGrow: 1, // Allow panel to take remaining space
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+        transition: "box-shadow 0.3s ease",
         // marginLeft: 0,
+        "&:hover": {
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+        },
     },
     tabContent: {
         width: "100%",
@@ -114,7 +117,7 @@ function PersonalScheduleDetailsTabs() {
                 sx={{
                     ...styles.tabsRoot,
                     '& .MuiTabs-indicator': {
-                        display: 'none', 
+                        display: 'none',
                     }
                 }}
             >
