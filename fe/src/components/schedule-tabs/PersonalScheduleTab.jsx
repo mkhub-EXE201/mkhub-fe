@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography, Stepper, Step, StepLabel } from "@mui/material";
+import { Box, Typography, Stepper, Step, StepLabel, Divider } from "@mui/material";
 import PlaceIcon from "@mui/icons-material/Place";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
@@ -180,6 +180,8 @@ function PersonalScheduleTab() {
                             </Step>
                         ))}
                     </Stepper>
+
+                    <Divider sx={{ my: 4 }} />
 
                     {/* Appointment Tabs Section */}
                     <PersonalScheduleDetails />
