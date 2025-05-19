@@ -1,23 +1,28 @@
 import {
   Avatar,
+  Badge,
   Box,
   Button,
   Chip,
+  IconButton,
   InputAdornment,
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useContext } from "react";
-import logo from "../assets/logo.png";
+import React, { useContext, useState } from "react";
+import logo from "../../assets/logo.png";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import { Link, useNavigate } from "react-router-dom";
-import { AppContext } from "../contexts/app.context";
-import Popover from "./Popover";
-import path from "../constants/path";
-import userApis from "../apis/users.apis";
+import { AppContext } from "../../contexts/app.context";
+import Popover from "../Popover";
+import path from "../../constants/path";
+import userApis from "../../apis/users.apis";
 import { HttpStatusCode } from "axios";
 import toast from "react-hot-toast";
-import { USER_ROLE } from "../constants/enum";
+import { USER_ROLE } from "../../constants/enum";
+import SendIcon from "@mui/icons-material/Send";
+import { useEffect } from "react";
+import { io } from "socket.io-client";
 
 export default function Headers() {
   const navigate = useNavigate();
@@ -29,6 +34,37 @@ export default function Headers() {
     role,
     setRole,
   } = useContext(AppContext);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const socket = io("http://localhost:3000", {
+      transports: ["websocket"],
+      withCredentials: true,
+      query: {
+        userId: profile?.id,
+      },
+    });
+    socket.on("connect", () => {
+      console.log("✅ Connected to socket:", socket.id);
+    });
+
+    socket.on("NOTIFICATION", (noti) => {
+      // Hiển thị toast
+      toast.success(noti.message, {
+        position: "top-right",
+        autoClose: 2000,
+        pauseOnHover: true,
+        draggable: true,
+      });
+
+      setUnreadCount((prev) => prev + 1);
+    });
+
+    return () => {
+      socket.off("NOTIFICATION");
+      socket.off("connect");
+    };
+  }, []);
 
   const handleLogout = async () => {
     const response = await userApis.logout();
@@ -108,25 +144,30 @@ export default function Headers() {
             alignItems: "center",
           }}
         >
-          <Link
-            to={
-              role === USER_ROLE.ARTIST
-                ? path.artistPortfolioManagement
-                : path.onboardingArtist
-            }
-            onClick={() =>
-              setRole(
-                role === USER_ROLE.ARTIST ? USER_ROLE.MEMBER : USER_ROLE.ARTIST
-              )
-            }
-            style={{
-              textDecoration: "none",
-              color: "inherit",
+          <Button
+            onClick={() => {
+              if (!isAuthenticated) {
+                navigate(path.login);
+                return;
+              }
+
+              if (profile.is_artist) {
+                const nextRole =
+                  role === USER_ROLE.MEMBER
+                    ? USER_ROLE.ARTIST
+                    : USER_ROLE.MEMBER;
+
+                setRole(nextRole);
+                navigate(
+                  nextRole === USER_ROLE.MEMBER
+                    ? path.onboardingArtist
+                    : path.artistPortfolioManagement
+                );
+              } else {
+                navigate(path.onboardingArtist);
+              }
             }}
-            variant="contained"
-            sx={{
-              borderRadius: "50px",
-            }}
+            sx={{ borderRadius: "50px" }}
           >
             <Box
               sx={{
@@ -134,17 +175,29 @@ export default function Headers() {
                 paddingX: 2,
                 paddingY: 1,
                 borderRadius: 50,
-                ":hover": {
-                  backgroundColor: "#DA498D",
-                },
+                ":hover": { opacity: "95%" },
               }}
             >
               <Typography sx={{ color: "white" }}>
-                {role === USER_ROLE.ARTIST
+                {!isAuthenticated
                   ? "Trở thành Makeup Artist"
-                  : "Chuyển sang chế độ Artist"}
+                  : role === USER_ROLE.ARTIST
+                    ? "Chuyển sang chế độ User"
+                    : profile.is_artist
+                      ? "Chuyển sang chế độ Makeup Artist"
+                      : "Trở thành Makeup Artist"}
               </Typography>
             </Box>
+          </Button>
+
+          <Link to={path.chat}>
+            <IconButton>
+              <Badge badgeContent={unreadCount} color="error">
+                <SendIcon
+                  sx={{ color: "white", transform: "rotate(-45deg)" }}
+                />
+              </Badge>
+            </IconButton>
           </Link>
           {!isAuthenticated ? (
             <>
@@ -234,7 +287,10 @@ export default function Headers() {
                 }
               >
                 <Avatar
-                  src={profile.avatar_url}
+                  src={
+                    profile?.avatar_url ||
+                    "https://mkhub.s3.us-east-1.amazonaws.com/avatar/default_avt.jpg"
+                  }
                   alt="avatar"
                   sx={{
                     width: 40,
@@ -350,7 +406,7 @@ export default function Headers() {
                         backgroundColor: (theme) => theme.palette.ochre.light,
                       },
                     }}
-                    onClick={() => {}}
+                    onClick={() => { }}
                   />
                 ))}
             </Box>
@@ -381,7 +437,7 @@ export default function Headers() {
                         backgroundColor: (theme) => theme.palette.ochre.light,
                       },
                     }}
-                    onClick={() => {}}
+                    onClick={() => { }}
                   />
                 ))}
             </Box>

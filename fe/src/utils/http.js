@@ -52,7 +52,7 @@ class Http {
     this.instance.interceptors.response.use(
       (response) => {
         const { url } = response.config;
-        if (url.includes(loginUrl) || url.includes(registerUrl)) {
+        if (url.includes(loginUrl)) {
           this.accessToken = response.data.result.access_token;
           this.refreshToken = response.data.result.refresh_token;
           setAccessTokenToLocalStorage(this.accessToken);
@@ -83,12 +83,10 @@ class Http {
           ![
             HttpStatusCode.UnprocessableEntity,
             HttpStatusCode.Unauthorized,
-          ].includes(error.response.status)
+          ].includes(error.response?.status)
         ) {
-          console.log("lỗi nè: ", error.response.data, error.message);
-
-          const data = error.response.data;
-          const message = data.message || error.message;
+          const data = error.response?.data;
+          const message = data?.message || error?.message;
           toast.error(message);
         }
         if (isAxiosUnauthorizedError(error)) {
@@ -101,10 +99,10 @@ class Http {
             this.refreshTokenRequest = this.refreshTokenRequest
               ? this.refreshTokenRequest
               : this.handleRefreshToken().finally(() => {
-                  setTimeout(() => {
-                    this.refreshTokenRequest = null;
-                  }, 10000);
-                });
+                setTimeout(() => {
+                  this.refreshTokenRequest = null;
+                }, 10000);
+              });
 
             return this.refreshTokenRequest.then(({ access_token }) => {
               return this.instance({

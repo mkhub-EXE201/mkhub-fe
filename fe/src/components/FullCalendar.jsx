@@ -189,7 +189,7 @@ const FullCalendarComponent = ({ events, selectedDate, onAddEvent }) => {
     return (
         <Box sx={calendarStyles.container}>
             <CssBaseline />
-            <Typography sx={calendarStyles.title}>
+              <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
                 Lịch trình tuần - {dateUtils.formatMonthCapitalized(selectedDate)}
             </Typography>
             <FullCalendar

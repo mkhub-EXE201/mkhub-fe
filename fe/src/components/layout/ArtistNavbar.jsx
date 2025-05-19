@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Box,
   Button,
   InputAdornment,
@@ -6,29 +7,56 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import logo from "../assets/logo.png";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { Link, useNavigate } from "react-router-dom";
+import logo from "../../assets/logo.png";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
-import path from "../constants/path";
-import artistApis from "../apis/artists.apis";
-import { AppContext } from "../contexts/app.context";
-import HttpStatusCode from "../constants/httpStatus";
+import path from "../../constants/path";
+import artistApis from "../../apis/artists.apis";
+import { AppContext } from "../../contexts/app.context";
+import HttpStatusCode from "../../constants/httpStatus";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import TelegramIcon from "@mui/icons-material/Telegram";
+import { USER_ROLE } from "../../constants/enum";
+import userApis from "../../apis/users.apis";
+import toast from "react-hot-toast";
+import Popover from "../Popover";
+
 export default function ArtistNavbar() {
-  const { profile } = useContext(AppContext);
+  const { profile, setRole, setIsAuthenticated, setProfile } =
+    useContext(AppContext);
+  const navigate = useNavigate();
   const [artistProfile, setArtistProfile] = useState({});
 
   useEffect(() => {
     const getArtistProfile = async () => {
       const response = await artistApis.getArtistProfile(profile.id);
       if (response.status === HttpStatusCode.Ok) {
+        console.log(response.data.result.avatar_url);
         setArtistProfile(response.data.result);
       }
     };
     getArtistProfile();
   }, []);
+
+  const handleNavigation = () => {
+    setRole(USER_ROLE.MEMBER);
+    navigate(path.home);
+  };
+
+  const handleLogout = async () => {
+    const response = await userApis.logout();
+    if (response.status === HttpStatusCode.Ok) {
+      setIsAuthenticated(false);
+      setProfile(null);
+      toast.success(response.data.message, {
+        position: "top-center",
+      });
+    }
+    navigate(path.home);
+  };
+
   return (
     <Box
       sx={{
@@ -134,21 +162,59 @@ export default function ArtistNavbar() {
           alignItems: "center",
         }}
       >
-        <Link to={path.home}>
-          <Button variant="contained" sx={{ borderRadius: "50px" }}>
-            Chuyển sang chế độ người dùng
-          </Button>
-        </Link>
+        <Button
+          variant="contained"
+          sx={{ borderRadius: "50px" }}
+          onClick={() => handleNavigation()}
+        >
+          Chuyển sang chế độ người dùng
+        </Button>
+
         <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-          <CalendarMonthIcon sx={{ width: 40, height: 40 }} />
-          <NotificationsIcon sx={{ width: 40, height: 40 }} />
-          <TelegramIcon sx={{ width: 40, height: 40 }} />
-          <img
-            src={artistProfile.avatar_url}
-            width={50}
-            height={50}
-            style={{ objectFit: "cover", borderRadius: "50%" }}
-          />
+          <CalendarMonthIcon sx={{ width: 30, height: 30 }} />
+          <NotificationsIcon sx={{ width: 30, height: 30 }} />
+          <TelegramIcon sx={{ width: 30, height: 30 }} />
+          <Popover
+            renderPopover={
+              <Box
+                sx={{
+                  position: "relative",
+                  borderRadius: 1,
+                  bgcolor: "white",
+                }}
+              >
+                <Button
+                  onClick={() => handleLogout()}
+                  sx={{
+                    mt: 1,
+                    py: 1,
+                    px: 1.5,
+                    justifyContent: "flex-start",
+                    color: "black",
+                    textTransform: "none",
+                    "&:hover": {
+                      backgroundColor: (theme) => theme.palette.lightGray,
+                    },
+                  }}
+                >
+                  <LogoutIcon />
+                  Đăng xuất
+                </Button>
+              </Box>
+            }
+          >
+            <Avatar
+              src={
+                artistProfile?.avatar_url ||
+                "https://mkhub.s3.us-east-1.amazonaws.com/avatar/default_avt.jpg"
+              }
+              alt="avatar"
+              sx={{
+                width: 40,
+                height: 40,
+              }}
+            />
+          </Popover>
         </Box>
       </Box>
     </Box>

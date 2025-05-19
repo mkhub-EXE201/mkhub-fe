@@ -5,25 +5,26 @@ import {
   CardActions,
   CardContent,
   CardMedia,
+  Skeleton,
   Tab,
   Tabs,
   Typography,
 } from "@mui/material";
 import React, { useEffect } from "react";
-import Navbar from "../components/Navbar";
+import Navbar from "../components/layout/Navbar";
 import { useParams } from "react-router-dom";
 import { useState } from "react";
 import userApis from "../apis/users.apis";
 import toast from "react-hot-toast";
 import HttpStatusCode from "../constants/httpStatus";
-import Skeleton from "../components/Skeleton";
+
 import LinkIcon from "@mui/icons-material/Link";
 import { formatCurrency } from "../utils/utils";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import Footer from "../components/Footer";
+import Footer from "../components/layout/Footer";
 import LocationPinIcon from "@mui/icons-material/LocationPin";
 import locationApi from "../apis/locations.apis";
 
@@ -95,7 +96,9 @@ export default function ArtistDetail() {
       <Navbar />
       <Box>
         {isLoading ? (
-          <Skeleton />
+          <>
+            <Skeleton />
+          </>
         ) : (
           <Box sx={{ padding: 3 }}>
             <Box

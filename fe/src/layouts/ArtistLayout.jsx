@@ -2,7 +2,7 @@
 import { Box } from "@mui/material";
 import React from "react";
 import Sidebar from "../components/Sidebar";
-import ArtistNavbar from "../components/ArtistNavbar";
+import ArtistNavbar from "../components/layout/ArtistNavbar";
 
 export default function ArtistLayout({ children }) {
   return (
@@ -20,6 +20,7 @@ export default function ArtistLayout({ children }) {
         <Box
           sx={{
             flex: 2,
+            minWidth: 300,
           }}
         >
           <Sidebar />

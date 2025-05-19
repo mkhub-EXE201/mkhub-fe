@@ -1,7 +1,7 @@
 import CountUp from "react-countup";
 import { Box, Typography, Grid } from "@mui/material";
 import React from "react";
-import Counter from "./Counter";
+import Counter from "../Counter";
 
 export default function StatCard() {
   return (

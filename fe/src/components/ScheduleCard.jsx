@@ -55,12 +55,12 @@ const ScheduleCard = ({ appointment }) => {
             <Box sx={styles.profileContainer}>
                 <img
                     src={avatar}
-                    alt={`Artist ${id}`}
+                    alt={`Khach Hang ${id}`}
                     style={styles.avatar}
                 />
                 <Box>
                     <Typography fontWeight={500}>
-                        {artistName || `Artist ${id}`}
+                        {artistName || `Khach ${id}`}
                     </Typography>
                     <Box sx={styles.locationContainer}>
                         <PlaceIcon sx={{ fontSize: 16 }} />

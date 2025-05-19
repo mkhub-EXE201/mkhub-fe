@@ -34,7 +34,6 @@ export const ProtectedRoute = ({ isAdmin, isArtist }) => {
   }
 
   if (isAdmin && role !== USER_ROLE.ADMIN) {
-    console.log(role);
     if (role === USER_ROLE.ARTIST) {
       return <Navigate to={path.artistPortfolioManagement} replace />;
     }
@@ -42,7 +41,6 @@ export const ProtectedRoute = ({ isAdmin, isArtist }) => {
   }
 
   if (isArtist && role !== USER_ROLE.ARTIST) {
-    console.log(role);
     if (role === USER_ROLE.ADMIN) {
       return <Navigate to={path.adminDashboard} replace />;
     }
@@ -68,11 +66,25 @@ export const RejectedRoute = () => {
   return <Outlet />;
 };
 
+export const checkHomeAccess = () => {
+  const { isAuthenticated, role } = useContext(AppContext);
+
+  if (isAuthenticated && role !== USER_ROLE.MEMBER) {
+    if (role === USER_ROLE.ARTIST) {
+      return <Navigate to={path.artistPortfolioManagement} replace />;
+    }
+    if (role === USER_ROLE.ADMIN) {
+      return <Navigate to={path.adminDashboard} replace />;
+    }
+  }
+  return null;
+};
+
 const AppRouter = () => {
   const routeElements = useRoutes([
     {
       path: path.home,
-      element: <Homepage />,
+      element: checkHomeAccess() || <Homepage />,
     },
     {
       path: path.explore,
@@ -134,7 +146,6 @@ const AppRouter = () => {
           path: path.artistScheduleManagement,
           element: <ArtistLayout>{<ArtistScheduleManagement />}</ArtistLayout>,
         },
-
       ],
     },
     // protect route - user

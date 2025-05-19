@@ -206,7 +206,7 @@ export default function RegisterArtist() {
     if (response.status === HttpStatusCode.Ok) {
       setIsSubmitting(false);
       toast.success(response.data.message);
-      navigate(path.home);
+      navigate(path.login);
     }
   };
 

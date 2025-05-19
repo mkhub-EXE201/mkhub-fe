@@ -36,6 +36,10 @@ const theme = createTheme({
       fontWeight: 500,
       color: "#091B65",
     },
+    h6: {
+      fontWeight: 500,
+      color: "#091B65",
+    },
     button: {
       textTransform: "none",
     },
