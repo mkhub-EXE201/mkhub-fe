@@ -23,8 +23,8 @@ import { USER_ROLE } from "../../constants/enum";
 import SendIcon from "@mui/icons-material/Send";
 import { useEffect } from "react";
 import { io } from "socket.io-client";
-import NotificationsIcon from "@mui/icons-material/Notifications";
 import notificationsApis from "../../apis/notifications.apis";
+import Notification from "../Notification";
 
 export default function Headers() {
   const navigate = useNavigate();
@@ -83,7 +83,6 @@ export default function Headers() {
     };
     const response = await notificationsApis.getAllNotifications(payload);
     if (response.status === HttpStatusCode.Ok) {
-      console.log(response.data.result);
       setNoti(response.data.result);
       setUnreadNotiCount(response.data.result.length);
     }
@@ -94,6 +93,7 @@ export default function Headers() {
     if (response.status === HttpStatusCode.Ok) {
       setIsAuthenticated(false);
       setProfile(null);
+      setNoti(null);
       toast.success(response.data.message, {
         position: "top-center",
       });
@@ -212,29 +212,23 @@ export default function Headers() {
               </Typography>
             </Box>
           </Button>
-          <Link to={path.chat}>
-            <IconButton>
-              <Badge badgeContent={unreadNotiCount} color="error">
-                <NotificationsIcon
-                  sx={{ color: "white", width: 30, height: 30 }}
-                />
-              </Badge>
-            </IconButton>
-          </Link>
-          <Link to={path.chat}>
-            <IconButton>
-              <Badge badgeContent={unreadChatCount} color="error">
-                <SendIcon
-                  sx={{
-                    color: "white",
-                    transform: "rotate(-45deg)",
-                    width: 30,
-                    height: 30,
-                  }}
-                />
-              </Badge>
-            </IconButton>
-          </Link>
+          <Notification
+            notifications={noti}
+            getNotificationsByStatus={getNotificationsByStatus}
+          />
+          <IconButton>
+            <Badge badgeContent={unreadChatCount} color="error">
+              <SendIcon
+                sx={{
+                  color: "white",
+                  transform: "rotate(-45deg)",
+                  width: 30,
+                  height: 30,
+                }}
+              />
+            </Badge>
+          </IconButton>
+
           {!isAuthenticated ? (
             <>
               <Link
