@@ -23,6 +23,8 @@ import { USER_ROLE } from "../../constants/enum";
 import SendIcon from "@mui/icons-material/Send";
 import { useEffect } from "react";
 import { io } from "socket.io-client";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import notificationsApis from "../../apis/notifications.apis";
 
 export default function Headers() {
   const navigate = useNavigate();
@@ -34,7 +36,15 @@ export default function Headers() {
     role,
     setRole,
   } = useContext(AppContext);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadChatCount, setUnreadChatCount] = useState(0);
+  const [unreadNotiCount, setUnreadNotiCount] = useState(0);
+  const [noti, setNoti] = useState([]);
+
+  useEffect(() => {
+    if (profile?.id) {
+      getNotificationsByStatus(USER_ROLE.MEMBER.toLowerCase(), false);
+    }
+  }, [profile?.id]);
 
   useEffect(() => {
     const socket = io("http://localhost:3000", {
@@ -56,8 +66,8 @@ export default function Headers() {
         pauseOnHover: true,
         draggable: true,
       });
-
-      setUnreadCount((prev) => prev + 1);
+      getNotificationsByStatus(USER_ROLE.MEMBER.toLowerCase(), false);
+      setUnreadNotiCount((prev) => prev + 1);
     });
 
     return () => {
@@ -65,6 +75,19 @@ export default function Headers() {
       socket.off("connect");
     };
   }, []);
+
+  const getNotificationsByStatus = async (role, status) => {
+    const payload = {
+      role,
+      status,
+    };
+    const response = await notificationsApis.getAllNotifications(payload);
+    if (response.status === HttpStatusCode.Ok) {
+      console.log(response.data.result);
+      setNoti(response.data.result);
+      setUnreadNotiCount(response.data.result.length);
+    }
+  };
 
   const handleLogout = async () => {
     const response = await userApis.logout();
@@ -189,12 +212,25 @@ export default function Headers() {
               </Typography>
             </Box>
           </Button>
-
           <Link to={path.chat}>
             <IconButton>
-              <Badge badgeContent={unreadCount} color="error">
+              <Badge badgeContent={unreadNotiCount} color="error">
+                <NotificationsIcon
+                  sx={{ color: "white", width: 30, height: 30 }}
+                />
+              </Badge>
+            </IconButton>
+          </Link>
+          <Link to={path.chat}>
+            <IconButton>
+              <Badge badgeContent={unreadChatCount} color="error">
                 <SendIcon
-                  sx={{ color: "white", transform: "rotate(-45deg)" }}
+                  sx={{
+                    color: "white",
+                    transform: "rotate(-45deg)",
+                    width: 30,
+                    height: 30,
+                  }}
                 />
               </Badge>
             </IconButton>
@@ -406,7 +442,7 @@ export default function Headers() {
                         backgroundColor: (theme) => theme.palette.ochre.light,
                       },
                     }}
-                    onClick={() => { }}
+                    onClick={() => {}}
                   />
                 ))}
             </Box>
@@ -437,7 +473,7 @@ export default function Headers() {
                         backgroundColor: (theme) => theme.palette.ochre.light,
                       },
                     }}
-                    onClick={() => { }}
+                    onClick={() => {}}
                   />
                 ))}
             </Box>
