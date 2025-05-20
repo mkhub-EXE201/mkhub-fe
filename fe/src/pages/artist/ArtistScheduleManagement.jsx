@@ -62,32 +62,8 @@ function a11yProps(index) {
 export default function ArtistScheduleManagement() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(TABS.GENERAL);
-  const [selectedDate, setSelectedDate] = useState(new Date(2025, 4, 15)); // May 15, 2025
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [calendarEvents, setCalendarEvents] = useState([]);
-  // Sample calendar events data for FullCalendar
-  // const calendarEvents = [
-  //   {
-  //     id: "1",
-  //     title: "Lịch hẹn",
-  //     start: new Date(2025, 4, 15, 10, 0).toISOString(),
-  //     end: new Date(2025, 4, 15, 12, 0).toISOString(),
-  //     color: "#F13067",
-  //   },
-  //   {
-  //     id: "2",
-  //     title: "Lịch hẹn",
-  //     start: new Date(2025, 4, 16, 13, 0).toISOString(),
-  //     end: new Date(2025, 4, 16, 14, 30).toISOString(),
-  //     color: "#F13067",
-  //   },
-  //   {
-  //     id: "3",
-  //     title: "Lịch hẹn",
-  //     start: "2025-05-17T09:00:00",
-  //     end: "2025-05-17T11:00:00",
-  //     color: "#F13067",
-  //   },
-  // ];
 
   const getAllSchedules = async () => {
     const response = await artistSchedulesApis.getAllArtistWokingSchedule();
