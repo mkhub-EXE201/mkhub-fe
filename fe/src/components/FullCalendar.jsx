@@ -137,7 +137,12 @@ const calendarStyles = {
   },
 };
 
-const FullCalendarComponent = ({ events, selectedDate, onAddEvent }) => {
+const FullCalendarComponent = ({
+  events,
+  selectedDate,
+  onAddEvent,
+  getAllSchedules,
+}) => {
   const calendarRef = useRef(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [newEvent, setNewEvent] = useState({
@@ -217,6 +222,7 @@ const FullCalendarComponent = ({ events, selectedDate, onAddEvent }) => {
         setFormError(fieldErrors);
       }
     }
+    getAllSchedules();
   };
 
   useEffect(() => {
@@ -438,6 +444,7 @@ FullCalendarComponent.propTypes = {
   ).isRequired,
   selectedDate: PropTypes.instanceOf(Date).isRequired,
   onAddEvent: PropTypes.func.isRequired,
+  getAllSchedules: PropTypes.func.isRequired,
 };
 
 export default FullCalendarComponent;
