@@ -89,13 +89,14 @@ export default function ArtistScheduleManagement() {
   //   },
   // ];
 
+  const getAllSchedules = async () => {
+    const response = await artistSchedulesApis.getAllArtistWokingSchedule();
+    if (response.status === HttpStatusCode.Ok) {
+      setCalendarEvents(response.data.result);
+    }
+  };
+
   useEffect(() => {
-    const getAllSchedules = async () => {
-      const response = await artistSchedulesApis.getAllArtistWokingSchedule();
-      if (response.status === HttpStatusCode.Ok) {
-        setCalendarEvents(response.data.result);
-      }
-    };
     getAllSchedules();
   }, []);
   // Sample schedule data focused on May 15, 2025
@@ -201,6 +202,7 @@ export default function ArtistScheduleManagement() {
             handleDateChange={handleDateChange}
             scheduleData={scheduleData}
             calendarEvents={calendarEvents}
+            getAllSchedules={getAllSchedules}
             onAddEvent={handleAddEvent}
           />
         </TabPanel>
