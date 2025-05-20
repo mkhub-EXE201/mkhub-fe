@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Tabs, Tab, Typography, Card, CardContent } from "@mui/material";
+import { Box, Tabs, Tab, Typography, CardContent, Chip, Divider } from "@mui/material";
 import PlaceIcon from "@mui/icons-material/Place";
 import PropTypes from 'prop-types';
 
@@ -7,13 +7,13 @@ import PropTypes from 'prop-types';
 const styles = {
     card: {
         borderRadius: "18px",
-        boxShadow: "0 3px 8px rgba(0, 0, 0, 0.1)",
+        // boxShadow: "0 3px 8px rgba(0, 0, 0, 0.1)",
         transition: "box-shadow 0.3s ease",
         minHeight: 200,
     },
     tabContainer: {
         width: "100%",
-        marginTop: 10,
+        marginTop: 8,
         display: "flex",
     },
     tabsRoot: {
@@ -59,14 +59,14 @@ const styles = {
         "100%": { boxShadow: "0 0 5px rgba(241, 48, 103, 0.5)" },
     },
     tabPanel: { //content
-        padding: 5,
+        padding: 4,
         borderRadius: 8,
         border: "1px solid #ccc",
         backgroundColor: "#fff",
         minHeight: 300,
         maxWidth: 700,
         flexGrow: 1, // Allow panel to take remaining space
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+        boxShadow: "0 2px 8px rgb(232, 137, 185)",
         transition: "box-shadow 0.3s ease",
         // marginLeft: 0,
         "&:hover": {
@@ -127,11 +127,12 @@ function PersonalScheduleDetailsTabs() {
             </Tabs>
             <Box sx={styles.tabContent}>
                 <TabPanel value={value} index={0}>
-                    <Card sx={styles.card}>
+                    {/* <Card sx={styles.card}> */}
                         <CardContent>
-                            <Typography variant="h3" sx={{ fontSize: "1.2rem", fontWeight: "semi-bold", marginBottom: 1 }}>
+                            <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
                                 Makeup thường ngày
                             </Typography>
+                            <Divider sx={{ my: 2 }} />
                             <Typography>
                                 Make up cổ điển theo style trong trẻo, phù hợp với Hàn Quốc.
                             </Typography>
@@ -139,37 +140,37 @@ function PersonalScheduleDetailsTabs() {
                                 Thiên về những tone hồng lớp nền căng mướt bóng mịn
                             </Typography>
                             <Typography>Đi kèm dịch vụ làm tóc cô dâu</Typography>
-                            <Typography
-                                sx={{
-                                    fontWeight: 'bold',
-                                    textAlign: 'right',
-                                    marginTop: 1
-                                }}
-                            >
-                                Gói Cơ bản
-                            </Typography>
+                            <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: 1 }}>
+                                <Chip
+                                    label="Gói Cơ bản"
+                                    sx={{
+                                        backgroundColor: '#091B65',
+                                        color: 'white',
+                                        fontWeight: 'bold',
+                                        borderRadius: '16px'
+                                    }}
+                                />
+                            </Box>
                         </CardContent>
-                    </Card>
+                    {/* </Card> */}
                 </TabPanel>
                 <TabPanel value={value} index={1}>
-                    <Card sx={styles.card}>
+                   
                         <CardContent>
-                            <Typography variant="h4" sx={{ fontSize: "1.2rem", fontWeight: "semi-bold", marginBottom: 1 }}>Thứ 5, 20/03/2025</Typography>
-                            <Typography variant="h4" sx={{ fontSize: "1.2rem", fontWeight: "semi-bold", marginBottom: 1 }}>5:00 PM</Typography>
+                             <Typography variant="h6" sx={{ mb: 0, fontWeight: 600 }}>Thứ 5, 20/03/2025</Typography>
+                             <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>5:00 PM</Typography>
                             <Typography>
+                            <Divider sx={{ my: 2 }} />
                                 <PlaceIcon sx={{ fontSize: 16, verticalAlign: "middle" }} /> Ho Chi Minh City
                             </Typography>
                         </CardContent>
-                    </Card>
                 </TabPanel>
                 <TabPanel value={value} index={2}>
-                    <Card sx={styles.card}>
                         <CardContent>
                             <Typography sx={{ fontSize: "1rem" }}>
                                 Khách hàng da dầu vùng chữ T, yêu cầu layout makeup trong trẻo và nền căng bóng mịn
                             </Typography>
                         </CardContent>
-                    </Card>
                 </TabPanel>
             </Box>
         </Box>

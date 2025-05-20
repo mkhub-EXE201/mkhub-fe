@@ -1,13 +1,13 @@
 import React, { useContext, useState } from "react";
 import Box from "@mui/material/Box";
-import { AppContext } from "../contexts/app.context";
+import { AppContext } from "../../contexts/app.context";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Skeleton, Typography } from "@mui/material";
-import artistApis from "../apis/artists.apis";
-import HttpStatusCode from "../constants/httpStatus";
+import artistApis from "../../apis/artists.apis";
+import HttpStatusCode from "../../constants/httpStatus";
 import { useEffect } from "react";
-import TruncatedText from "./TruncatedText";
-import path from "../constants/path";
+import TruncatedText from "../TruncatedText";
+import path from "../../constants/path";
 export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -47,7 +47,15 @@ export default function Sidebar() {
   };
 
   return (
-    <>
+    <Box
+      sx={{
+        position: "sticky",
+        top: 16,
+        maxHeight: "calc(100vh - 32px)",
+        overflowY: "auto",
+        pb: 2,
+      }}
+    >
       {isLoading ? (
         <>
           <Skeleton variant="text" sx={{ fontSize: "1rem" }} />
@@ -232,6 +240,6 @@ export default function Sidebar() {
           </Box>
         </>
       )}
-    </>
+    </Box>
   );
 }
