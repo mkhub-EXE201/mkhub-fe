@@ -26,6 +26,7 @@ import { io } from "socket.io-client";
 import notificationsApis from "../../apis/notifications.apis";
 import Notification from "../Notification";
 import { TypeAnimation } from 'react-type-animation';
+import { scrollLeft, scrollLeft2, fadeIn, animationSpeeds } from '../../styles/HomeBannerAnimation';
 
 export default function Headers() {
   const navigate = useNavigate();
@@ -419,27 +420,6 @@ export default function Headers() {
               flexDirection: "column",
               alignItems: "center",
               gap: { lg: 4, md: 4, sm: 2, xs: 1 },
-              "@keyframes scrollLeft": {
-                "0%": {
-                  transform: "translateX(0)"
-                },
-                "100%": {
-                  transform: "translateX(calc(-250px * 8))"
-                }
-              },
-              "@keyframes scrollLeft2": { // Create a separate animation for row 2
-                "0%": {
-                  transform: "translateX(0)"
-                },
-                "100%": {
-                  transform: "translateX(calc(-220px * 8))" // Adjusted width for row 2
-                }
-              },
-              "@keyframes fadeIn": {
-                to: {
-                  opacity: 1
-                }
-              }
             }}
           >
             {/* Both rows wrapped in a container to ensure synchronized movement */}
@@ -463,7 +443,7 @@ export default function Headers() {
                   className="scroll-animation"
                   sx={{
                     display: "inline-flex",
-                    animation: "scrollLeft 40s linear infinite",
+                    animation: `${scrollLeft} ${animationSpeeds.medium}s linear infinite`,
                     animationPlayState: "running",
                     width: "calc(250px * 16)",
                     "&:hover": {
@@ -520,8 +500,8 @@ export default function Headers() {
                   className="scroll-animation-2"
                   sx={{
                     display: "inline-flex",
-                    animation: "scrollLeft2 40s linear infinite", // Use the row-2 specific animation
-                    animationDelay: "0s", // Ensure no delay
+                    animation: `${scrollLeft2} ${animationSpeeds.medium}s linear infinite`,
+                    animationDelay: "0s",
                     animationPlayState: "running",
                     width: "calc(220px * 16)", // Adjusted width for row 2 content
                     "&:hover": {
@@ -536,7 +516,7 @@ export default function Headers() {
                         display: "flex",
                         gap: { lg: 4, md: 4, sm: 2, xs: 1 },
                         justifyContent: "center",
-                        px: { lg: 1.5, md: 1, sm: 0.75, xs: 0.5 } // Reduced padding
+                        px: { lg: 1.5, md: 1, sm: 0.75, xs: 0.5 }
                       }}
                     >
                       {Array(3).fill(0).map((_, index) => {
