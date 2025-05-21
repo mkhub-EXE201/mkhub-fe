@@ -25,6 +25,7 @@ import { useEffect } from "react";
 import { io } from "socket.io-client";
 import notificationsApis from "../../apis/notifications.apis";
 import Notification from "../Notification";
+import { TypeAnimation } from 'react-type-animation';
 
 export default function Headers() {
   const navigate = useNavigate();
@@ -342,14 +343,24 @@ export default function Headers() {
         }}
       >
         <Box textAlign="center">
-          <Typography
-            textTransform="uppercase"
-            color="white"
-            sx={{ fontSize: { xs: "20px", sm: "28px", md: "44px" } }}
-            fontWeight={500}
-          >
-            Một nền tảng kết nối makeup artist Makeup hub
-          </Typography>
+          <TypeAnimation
+            sequence={[
+
+              'Một nền tảng kết nối makeup artist', 2000,
+              'Makeup hub', 1500,
+
+            ]}
+            wrapper="span"
+            cursor={true}
+            repeat={Infinity}
+            style={{
+              color: "white",
+              fontSize: "44px",
+              fontWeight: 600,
+              textTransform: "uppercase",
+              display: "block",
+            }}
+          />
 
           {/* Search */}
           <Box
@@ -408,68 +419,151 @@ export default function Headers() {
               flexDirection: "column",
               alignItems: "center",
               gap: { lg: 4, md: 4, sm: 2, xs: 1 },
+              "@keyframes scrollLeft": {
+                "0%": {
+                  transform: "translateX(0)"
+                },
+                "100%": {
+                  transform: "translateX(calc(-250px * 8))"
+                }
+              },
+              "@keyframes scrollLeft2": { // Create a separate animation for row 2
+                "0%": {
+                  transform: "translateX(0)"
+                },
+                "100%": {
+                  transform: "translateX(calc(-220px * 8))" // Adjusted width for row 2
+                }
+              },
+              "@keyframes fadeIn": {
+                to: {
+                  opacity: 1
+                }
+              }
             }}
           >
-            {/* row 1: 4 chips */}
+            {/* Both rows wrapped in a container to ensure synchronized movement */}
             <Box
               sx={{
-                display: "flex",
-                flexDirection: {
-                  xs: "column",
-                  sm: "row",
-                },
-                gap: { lg: 4, md: 4, sm: 2, xs: 1 },
+                display: "inline-block",
+                width: "100%"
               }}
             >
-              {Array(4)
-                .fill(0)
-                .map((_, index) => (
-                  <Chip
-                    key={index}
-                    label="#hashtag"
-                    sx={{
-                      backgroundColor: (theme) => theme.palette.ochre.lightGrey,
-                      color: (theme) => theme.palette.ochre.dark,
-                      fontWeight: 500,
-                      borderRadius: "999px",
-                      "&:hover": {
-                        backgroundColor: (theme) => theme.palette.ochre.light,
-                      },
-                    }}
-                    onClick={() => {}}
-                  />
-                ))}
-            </Box>
+              {/* row 1: 4 chips with horizontal scrolling animation */}
+              <Box
+                sx={{
+                  width: "100%",
+                  overflow: "hidden",
+                  whiteSpace: "nowrap",
+                  position: "relative",
+                  mb: { lg: 3, md: 3, sm: 2, xs: 1 }
+                }}
+              >
+                <Box
+                  className="scroll-animation"
+                  sx={{
+                    display: "inline-flex",
+                    animation: "scrollLeft 40s linear infinite",
+                    animationPlayState: "running",
+                    width: "calc(250px * 16)",
+                    "&:hover": {
+                      animationPlayState: "paused"
+                    }
+                  }}
+                >
+                  {Array(16).fill(0).map((_, cycle) => ( // Increased duplicates
+                    <Box
+                      key={cycle}
+                      sx={{
+                        display: "flex",
+                        gap: { lg: 4, md: 4, sm: 2, xs: 1 },
+                        justifyContent: "center",
+                        px: { lg: 2, md: 1.5, sm: 1, xs: 0.5 }
+                      }}
+                    >
+                      {Array(4).fill(0).map((_, index) => {
+                        const labels = ["#makeup", "#beauty", "#style", "#trends"];
+                        return (
+                          <Chip
+                            key={cycle * 4 + index}
+                            label={labels[index]}
+                            sx={{
+                              backgroundColor: (theme) => theme.palette.ochre.lightGrey,
+                              color: (theme) => theme.palette.ochre.dark,
+                              fontWeight: 500,
+                              borderRadius: "999px",
+                              transition: "transform 0.3s ease, background-color 0.3s ease",
+                              "&:hover": {
+                                transform: "scale(1.05)",
+                                backgroundColor: (theme) => theme.palette.ochre.light,
+                              },
+                            }}
+                            onClick={() => { }}
+                          />
+                        );
+                      })}
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
 
-            {/* row 2: 3 chips */}
-            <Box
-              sx={{
-                display: "flex",
-                gap: { lg: 4, md: 4, sm: 2, xs: 1 },
-                flexDirection: {
-                  xs: "column",
-                  sm: "row",
-                },
-              }}
-            >
-              {Array(3)
-                .fill(0)
-                .map((_, index) => (
-                  <Chip
-                    key={index + 4}
-                    label="#hashtag"
-                    sx={{
-                      backgroundColor: (theme) => theme.palette.ochre.lightGrey,
-                      color: (theme) => theme.palette.ochre.dark,
-                      fontWeight: 500,
-                      borderRadius: "999px",
-                      "&:hover": {
-                        backgroundColor: (theme) => theme.palette.ochre.light,
-                      },
-                    }}
-                    onClick={() => {}}
-                  />
-                ))}
+              {/* row 2: 3 chips with optimized animation */}
+              <Box
+                sx={{
+                  width: "100%",
+                  overflow: "hidden",
+                  whiteSpace: "nowrap",
+                  position: "relative"
+                }}
+              >
+                <Box
+                  className="scroll-animation-2"
+                  sx={{
+                    display: "inline-flex",
+                    animation: "scrollLeft2 40s linear infinite", // Use the row-2 specific animation
+                    animationDelay: "0s", // Ensure no delay
+                    animationPlayState: "running",
+                    width: "calc(220px * 16)", // Adjusted width for row 2 content
+                    "&:hover": {
+                      animationPlayState: "paused"
+                    }
+                  }}
+                >
+                  {Array(16).fill(0).map((_, cycle) => ( // Increased duplicates
+                    <Box
+                      key={cycle}
+                      sx={{
+                        display: "flex",
+                        gap: { lg: 4, md: 4, sm: 2, xs: 1 },
+                        justifyContent: "center",
+                        px: { lg: 1.5, md: 1, sm: 0.75, xs: 0.5 } // Reduced padding
+                      }}
+                    >
+                      {Array(3).fill(0).map((_, index) => {
+                        const labels = ["#artist", "#look", "#tutorial"];
+                        return (
+                          <Chip
+                            key={cycle * 3 + index}
+                            label={labels[index]}
+                            sx={{
+                              backgroundColor: (theme) => theme.palette.ochre.lightGrey,
+                              color: (theme) => theme.palette.ochre.dark,
+                              fontWeight: 500,
+                              borderRadius: "999px",
+                              transition: "transform 0.3s ease, background-color 0.3s ease",
+                              "&:hover": {
+                                transform: "scale(1.05)",
+                                backgroundColor: (theme) => theme.palette.ochre.light,
+                              },
+                            }}
+                            onClick={() => { }}
+                          />
+                        );
+                      })}
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
             </Box>
           </Box>
         </Box>

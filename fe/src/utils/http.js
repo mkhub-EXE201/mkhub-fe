@@ -31,8 +31,8 @@ class Http {
     this.refreshToken = getRefreshTokenFromLocalStorage();
     this.refreshTokenRequest = null;
     this.instance = axios.create({
-      baseURL: "http://localhost:3000",
-      //  baseURL: "https://mkhub-be.onrender.com",
+      // baseURL: "http://localhost:3000",
+      baseURL: "https://mkhub-be.onrender.com",
       timeout: 10000,
       headers: {
         "Content-Type": "application/json",
@@ -99,10 +99,10 @@ class Http {
             this.refreshTokenRequest = this.refreshTokenRequest
               ? this.refreshTokenRequest
               : this.handleRefreshToken().finally(() => {
-                  setTimeout(() => {
-                    this.refreshTokenRequest = null;
-                  }, 10000);
-                });
+                setTimeout(() => {
+                  this.refreshTokenRequest = null;
+                }, 10000);
+              });
 
             return this.refreshTokenRequest.then(({ access_token }) => {
               return this.instance({
