@@ -26,6 +26,9 @@ import vid1 from '../../assets/vid1.mp4';
 import vid2 from '../../assets/vid2.mp4';
 import vid3 from '../../assets/vid3.mp4';
 import vid4 from '../../assets/vid4.mp4';
+import vid5 from '../../assets/vid5.mp4';
+import vid6 from '../../assets/vid6.mp4';
+import vid7 from '../../assets/vid7.mp4';
 
 const VideoCarousel = () => {
     const [videoStates, setVideoStates] = useState({});
@@ -33,7 +36,6 @@ const VideoCarousel = () => {
     const [activeIndex, setActiveIndex] = useState(2);
     const swiperRef = useRef(null);
 
-    // Updated video data to use local video files
     const videos = [
         {
             id: 1,
@@ -63,6 +65,27 @@ const VideoCarousel = () => {
             thumbnail: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=300&h=400&fit=crop&crop=face",
             videoSrc: vid4
         },
+        {
+            id: 5,
+            title: "Makeup Tutorial",
+            description: "Step by step makeup tutorial for beginners.",
+            thumbnail: "https://images.unsplash.com/photo-1503236823255-94609f598e71?w=300&h=400&fit=crop&crop=face",
+            videoSrc: vid5
+        },
+        {
+            id: 6,
+            title: "Professional Makeup Tips",
+            description: "Learn professional makeup techniques for special occasions.",
+            thumbnail: "https://images.unsplash.com/photo-1596704017243-78587f79ab5a?w=300&h=400&fit=crop&crop=face",
+            videoSrc: vid6
+        },
+        {
+            id: 7,
+            title: "Natural Makeup Look",
+            description: "Create a beautiful natural makeup look for everyday wear.",
+            thumbnail: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=300&h=400&fit=crop&crop=face",
+            videoSrc: vid7
+        },
     ];
 
     const toggleVideoPlay = (videoId, e) => {
@@ -91,7 +114,6 @@ const VideoCarousel = () => {
         }
     };
 
-    // Stop all videos except the active one
     const pauseInactiveVideos = (activeVideoId) => {
         Object.entries(videoRefs.current).forEach(([id, videoEl]) => {
             const videoId = Number(id);
@@ -105,9 +127,8 @@ const VideoCarousel = () => {
         });
     };
 
-    // Handle slide change to update active index and play video
     const handleSlideChange = (swiper) => {
-        const newActiveIndex = swiper.realIndex; // Use realIndex instead of activeIndex for loop mode
+        const newActiveIndex = swiper.realIndex;
         const previousActiveIndex = activeIndex;
 
         setActiveIndex(newActiveIndex);
@@ -124,7 +145,7 @@ const VideoCarousel = () => {
             }
         }
 
-        // Play new active video after a small delay to ensure smooth transition
+        // Play new active video
         setTimeout(() => {
             const activeVideoId = videos[newActiveIndex]?.id;
             if (activeVideoId && videoRefs.current[activeVideoId]) {
@@ -136,15 +157,39 @@ const VideoCarousel = () => {
                     ...prev,
                     [activeVideoId]: { ...prev[activeVideoId], isPlaying: true }
                 }));
-
-                // Ensure all other videos are paused
                 pauseInactiveVideos(activeVideoId);
             }
-        }, 200);
+        }, 100);
+    };
+
+    const goToSlide = (targetIndex) => {
+        if (!swiperRef.current) return;
+
+        const currentIndex = activeIndex;
+        const totalSlides = videos.length;
+
+        const forwardDistance = (targetIndex - currentIndex + totalSlides) % totalSlides;
+        const backwardDistance = (currentIndex - targetIndex + totalSlides) % totalSlides;
+
+        if (forwardDistance <= backwardDistance) {
+            if (forwardDistance === 0) return;
+            swiperRef.current.slideToLoop(targetIndex, 300);
+        } else {
+            let steps = backwardDistance;
+            const slideStep = () => {
+                if (steps > 0) {
+                    swiperRef.current.slidePrev(150);
+                    steps--;
+                    if (steps > 0) {
+                        setTimeout(slideStep, 50);
+                    }
+                }
+            };
+            slideStep();
+        }
     };
 
     useEffect(() => {
-        // Initialize video states
         const initialStates = {};
         videos.forEach(video => {
             initialStates[video.id] = {
@@ -154,7 +199,6 @@ const VideoCarousel = () => {
         });
         setVideoStates(initialStates);
 
-        // Cleanup: pause all videos when component unmounts
         return () => {
             Object.values(videoRefs.current).forEach(video => {
                 if (video && typeof video.pause === 'function') {
@@ -164,7 +208,6 @@ const VideoCarousel = () => {
         };
     }, []);
 
-    // Auto-play the active video when it's loaded and ensure other videos are stopped
     useEffect(() => {
         const activeVideoId = videos[activeIndex]?.id;
         if (activeVideoId && videoRefs.current[activeVideoId]) {
@@ -177,8 +220,6 @@ const VideoCarousel = () => {
                     ...prev,
                     [activeVideoId]: { ...prev[activeVideoId], isPlaying: true }
                 }));
-
-                // Make sure all other videos are paused
                 pauseInactiveVideos(activeVideoId);
             }
         }
@@ -187,7 +228,6 @@ const VideoCarousel = () => {
     return (
         <Box sx={{ bgcolor: 'white', py: 5, minHeight: '100vh' }}>
             <Container maxWidth="lg">
-                {/* Section Title */}
                 <Typography
                     align="left"
                     sx={{
@@ -206,16 +246,15 @@ const VideoCarousel = () => {
                     Makeup Video
                 </Typography>
 
-                {/* Video Carousel */}
                 <Swiper
-                    slidesPerView={4}  // Show 3 slides at once
+                    slidesPerView={4}
                     spaceBetween={20}
-                    freeMode={true}
+                    freeMode={false}
                     pagination={{
                         clickable: true,
                     }}
                     loop={true}
-                    loopAdditionalSlides={4}  // Add extra slides for smoother looping
+                    loopAdditionalSlides={1}
                     modules={[FreeMode, Pagination]}
                     centeredSlides={true}
                     className="mySwiper"
@@ -224,25 +263,36 @@ const VideoCarousel = () => {
                     onSwiper={(swiper) => {
                         swiperRef.current = swiper;
                     }}
-                    initialSlide={2} // Start with middle slide active
+                    initialSlide={2}
+                    speed={300}
+                    allowTouchMove={true}
+                    watchSlidesProgress={true}
+                    breakpoints={{
+                        640: {
+                            slidesPerView: 2,
+                            spaceBetween: 15,
+                        },
+                        768: {
+                            slidesPerView: 3,
+                            spaceBetween: 20,
+                        },
+                        1024: {
+                            slidesPerView: 4,
+                            spaceBetween: 20,
+                        },
+                    }}
                 >
                     {videos.map((video, index) => {
-                        // In loop mode, use realIndex from the swiper ref if available
-                        const isActive = swiperRef.current ?
-                            index === swiperRef.current.realIndex :
-                            index === activeIndex;
-
+                        const isActive = index === activeIndex;
                         const videoState = videoStates[video.id] || {};
-                        const isPlaying = videoState.isPlaying || false;
 
                         return (
                             <SwiperSlide
-                                key={video.id}
+                                key={`${video.id}-${index}`}
                                 style={{
-                                    width: '280px',  // Set fixed width for all slides
+                                    width: '280px',
                                     height: isActive ? '490px' : '390px',
-                                    transition: 'width 0.3s, height 0.3s',
-                                    display: 'flex',  // Ensure content is centered
+                                    display: 'flex',
                                     justifyContent: 'center',
                                 }}
                             >
@@ -254,32 +304,15 @@ const VideoCarousel = () => {
                                         position: 'relative',
                                         overflow: 'hidden',
                                         boxShadow: isActive ? 5 : 3,
+                                        cursor: 'pointer',
+                                        transition: 'box-shadow 0.3s ease-in-out, height 0.3s ease-in-out',
                                         transform: isActive ? 'scale(1.05)' : 'scale(1)',
-                                        transition: 'transform 0.3s, box-shadow 0.3s',
                                         zIndex: isActive ? 2 : 1,
-                                        '&:hover .overlay': {
-                                            bgcolor: 'rgba(0, 0, 0, 0.3)'
-                                        },
-                                        '&:hover .controls': {
-                                            opacity: 1
-                                        }
                                     }}
                                     onClick={() => {
-                                        // If this isn't the active slide, make it active and play it
-                                        if (index !== activeIndex && swiperRef.current) {
-                                            // For loop mode, we need to handle the slide indexes differently
-                                            const realIndex = swiperRef.current.realIndex;
-                                            const indexDiff = index - realIndex;
-
-                                            // Calculate how many slides to move, accounting for the shortest path in loop mode
-                                            let slidesToMove = indexDiff;
-                                            if (Math.abs(indexDiff) > videos.length / 2) {
-                                                slidesToMove = indexDiff - Math.sign(indexDiff) * videos.length;
-                                            }
-
-                                            swiperRef.current.slideToLoop(index);
+                                        if (!isActive) {
+                                            goToSlide(index);
                                         } else {
-                                            // If already active, toggle play/pause
                                             toggleVideoPlay(video.id, { stopPropagation: () => { } });
                                         }
                                     }}
@@ -301,7 +334,6 @@ const VideoCarousel = () => {
                                             const videoEl = videoRefs.current[video.id];
                                             if (videoEl) {
                                                 videoEl.currentTime = 1;
-                                                // Only allow the active video to play
                                                 if (isActive) {
                                                     videoEl.play().catch(err => console.log(err));
                                                     setVideoStates(prev => ({
@@ -309,7 +341,6 @@ const VideoCarousel = () => {
                                                         [video.id]: { ...prev[video.id], isPlaying: true }
                                                     }));
                                                 } else {
-                                                    // Ensure inactive videos are paused
                                                     videoEl.pause();
                                                     setVideoStates(prev => ({
                                                         ...prev,
@@ -318,7 +349,6 @@ const VideoCarousel = () => {
                                                 }
                                             }
                                         }}
-                                        // Add onPlay event handler to ensure inactive videos can't play
                                         onPlay={() => {
                                             if (!isActive) {
                                                 const videoEl = videoRefs.current[video.id];
@@ -335,9 +365,7 @@ const VideoCarousel = () => {
                                         <source src={video.videoSrc} type="video/mp4" />
                                     </CardMedia>
 
-                                    {/* Overlay */}
                                     <Box
-                                        className="overlay"
                                         sx={{
                                             position: 'absolute',
                                             inset: 0,
@@ -345,9 +373,7 @@ const VideoCarousel = () => {
                                             transition: 'background-color 0.3s',
                                         }}
                                     >
-                                        {/* Volume Control */}
                                         <IconButton
-                                            className="controls"
                                             sx={{
                                                 position: 'absolute',
                                                 top: 12,
@@ -363,7 +389,6 @@ const VideoCarousel = () => {
                                             {videoState.isMuted ? <VolumeOff fontSize="small" /> : <VolumeUp fontSize="small" />}
                                         </IconButton>
 
-                                        {/* Bottom Info */}
                                         <Box
                                             sx={{
                                                 position: 'absolute',
