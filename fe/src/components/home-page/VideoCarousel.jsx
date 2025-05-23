@@ -5,20 +5,17 @@ import {
     Box,
     IconButton,
     Typography,
-    Modal,
     Card,
     CardMedia,
-    CardContent,
-    CardActionArea,
     alpha
 } from '@mui/material';
 import {
     PlayArrow,
+    PauseCircle,
     VolumeUp,
     VolumeOff,
     Add,
-    KeyboardArrowUp,
-    Close
+    KeyboardArrowUp
 } from '@mui/icons-material';
 
 // Import Swiper styles
@@ -33,11 +30,9 @@ import vid3 from '../../assets/vid3.mp4';
 import vid4 from '../../assets/vid4.mp4';
 
 const VideoCarousel = () => {
-    const [selectedVideo, setSelectedVideo] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [videoStates, setVideoStates] = useState({});
     const videoRefs = useRef({});
-    const [activeIndex, setActiveIndex] = useState(2); // Default to middle index initially
+    const [activeIndex, setActiveIndex] = useState(2);
     const swiperRef = useRef(null);
 
     // Updated video data to use local video files
@@ -75,7 +70,7 @@ const VideoCarousel = () => {
             title: "The Rich Or Repair Shampoo",
             views: "802,200",
             thumbnail: "https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=300&h=400&fit=crop&crop=face",
-            videoSrc: vid1 // Reusing the first video for the fifth item since we only have 4 videos
+            videoSrc: vid1 // Reusing the first video for the fifth item
         }
     ];
 
@@ -105,19 +100,39 @@ const VideoCarousel = () => {
         }
     };
 
-    const openModal = (video) => {
-        setSelectedVideo(video);
-        setIsModalOpen(true);
-    };
-
-    const closeModal = () => {
-        setIsModalOpen(false);
-        setSelectedVideo(null);
-    };
-
-    // Handle slide change to update active index
+    // Handle slide change to update active index and play video
     const handleSlideChange = (swiper) => {
-        setActiveIndex(swiper.activeIndex);
+        const newActiveIndex = swiper.activeIndex;
+        const previousActiveIndex = activeIndex;
+
+        setActiveIndex(newActiveIndex);
+
+        // Pause previous active video
+        if (previousActiveIndex !== newActiveIndex) {
+            const prevVideoId = videos[previousActiveIndex]?.id;
+            if (prevVideoId && videoRefs.current[prevVideoId]) {
+                videoRefs.current[prevVideoId].pause();
+                setVideoStates(prev => ({
+                    ...prev,
+                    [prevVideoId]: { ...prev[prevVideoId], isPlaying: false }
+                }));
+            }
+        }
+
+        // Play new active video after a small delay to ensure smooth transition
+        setTimeout(() => {
+            const activeVideoId = videos[newActiveIndex]?.id;
+            if (activeVideoId && videoRefs.current[activeVideoId]) {
+                const video = videoRefs.current[activeVideoId];
+                video.play().catch(error => {
+                    console.log('Auto-play prevented:', error);
+                });
+                setVideoStates(prev => ({
+                    ...prev,
+                    [activeVideoId]: { ...prev[activeVideoId], isPlaying: true }
+                }));
+            }
+        }, 100);
     };
 
     useEffect(() => {
@@ -130,7 +145,34 @@ const VideoCarousel = () => {
             };
         });
         setVideoStates(initialStates);
+
+        // Play the initial active video
+        return () => {
+            // Cleanup: pause all videos when component unmounts
+            Object.values(videoRefs.current).forEach(video => {
+                if (video && typeof video.pause === 'function') {
+                    video.pause();
+                }
+            });
+        };
     }, []);
+
+    // Auto-play the active video when it's loaded
+    useEffect(() => {
+        const activeVideoId = videos[activeIndex]?.id;
+        if (activeVideoId && videoRefs.current[activeVideoId]) {
+            const video = videoRefs.current[activeVideoId];
+            if (video.readyState >= 2) {
+                video.play().catch(error => {
+                    console.log('Auto-play prevented:', error);
+                });
+                setVideoStates(prev => ({
+                    ...prev,
+                    [activeVideoId]: { ...prev[activeVideoId], isPlaying: true }
+                }));
+            }
+        }
+    }, [activeIndex, videos]);
 
     return (
         <Box sx={{ bgcolor: 'grey.100', minHeight: '100vh', py: 3 }}>
@@ -154,6 +196,7 @@ const VideoCarousel = () => {
                 {videos.map((video, index) => {
                     const isActive = index === activeIndex;
                     const videoState = videoStates[video.id] || {};
+                    const isPlaying = videoState.isPlaying || false;
 
                     return (
                         <SwiperSlide
@@ -187,8 +230,8 @@ const VideoCarousel = () => {
                                     if (index !== activeIndex && swiperRef.current) {
                                         swiperRef.current.slideTo(index);
                                     } else {
-                                        // If already active, open the modal
-                                        openModal(video);
+                                        // If already active, toggle play/pause
+                                        toggleVideoPlay(video.id, { stopPropagation: () => { } });
                                     }
                                 }}
                             >
@@ -209,6 +252,13 @@ const VideoCarousel = () => {
                                         const videoEl = videoRefs.current[video.id];
                                         if (videoEl) {
                                             videoEl.currentTime = 1;
+                                            if (isActive) {
+                                                videoEl.play().catch(err => console.log(err));
+                                                setVideoStates(prev => ({
+                                                    ...prev,
+                                                    [video.id]: { ...prev[video.id], isPlaying: true }
+                                                }));
+                                            }
                                         }
                                     }}
                                 >
@@ -260,25 +310,6 @@ const VideoCarousel = () => {
                                         {videoState.isMuted ? <VolumeOff fontSize="small" /> : <VolumeUp fontSize="small" />}
                                     </IconButton>
 
-                                    {/* Play Button */}
-                                    <IconButton
-                                        className="controls"
-                                        sx={{
-                                            position: 'absolute',
-                                            top: '50%',
-                                            left: '50%',
-                                            transform: 'translate(-50%, -50%)',
-                                            bgcolor: alpha('#fff', 0.2),
-                                            backdropFilter: 'blur(4px)',
-                                            p: 2,
-                                            color: 'white',
-                                            opacity: isActive ? 0.8 : 0,
-                                            transition: 'opacity 0.3s'
-                                        }}
-                                        onClick={(e) => toggleVideoPlay(video.id, e)}
-                                    >
-                                        <PlayArrow />
-                                    </IconButton>
 
                                     {/* Bottom Info */}
                                     <Box
@@ -343,53 +374,6 @@ const VideoCarousel = () => {
                     );
                 })}
             </Swiper>
-
-            {/* Modal */}
-            <Modal
-                open={isModalOpen}
-                onClose={closeModal}
-                aria-labelledby="video-modal"
-                aria-describedby="full-size-video-modal"
-                sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    p: 2
-                }}
-            >
-                <Box sx={{
-                    position: 'relative',
-                    width: '100%',
-                    maxWidth: '64rem',
-                    aspectRatio: '16/9',
-                    bgcolor: 'black',
-                    borderRadius: 2,
-                    overflow: 'hidden'
-                }}>
-                    <IconButton
-                        onClick={closeModal}
-                        sx={{
-                            position: 'absolute',
-                            top: 16,
-                            right: 16,
-                            color: 'white',
-                            zIndex: 10
-                        }}
-                    >
-                        <Close />
-                    </IconButton>
-                    {selectedVideo && (
-                        <video
-                            style={{ width: '100%', height: '100%' }}
-                            controls
-                            autoPlay
-                            src={selectedVideo.videoSrc}
-                        >
-                            Your browser does not support the video tag.
-                        </video>
-                    )}
-                </Box>
-            </Modal>
         </Box>
     );
 };
