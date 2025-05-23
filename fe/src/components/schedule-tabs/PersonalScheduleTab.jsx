@@ -1,10 +1,11 @@
 import React from "react";
 import { Box, Typography, Stepper, Step, StepLabel, Divider } from "@mui/material";
-import PlaceIcon from "@mui/icons-material/Place";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import artistBanner from "../../assets/artist-banner.jpg";
 import PersonalScheduleDetails from "./PersonalScheduleDetails";
+import CustomProfileCard from "./CustomProfileCard";
+
 const styles = {
     tabContent: { display: "flex", flexDirection: "column", gap: 3, marginTop: 3 },
     customerContainer: {
@@ -14,41 +15,6 @@ const styles = {
         borderRadius: 2,
         display: "flex",
         flexDirection: "column",
-    },
-    customerInfo: {
-        border: "1px solid #ccc",
-        borderRadius: 4,
-        padding: 3,
-        marginBottom: 3,
-        backgroundColor: "#fff",
-    },
-    profileContainer: {
-        display: "flex",
-        alignItems: "center",
-        gap: 2,
-        marginBottom: 2,
-    },
-    avatar: {
-        borderRadius: "50%",
-        width: 60,
-        height: 60,
-        objectFit: "cover",
-    },
-    locationContainer: {
-        display: "flex",
-        alignItems: "center",
-        gap: 1,
-        marginTop: 1,
-    },
-    contactButton: {
-        border: "1px solid #ddd",
-        borderRadius: 2,
-        padding: "8px 16px",
-        backgroundColor: "#fff",
-        cursor: "pointer",
-        "&:hover": {
-            backgroundColor: "#f5f5f5",
-        },
     },
     processContainer: {
         marginTop: 2,
@@ -111,31 +77,7 @@ function PersonalScheduleTab() {
                 </Typography>
 
                 {/* Customer Information Card */}
-                <Box sx={styles.customerInfo}>
-                    <Box sx={styles.profileContainer}>
-                        <img
-                            src={customerData.avatar}
-                            alt={customerData.name}
-                            style={styles.avatar}
-                        />
-                        <Box sx={{ flex: 1 }}>
-                            <Typography sx={{ fontWeight: 500, fontSize: 16 }}>
-                                {customerData.name}
-                            </Typography>
-                            <Box sx={styles.locationContainer}>
-                                <PlaceIcon sx={{ fontSize: 16, color: "#666" }} />
-                                <Typography sx={{ fontSize: 13, color: "#666" }}>
-                                    {customerData.location}
-                                </Typography>
-                            </Box>
-                        </Box>
-                        <Box sx={styles.contactButton}>
-                            <Typography sx={{ fontSize: 14 }}>
-                                Liên hệ
-                            </Typography>
-                        </Box>
-                    </Box>
-                </Box>
+                <CustomProfileCard customerData={customerData} />
 
                 {/* Process Flow Section */}
                 <Box sx={styles.processContainer}>
