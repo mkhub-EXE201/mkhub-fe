@@ -6,6 +6,7 @@ import TopServices from "../components/home-page/TopServices";
 import Offers from "../components/Offers";
 import Footer from "../components/layout/Footer";
 import ArtistBanner from "../components/home-page/ArtistBanner";
+import VideoCarousel from "../components/home-page/VideoCarousel";
 
 export default function Homepage() {
   return (
@@ -14,6 +15,7 @@ export default function Homepage() {
       <StatCard />
       <TopServices />
       <Offers />
+      <VideoCarousel />
       <ArtistBanner />
       <Footer />
     </Box>

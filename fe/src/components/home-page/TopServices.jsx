@@ -123,7 +123,7 @@ export default function TopServices() {
                           borderRadius: "30px",
                           objectFit: "cover",
                         }}
-                        image="https://plus.unsplash.com/premium_photo-1664874603231-9d137ca41322?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8bWFrZXVwJTIwbG9va3xlbnwwfHwwfHx8MA%3D%3D"
+                        image="/src/assets/artist-baner6.png"
                       />
                       <CardContent
                         sx={{

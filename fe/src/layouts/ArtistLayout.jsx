@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { Box } from "@mui/material";
 import React from "react";
-import Sidebar from "../components/Sidebar";
+import Sidebar from "../components/layout/Sidebar";
 import ArtistNavbar from "../components/layout/ArtistNavbar";
 
 export default function ArtistLayout({ children }) {

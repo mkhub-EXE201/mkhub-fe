@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 export function formatCurrency(value) {
   return new Intl.NumberFormat("de-DE").format(value);
 }
@@ -46,4 +48,27 @@ export const getStatusColor = (status) => {
     default:
       return "#d1d5db";
   }
+};
+
+export const generateTimeSlots = (interval = 30) => {
+  const slots = [];
+  let time = dayjs().startOf("day");
+  const end = dayjs().endOf("day");
+
+  while (time.isBefore(end)) {
+    slots.push(time.format("HH:mm"));
+    time = time.add(interval, "minute");
+  }
+  return slots;
+};
+
+export const getValidEndTimeSlots = (startTime, interval = 30) => {
+  const allSlots = generateTimeSlots(interval);
+  const today = dayjs().format("YYYY-MM-DD");
+  const start = dayjs(`${today} ${startTime}`, "YYYY-MM-DD HH:mm");
+
+  return allSlots.filter((slot) => {
+    const slotTime = dayjs(`${today} ${slot}`, "YYYY-MM-DD HH:mm");
+    return slotTime.isAfter(start);
+  });
 };
