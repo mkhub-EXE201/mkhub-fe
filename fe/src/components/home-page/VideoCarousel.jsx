@@ -14,17 +14,16 @@ import {
     VolumeUp,
     VolumeOff,
     KeyboardArrowUp,
-    Place as PlaceIcon
 } from '@mui/icons-material';
 import CustomProfileCard from '../schedule-tabs/CustomProfileCard';
-import ArtistPfp from '../../assets/artist-banner2.jpg';
+
 
 // Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/free-mode';
 import 'swiper/css/pagination';
 
-// Import the video files
+// Import videos
 import vid1 from '../../assets/vid1.mp4';
 import vid2 from '../../assets/vid2.mp4';
 import vid3 from '../../assets/vid3.mp4';
@@ -39,99 +38,73 @@ const VideoCarousel = () => {
     const [activeIndex, setActiveIndex] = useState(2);
     const swiperRef = useRef(null);
 
+    // Centralized artist data to reduce duplication
+    const defaultArtistData = {
+        id: 101,
+        name: "Phạm Minh Anh",
+        avatar: "https://mkhub.s3.us-east-1.amazonaws.com/avatar/481471608_1685211615742480_1810824270755090645_n-439f6faa6ec5ca038e8442b00.jpg",
+        location: "Quận 1, TP.HCM"
+    };
+
     const videos = [
         {
             id: 1,
             title: "Biến hình thành gái anime",
-            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-            thumbnail: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=300&h=400&fit=crop&crop=face",
+            description: "Book ngay để được trải nghiệm thay đầu",
             videoSrc: vid1,
-            artistData: {
-                id: 101,
-                name: "Michelle Kim",
-                avatar: ArtistPfp,
-                location: "Quận 1, TP.HCM"
-            }
+            artistData: defaultArtistData
         },
         {
             id: 2,
             title: "Biến hình thành gái anime",
-            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-            thumbnail: "https://images.unsplash.com/photo-1583001809302-91e0b9a29b83?w=300&h=400&fit=crop&crop=face",
+            description: "Book ngay để được trải nghiệm thay đầu",
             videoSrc: vid2,
-            artistData: {
-                id: 101,
-                name: "Michelle Kim",
-                avatar: ArtistPfp,
-                location: "Quận 1, TP.HCM"
-            }
+            artistData: defaultArtistData
         },
         {
             id: 3,
             title: "Biến hình thành gái anime",
-            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-            thumbnail: "https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?w=300&h=400&fit=crop&crop=face",
+            description: "Book ngay để được trải nghiệm thay đầu",
             videoSrc: vid3,
-            artistData: {
-                id: 101,
-                name: "Michelle Kim",
-                avatar: ArtistPfp,
-                location: "Quận 1, TP.HCM"
-            }
+            artistData: defaultArtistData
         },
         {
             id: 4,
             title: "Biến hình thành gái anime",
-            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-            thumbnail: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=300&h=400&fit=crop&crop=face",
+            description: "Book ngay để được trải nghiệm thay đầu",
             videoSrc: vid4,
-            artistData: {
-                id: 101,
-                name: "Michelle Kim",
-                avatar: ArtistPfp,
-                location: "Quận 1, TP.HCM"
-            }
+            artistData: defaultArtistData
         },
         {
             id: 5,
-            title: "Makeup Tutorial",
-            description: "Step by step makeup tutorial for beginners.",
-            thumbnail: "https://images.unsplash.com/photo-1503236823255-94609f598e71?w=300&h=400&fit=crop&crop=face",
+            title: "Makeup Kỷ yếu",
+            description: "Layout nhẹ nhàng, trong trẻo và trẻ trung",
             videoSrc: vid5,
-            artistData: {
-                id: 101,
-                name: "Michelle Kim",
-                avatar: ArtistPfp,
-                location: "Quận 1, TP.HCM"
-            }
+            artistData: defaultArtistData
         },
         {
             id: 6,
-            title: "Professional Makeup Tips",
-            description: "Learn professional makeup techniques for special occasions.",
-            thumbnail: "https://images.unsplash.com/photo-1596704017243-78587f79ab5a?w=300&h=400&fit=crop&crop=face",
+            title: "Makeup Kỷ yếu",
+            description: "Layout nhẹ nhàng, trong trẻo và trẻ trung.",
             videoSrc: vid6,
-            artistData: {
-                id: 101,
-                name: "Michelle Kim",
-                avatar: ArtistPfp,
-                location: "Quận 1, TP.HCM"
-            }
+            artistData: defaultArtistData
         },
         {
             id: 7,
-            title: "Natural Makeup Look",
-            description: "Create a beautiful natural makeup look for everyday wear.",
-            thumbnail: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=300&h=400&fit=crop&crop=face",
+            title: "Makeup Kỷ yếu",
+            description: "Layout nhẹ nhàng, trong trẻo và trẻ trung.",
             videoSrc: vid7,
-            artistData: {
-                id: 101,
-                name: "Michelle Kim",
-                avatar: ArtistPfp,
-                location: "Quận 1, TP.HCM"
-            }
+            artistData: defaultArtistData
         },
     ];
+
+    // Helper function to update video states
+    const updateVideoState = (videoId, updatedState) => {
+        setVideoStates(prev => ({
+            ...prev,
+            [videoId]: { ...prev[videoId], ...updatedState }
+        }));
+    };
 
     const toggleVideoPlay = (videoId, e) => {
         e.stopPropagation();
@@ -139,10 +112,10 @@ const VideoCarousel = () => {
         if (video) {
             if (video.paused) {
                 video.play();
-                setVideoStates(prev => ({ ...prev, [videoId]: { ...prev[videoId], isPlaying: true } }));
+                updateVideoState(videoId, { isPlaying: true });
             } else {
                 video.pause();
-                setVideoStates(prev => ({ ...prev, [videoId]: { ...prev[videoId], isPlaying: false } }));
+                updateVideoState(videoId, { isPlaying: false });
             }
         }
     };
@@ -152,10 +125,7 @@ const VideoCarousel = () => {
         const video = videoRefs.current[videoId];
         if (video) {
             video.muted = !video.muted;
-            setVideoStates(prev => ({
-                ...prev,
-                [videoId]: { ...prev[videoId], isMuted: video.muted }
-            }));
+            updateVideoState(videoId, { isMuted: video.muted });
         }
     };
 
@@ -164,12 +134,20 @@ const VideoCarousel = () => {
             const videoId = Number(id);
             if (videoId !== activeVideoId && videoEl && !videoEl.paused) {
                 videoEl.pause();
-                setVideoStates(prev => ({
-                    ...prev,
-                    [videoId]: { ...prev[videoId], isPlaying: false }
-                }));
+                updateVideoState(videoId, { isPlaying: false });
             }
         });
+    };
+
+    const playActiveVideo = (videoId) => {
+        if (videoId && videoRefs.current[videoId]) {
+            const video = videoRefs.current[videoId];
+            video.play().catch(error => {
+                console.log('Auto-play prevented:', error);
+            });
+            updateVideoState(videoId, { isPlaying: true });
+            pauseInactiveVideos(videoId);
+        }
     };
 
     const handleSlideChange = (swiper) => {
@@ -183,27 +161,14 @@ const VideoCarousel = () => {
             const prevVideoId = videos[previousActiveIndex]?.id;
             if (prevVideoId && videoRefs.current[prevVideoId]) {
                 videoRefs.current[prevVideoId].pause();
-                setVideoStates(prev => ({
-                    ...prev,
-                    [prevVideoId]: { ...prev[prevVideoId], isPlaying: false }
-                }));
+                updateVideoState(prevVideoId, { isPlaying: false });
             }
         }
 
         // Play new active video
         setTimeout(() => {
             const activeVideoId = videos[newActiveIndex]?.id;
-            if (activeVideoId && videoRefs.current[activeVideoId]) {
-                const video = videoRefs.current[activeVideoId];
-                video.play().catch(error => {
-                    console.log('Auto-play prevented:', error);
-                });
-                setVideoStates(prev => ({
-                    ...prev,
-                    [activeVideoId]: { ...prev[activeVideoId], isPlaying: true }
-                }));
-                pauseInactiveVideos(activeVideoId);
-            }
+            playActiveVideo(activeVideoId);
         }, 100);
     };
 
@@ -235,6 +200,7 @@ const VideoCarousel = () => {
     };
 
     useEffect(() => {
+        // Initialize video states
         const initialStates = {};
         videos.forEach(video => {
             initialStates[video.id] = {
@@ -244,6 +210,7 @@ const VideoCarousel = () => {
         });
         setVideoStates(initialStates);
 
+        // Cleanup on component unmount
         return () => {
             Object.values(videoRefs.current).forEach(video => {
                 if (video && typeof video.pause === 'function') {
@@ -258,20 +225,72 @@ const VideoCarousel = () => {
         if (activeVideoId && videoRefs.current[activeVideoId]) {
             const video = videoRefs.current[activeVideoId];
             if (video.readyState >= 2) {
-                video.play().catch(error => {
-                    console.log('Auto-play prevented:', error);
-                });
-                setVideoStates(prev => ({
-                    ...prev,
-                    [activeVideoId]: { ...prev[activeVideoId], isPlaying: true }
-                }));
-                pauseInactiveVideos(activeVideoId);
+                playActiveVideo(activeVideoId);
             }
         }
     }, [activeIndex, videos]);
 
+    // Reusable style objects to reduce inline style duplication
+    const styles = {
+        swiperContainer: {
+            padding: '20px 0 80px'
+        },
+        activeCardWrapper: {
+            width: '280px',
+            height: '550px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-start',
+            position: 'relative',
+            paddingBottom: '40px',
+            paddingTop: '20px',
+        },
+        inactiveCardWrapper: {
+            width: '280px',
+            height: '450px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-start',
+            position: 'relative',
+            paddingBottom: '40px',
+            paddingTop: '20px',
+        },
+        getCardStyle: (isActive) => ({
+            width: '100%',
+            height: isActive ? '470px' : '380px',
+            borderRadius: 4,
+            position: 'relative',
+            overflow: 'hidden',
+            boxShadow: isActive ? 5 : 3,
+            cursor: 'pointer',
+            transition: 'all 0.6s ease',
+            transform: isActive ? 'translateY(-2%)' : 'translateY(0)',
+            zIndex: isActive ? 2 : 1,
+            margin: isActive ? '0 0 10px 0' : '15% 0 10px 0',
+        }),
+        videoOverlay: (isActive) => ({
+            position: 'absolute',
+            inset: 0,
+            bgcolor: isActive ? 'rgba(0, 0, 0, 0.15)' : 'rgba(0, 0, 0, 0)',
+            transition: 'background-color 0.3s',
+        }),
+        getProfileCardStyle: (isActive) => ({
+            position: 'absolute',
+            bottom: 0,
+            width: isActive ? '90%' : '80%',
+            zIndex: isActive ? 5 : 3,
+            transform: isActive
+                ? 'translateY(20px)'
+                : 'translateY(80px) scale(0.8)',
+            transformOrigin: 'center bottom',
+            opacity: isActive ? 1 : 0.85,
+            transition: 'opacity 0.8s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+            minWidth: isActive ? '240px' : '200px',
+        }),
+    };
+
     return (
-        <Box sx={{ bgcolor: 'white', py: 5, minHeight: '100vh' }}>
+        <Box sx={{ bgcolor: 'white', py: 5, minHeight: '100vh', }}>
             <style>
                 {`
                     .mySwiper .swiper-pagination-bullet {
@@ -316,8 +335,7 @@ const VideoCarousel = () => {
                     modules={[FreeMode, Pagination]}
                     centeredSlides={true}
                     className="mySwiper"
-                    style={{ padding: '20px 0 100px' }}
-
+                    style={styles.swiperContainer}
                     onSlideChange={handleSlideChange}
                     onSwiper={(swiper) => {
                         swiperRef.current = swiper;
@@ -348,28 +366,10 @@ const VideoCarousel = () => {
                         return (
                             <SwiperSlide
                                 key={`${video.id}-${index}`}
-                                style={{
-                                    width: '280px',
-                                    height: isActive ? '550px' : '400px', // Increased height for active slides to accommodate the card
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    justifyContent: 'flex-start',
-                                }}
+                                style={isActive ? styles.activeCardWrapper : styles.inactiveCardWrapper}
                             >
                                 <Card
-                                    sx={{
-                                        width: '100%',
-                                        height: isActive ? '470px' : '400px',
-                                        borderRadius: 4,
-                                        position: 'relative',
-                                        overflow: 'hidden',
-                                        boxShadow: isActive ? 5 : 3,
-                                        cursor: 'pointer',
-                                        transition: 'all 0.6s ease',
-                                        transform: isActive ? 'translateY(-3%)' : 'translateY(0)',
-                                        zIndex: isActive ? 2 : 1,
-                                        margin: isActive ? '0' : '15% 0', // Center inactive cards vertically
-                                    }}
+                                    sx={styles.getCardStyle(isActive)}
                                     onClick={() => {
                                         if (!isActive) {
                                             goToSlide(index);
@@ -397,16 +397,10 @@ const VideoCarousel = () => {
                                                 videoEl.currentTime = 1;
                                                 if (isActive) {
                                                     videoEl.play().catch(err => console.log(err));
-                                                    setVideoStates(prev => ({
-                                                        ...prev,
-                                                        [video.id]: { ...prev[video.id], isPlaying: true }
-                                                    }));
+                                                    updateVideoState(video.id, { isPlaying: true });
                                                 } else {
                                                     videoEl.pause();
-                                                    setVideoStates(prev => ({
-                                                        ...prev,
-                                                        [video.id]: { ...prev[video.id], isPlaying: false }
-                                                    }));
+                                                    updateVideoState(video.id, { isPlaying: false });
                                                 }
                                             }
                                         }}
@@ -415,10 +409,7 @@ const VideoCarousel = () => {
                                                 const videoEl = videoRefs.current[video.id];
                                                 if (videoEl) {
                                                     videoEl.pause();
-                                                    setVideoStates(prev => ({
-                                                        ...prev,
-                                                        [video.id]: { ...prev[video.id], isPlaying: false }
-                                                    }));
+                                                    updateVideoState(video.id, { isPlaying: false });
                                                 }
                                             }
                                         }}
@@ -426,14 +417,7 @@ const VideoCarousel = () => {
                                         <source src={video.videoSrc} type="video/mp4" />
                                     </CardMedia>
 
-                                    <Box
-                                        sx={{
-                                            position: 'absolute',
-                                            inset: 0,
-                                            bgcolor: isActive ? 'rgba(0, 0, 0, 0.15)' : 'rgba(0, 0, 0, 0)',
-                                            transition: 'background-color 0.3s',
-                                        }}
-                                    >
+                                    <Box sx={styles.videoOverlay(isActive)}>
                                         <IconButton
                                             sx={{
                                                 position: 'absolute',
@@ -498,25 +482,44 @@ const VideoCarousel = () => {
                                     </Box>
                                 </Card>
 
-                                {/* Show CustomProfileCard below active videos */}
-                                {isActive && (
-                                    <Box sx={{ position: 'relative', width: '100%' }}>
-                                        <CustomProfileCard
-                                            customerData={video.artistData}
-                                            width="230px"
-                                            height="50px"
-                                            buttonText="Đặt lịch"
-                                            avatarSize="40px"
-                                            nameTextSize="14px"
-                                            locationTextSize="10px"
-                                            buttonTextSize="10px"
-                                            buttonSize='small'
-
-                                        />
-
-
-                                    </Box>
-                                )}
+                                <Box sx={styles.getProfileCardStyle(isActive)}>
+                                    <CustomProfileCard
+                                        customerData={video.artistData}
+                                        width="100%"
+                                        height={isActive ? "50px" : "40px"}
+                                        buttonText="Đặt lịch"
+                                        avatarSize={isActive ? "40px" : "30px"}
+                                        nameTextSize={isActive ? "14px" : "12px"}
+                                        locationTextSize={isActive ? "10px" : "9px"}
+                                        buttonTextSize={isActive ? "10px" : "9px"}
+                                        buttonSize='small'
+                                        customStyles={{
+                                            customerInfo: {
+                                                boxShadow: isActive ? '0px 2px 4px rgba(0,0,0,0.1)' : 'none',
+                                                backgroundColor: 'white',
+                                                border: isActive ? '1px solid #eaeaea' : 'none',
+                                                minHeight: '50px',
+                                                transition: 'all 0.3s ease',
+                                                whiteSpace: 'nowrap',
+                                            },
+                                            profileContainer: {
+                                                padding: isActive ? '8px' : '4px',
+                                                width: '100%',
+                                                transition: 'all 0.3s ease',
+                                            },
+                                            nameText: {
+                                                whiteSpace: 'nowrap',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                            },
+                                            locationText: {
+                                                whiteSpace: 'nowrap',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                            }
+                                        }}
+                                    />
+                                </Box>
                             </SwiperSlide>
                         );
                     })}
