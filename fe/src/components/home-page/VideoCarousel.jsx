@@ -8,7 +8,8 @@ import {
     Card,
     CardMedia,
     Container,
-    alpha
+    alpha,
+    Skeleton
 } from '@mui/material';
 import {
     VolumeUp,
@@ -34,6 +35,7 @@ import vid7 from '../../assets/vid7.mp4';
 
 const VideoCarousel = () => {
     const [videoStates, setVideoStates] = useState({});
+    const [loadingStates, setLoadingStates] = useState({});
     const videoRefs = useRef({});
     const [activeIndex, setActiveIndex] = useState(2);
     const swiperRef = useRef(null);
@@ -103,6 +105,13 @@ const VideoCarousel = () => {
         setVideoStates(prev => ({
             ...prev,
             [videoId]: { ...prev[videoId], ...updatedState }
+        }));
+    };
+
+    const updateLoadingState = (videoId, isLoading) => {
+        setLoadingStates(prev => ({
+            ...prev,
+            [videoId]: isLoading
         }));
     };
 
@@ -200,15 +209,20 @@ const VideoCarousel = () => {
     };
 
     useEffect(() => {
-        // Initialize video states
-        const initialStates = {};
+        // Initialize video and loading states
+        const initialVideoStates = {};
+        const initialLoadingStates = {};
+
         videos.forEach(video => {
-            initialStates[video.id] = {
+            initialVideoStates[video.id] = {
                 isPlaying: false,
                 isMuted: true
             };
+            initialLoadingStates[video.id] = true;
         });
-        setVideoStates(initialStates);
+
+        setVideoStates(initialVideoStates);
+        setLoadingStates(initialLoadingStates);
 
         // Cleanup on component unmount
         return () => {
@@ -233,7 +247,7 @@ const VideoCarousel = () => {
     // Reusable style objects to reduce inline style duplication
     const styles = {
         swiperContainer: {
-            padding: '20px 0 80px'
+            padding: '20px 0 90px'
         },
         activeCardWrapper: {
             width: '280px',
@@ -287,6 +301,15 @@ const VideoCarousel = () => {
             transition: 'opacity 0.8s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
             minWidth: isActive ? '240px' : '200px',
         }),
+        skeletonContainer: {
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            padding: '8px',
+            bgcolor: 'rgba(0, 0, 0, 0.04)',
+        }
     };
 
     return (
@@ -362,6 +385,7 @@ const VideoCarousel = () => {
                     {videos.map((video, index) => {
                         const isActive = index === activeIndex;
                         const videoState = videoStates[video.id] || {};
+                        const isLoading = loadingStates[video.id] || false;
 
                         return (
                             <SwiperSlide
@@ -378,6 +402,28 @@ const VideoCarousel = () => {
                                         }
                                     }}
                                 >
+                                    {isLoading && (
+                                        <Box sx={styles.skeletonContainer}>
+                                            <Skeleton
+                                                animation="wave"
+                                                variant="rectangular"
+                                                width="100%"
+                                                height="100%"
+                                                sx={{
+                                                    bgcolor: 'grey.300',
+                                                    position: 'absolute',
+                                                    top: 0,
+                                                    left: 0,
+                                                    right: 0,
+                                                    bottom: 0
+                                                }}
+                                            />
+                                            <Box sx={{ position: 'absolute', bottom: 0, width: '100%', p: 2 }}>
+                                                <Skeleton animation="wave" height={20} width="60%" sx={{ bgcolor: 'grey.200' }} />
+                                                <Skeleton animation="wave" height={15} width="80%" sx={{ bgcolor: 'grey.200', mt: 1 }} />
+                                            </Box>
+                                        </Box>
+                                    )}
                                     <CardMedia
                                         component="video"
                                         ref={el => videoRefs.current[video.id] = el}
@@ -385,7 +431,8 @@ const VideoCarousel = () => {
                                         sx={{
                                             width: '100%',
                                             height: '100%',
-                                            objectFit: 'cover'
+                                            objectFit: 'cover',
+                                            display: isLoading ? 'none' : 'block'
                                         }}
                                         muted
                                         loop
@@ -395,6 +442,8 @@ const VideoCarousel = () => {
                                             const videoEl = videoRefs.current[video.id];
                                             if (videoEl) {
                                                 videoEl.currentTime = 1;
+                                                updateLoadingState(video.id, false);
+
                                                 if (isActive) {
                                                     videoEl.play().catch(err => console.log(err));
                                                     updateVideoState(video.id, { isPlaying: true });
@@ -413,112 +462,127 @@ const VideoCarousel = () => {
                                                 }
                                             }
                                         }}
+                                        onError={() => {
+                                            console.error(`Error loading video ${video.id}`);
+                                            updateLoadingState(video.id, false);
+                                        }}
                                     >
                                         <source src={video.videoSrc} type="video/mp4" />
                                     </CardMedia>
 
-                                    <Box sx={styles.videoOverlay(isActive)}>
-                                        <IconButton
-                                            sx={{
-                                                position: 'absolute',
-                                                top: 12,
-                                                right: 12,
-                                                bgcolor: alpha('#000', 0.7),
-                                                color: 'white',
-                                                p: 1,
-                                                opacity: isActive ? 0.8 : 0,
-                                                transition: 'opacity 0.3s'
-                                            }}
-                                            onClick={(e) => toggleMute(video.id, e)}
-                                        >
-                                            {videoState.isMuted ? <VolumeOff fontSize="small" /> : <VolumeUp fontSize="small" />}
-                                        </IconButton>
+                                    {!isLoading && (
+                                        <Box sx={styles.videoOverlay(isActive)}>
+                                            <IconButton
+                                                sx={{
+                                                    position: 'absolute',
+                                                    top: 12,
+                                                    right: 12,
+                                                    bgcolor: alpha('#000', 0.7),
+                                                    color: 'white',
+                                                    p: 1,
+                                                    opacity: isActive ? 0.8 : 0,
+                                                    transition: 'opacity 0.3s'
+                                                }}
+                                                onClick={(e) => toggleMute(video.id, e)}
+                                            >
+                                                {videoState.isMuted ? <VolumeOff fontSize="small" /> : <VolumeUp fontSize="small" />}
+                                            </IconButton>
 
-                                        <Box
-                                            sx={{
-                                                position: 'absolute',
-                                                bottom: 0,
-                                                left: 0,
-                                                right: 0,
-                                                background: 'linear-gradient(to top, rgba(0,0,0,1), rgba(0,0,0,0.5), transparent)',
-                                                p: 2,
-                                                color: 'white'
-                                            }}
-                                        >
-                                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                                                    <Typography
-                                                        variant="subtitle2"
-                                                        sx={{
-                                                            fontWeight: isActive ? 600 : 500,
-                                                            mb: 0.5,
-                                                            overflow: 'hidden',
-                                                            textOverflow: 'ellipsis',
-                                                            whiteSpace: 'nowrap'
-                                                        }}
-                                                    >
-                                                        {video.title}
-                                                    </Typography>
-                                                    <Typography variant="caption" sx={{ color: 'grey.300' }}>
-                                                        {video.description}
-                                                    </Typography>
-                                                </Box>
-                                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', ml: 2 }}>
-                                                    <IconButton
-                                                        sx={{
-                                                            color: 'white',
-                                                            p: 1,
-                                                            '&:hover': {
-                                                                bgcolor: 'rgba(255, 255, 255, 0.2)'
-                                                            }
-                                                        }}
-                                                        onClick={(e) => e.stopPropagation()}
-                                                    >
-                                                        <KeyboardArrowUp fontSize="small" />
-                                                    </IconButton>
+                                            <Box
+                                                sx={{
+                                                    position: 'absolute',
+                                                    bottom: 0,
+                                                    left: 0,
+                                                    right: 0,
+                                                    background: 'linear-gradient(to top, rgba(0,0,0,1), rgba(0,0,0,0.5), transparent)',
+                                                    p: 2,
+                                                    color: 'white'
+                                                }}
+                                            >
+                                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                    <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                                                        <Typography
+                                                            variant="subtitle2"
+                                                            sx={{
+                                                                fontWeight: isActive ? 600 : 500,
+                                                                mb: 0.5,
+                                                                overflow: 'hidden',
+                                                                textOverflow: 'ellipsis',
+                                                                whiteSpace: 'nowrap'
+                                                            }}
+                                                        >
+                                                            {video.title}
+                                                        </Typography>
+                                                        <Typography variant="caption" sx={{ color: 'grey.300' }}>
+                                                            {video.description}
+                                                        </Typography>
+                                                    </Box>
+                                                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', ml: 2 }}>
+                                                        <IconButton
+                                                            sx={{
+                                                                color: 'white',
+                                                                p: 1,
+                                                                '&:hover': {
+                                                                    bgcolor: 'rgba(255, 255, 255, 0.2)'
+                                                                }
+                                                            }}
+                                                            onClick={(e) => e.stopPropagation()}
+                                                        >
+                                                            <KeyboardArrowUp fontSize="small" />
+                                                        </IconButton>
+                                                    </Box>
                                                 </Box>
                                             </Box>
                                         </Box>
-                                    </Box>
+                                    )}
                                 </Card>
 
                                 <Box sx={styles.getProfileCardStyle(isActive)}>
-                                    <CustomProfileCard
-                                        customerData={video.artistData}
-                                        width="100%"
-                                        height={isActive ? "50px" : "40px"}
-                                        buttonText="Đặt lịch"
-                                        avatarSize={isActive ? "40px" : "30px"}
-                                        nameTextSize={isActive ? "14px" : "12px"}
-                                        locationTextSize={isActive ? "10px" : "9px"}
-                                        buttonTextSize={isActive ? "10px" : "9px"}
-                                        buttonSize='small'
-                                        customStyles={{
-                                            customerInfo: {
-                                                boxShadow: isActive ? '0px 2px 4px rgba(0,0,0,0.1)' : 'none',
-                                                backgroundColor: 'white',
-                                                border: isActive ? '1px solid #eaeaea' : 'none',
-                                                minHeight: '50px',
-                                                transition: 'all 0.3s ease',
-                                                whiteSpace: 'nowrap',
-                                            },
-                                            profileContainer: {
-                                                padding: isActive ? '8px' : '4px',
-                                                width: '100%',
-                                                transition: 'all 0.3s ease',
-                                            },
-                                            nameText: {
-                                                whiteSpace: 'nowrap',
-                                                overflow: 'hidden',
-                                                textOverflow: 'ellipsis',
-                                            },
-                                            locationText: {
-                                                whiteSpace: 'nowrap',
-                                                overflow: 'hidden',
-                                                textOverflow: 'ellipsis',
-                                            }
-                                        }}
-                                    />
+                                    {isLoading ? (
+                                        <Skeleton
+                                            variant="rectangular"
+                                            width="100%"
+                                            height={isActive ? 50 : 40}
+                                            sx={{ borderRadius: 1 }}
+                                        />
+                                    ) : (
+                                        <CustomProfileCard
+                                            customerData={video.artistData}
+                                            width="100%"
+                                            height={isActive ? "50px" : "40px"}
+                                            buttonText="Đặt lịch"
+                                            avatarSize={isActive ? "40px" : "30px"}
+                                            nameTextSize={isActive ? "14px" : "12px"}
+                                            locationTextSize={isActive ? "10px" : "9px"}
+                                            buttonTextSize={isActive ? "10px" : "9px"}
+                                            buttonSize='small'
+                                            customStyles={{
+                                                customerInfo: {
+                                                    boxShadow: isActive ? '0px 2px 4px rgba(0,0,0,0.1)' : 'none',
+                                                    backgroundColor: 'white',
+                                                    border: isActive ? '1px solid #eaeaea' : 'none',
+                                                    minHeight: '50px',
+                                                    transition: 'all 0.3s ease',
+                                                    whiteSpace: 'nowrap',
+                                                },
+                                                profileContainer: {
+                                                    padding: isActive ? '8px' : '4px',
+                                                    width: '100%',
+                                                    transition: 'all 0.3s ease',
+                                                },
+                                                nameText: {
+                                                    whiteSpace: 'nowrap',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                },
+                                                locationText: {
+                                                    whiteSpace: 'nowrap',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                }
+                                            }}
+                                        />
+                                    )}
                                 </Box>
                             </SwiperSlide>
                         );
