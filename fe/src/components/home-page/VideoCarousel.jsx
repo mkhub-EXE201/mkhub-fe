@@ -7,14 +7,12 @@ import {
     Typography,
     Card,
     CardMedia,
+    Container,
     alpha
 } from '@mui/material';
 import {
-    PlayArrow,
-    PauseCircle,
     VolumeUp,
     VolumeOff,
-    Add,
     KeyboardArrowUp
 } from '@mui/icons-material';
 
@@ -39,39 +37,32 @@ const VideoCarousel = () => {
     const videos = [
         {
             id: 1,
-            title: "lumizing z I'm Black",
-            views: "1,000",
+            title: "Biến hình thành gái anime",
+            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             thumbnail: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=300&h=400&fit=crop&crop=face",
             videoSrc: vid1
         },
         {
             id: 2,
-            title: "Trace'd Out Longwear Waterproof Pencil Lip",
-            views: "658,000",
+            title: "Biến hình thành gái anime",
+            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             thumbnail: "https://images.unsplash.com/photo-1583001809302-91e0b9a29b83?w=300&h=400&fit=crop&crop=face",
             videoSrc: vid2
         },
         {
             id: 3,
-            title: "Invisimatte Instant Setting + Blotting",
-            views: "1,250,000",
+            title: "Biến hình thành gái anime",
+            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             thumbnail: "https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?w=300&h=400&fit=crop&crop=face",
             videoSrc: vid3
         },
         {
             id: 4,
-            title: "The Homecurl Curl-Defining Cream",
-            views: "954,000",
+            title: "Biến hình thành gái anime",
+            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             thumbnail: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=300&h=400&fit=crop&crop=face",
             videoSrc: vid4
         },
-        {
-            id: 5,
-            title: "The Rich Or Repair Shampoo",
-            views: "802,200",
-            thumbnail: "https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=300&h=400&fit=crop&crop=face",
-            videoSrc: vid1 // Reusing the first video for the fifth item
-        }
     ];
 
     const toggleVideoPlay = (videoId, e) => {
@@ -100,9 +91,23 @@ const VideoCarousel = () => {
         }
     };
 
+    // Stop all videos except the active one
+    const pauseInactiveVideos = (activeVideoId) => {
+        Object.entries(videoRefs.current).forEach(([id, videoEl]) => {
+            const videoId = Number(id);
+            if (videoId !== activeVideoId && videoEl && !videoEl.paused) {
+                videoEl.pause();
+                setVideoStates(prev => ({
+                    ...prev,
+                    [videoId]: { ...prev[videoId], isPlaying: false }
+                }));
+            }
+        });
+    };
+
     // Handle slide change to update active index and play video
     const handleSlideChange = (swiper) => {
-        const newActiveIndex = swiper.activeIndex;
+        const newActiveIndex = swiper.realIndex; // Use realIndex instead of activeIndex for loop mode
         const previousActiveIndex = activeIndex;
 
         setActiveIndex(newActiveIndex);
@@ -131,8 +136,11 @@ const VideoCarousel = () => {
                     ...prev,
                     [activeVideoId]: { ...prev[activeVideoId], isPlaying: true }
                 }));
+
+                // Ensure all other videos are paused
+                pauseInactiveVideos(activeVideoId);
             }
-        }, 100);
+        }, 200);
     };
 
     useEffect(() => {
@@ -146,9 +154,8 @@ const VideoCarousel = () => {
         });
         setVideoStates(initialStates);
 
-        // Play the initial active video
+        // Cleanup: pause all videos when component unmounts
         return () => {
-            // Cleanup: pause all videos when component unmounts
             Object.values(videoRefs.current).forEach(video => {
                 if (video && typeof video.pause === 'function') {
                     video.pause();
@@ -157,7 +164,7 @@ const VideoCarousel = () => {
         };
     }, []);
 
-    // Auto-play the active video when it's loaded
+    // Auto-play the active video when it's loaded and ensure other videos are stopped
     useEffect(() => {
         const activeVideoId = videos[activeIndex]?.id;
         if (activeVideoId && videoRefs.current[activeVideoId]) {
@@ -170,210 +177,245 @@ const VideoCarousel = () => {
                     ...prev,
                     [activeVideoId]: { ...prev[activeVideoId], isPlaying: true }
                 }));
+
+                // Make sure all other videos are paused
+                pauseInactiveVideos(activeVideoId);
             }
         }
     }, [activeIndex, videos]);
 
     return (
-        <Box sx={{ bgcolor: 'grey.100', minHeight: '100vh', py: 3 }}>
-            <Swiper
-                slidesPerView="auto"
-                spaceBetween={16}
-                freeMode={true}
-                pagination={{
-                    clickable: true,
-                }}
-                modules={[FreeMode, Pagination]}
-                centeredSlides={true}
-                className="mySwiper"
-                style={{ padding: '20px 0' }}
-                onSlideChange={handleSlideChange}
-                onSwiper={(swiper) => {
-                    swiperRef.current = swiper;
-                }}
-                initialSlide={2} // Start with middle slide active
-            >
-                {videos.map((video, index) => {
-                    const isActive = index === activeIndex;
-                    const videoState = videoStates[video.id] || {};
-                    const isPlaying = videoState.isPlaying || false;
+        <Box sx={{ bgcolor: 'white', py: 5, minHeight: '100vh' }}>
+            <Container maxWidth="lg">
+                {/* Section Title */}
+                <Typography
+                    align="left"
+                    sx={{
+                        color: (theme) => theme.palette.darkBlue,
+                        fontSize: {
+                            xs: "24px",
+                            sm: "44px",
+                            md: "44px",
+                        },
+                        textTransform: "uppercase",
+                        fontWeight: 700,
+                        mb: 1,
+                        mt: 5,
+                    }}
+                >
+                    Makeup Video
+                </Typography>
 
-                    return (
-                        <SwiperSlide
-                            key={video.id}
-                            style={{
-                                width: isActive ? '280px' : '280px',
-                                height: isActive ? '490px' : '390px',
-                                transition: 'width 0.3s, height 0.3s',
-                            }}
-                        >
-                            <Card
-                                sx={{
-                                    width: '100%',
-                                    height: '100%',
-                                    borderRadius: 4,
-                                    position: 'relative',
-                                    overflow: 'hidden',
-                                    boxShadow: isActive ? 5 : 3,
-                                    transform: isActive ? 'scale(1.05)' : 'scale(1)',
-                                    transition: 'transform 0.3s, box-shadow 0.3s',
-                                    zIndex: isActive ? 2 : 1,
-                                    '&:hover .overlay': {
-                                        bgcolor: 'rgba(0, 0, 0, 0.3)'
-                                    },
-                                    '&:hover .controls': {
-                                        opacity: 1
-                                    }
-                                }}
-                                onClick={() => {
-                                    // If this isn't the active slide, make it active
-                                    if (index !== activeIndex && swiperRef.current) {
-                                        swiperRef.current.slideTo(index);
-                                    } else {
-                                        // If already active, toggle play/pause
-                                        toggleVideoPlay(video.id, { stopPropagation: () => { } });
-                                    }
+                {/* Video Carousel */}
+                <Swiper
+                    slidesPerView={4}  // Show 3 slides at once
+                    spaceBetween={20}
+                    freeMode={true}
+                    pagination={{
+                        clickable: true,
+                    }}
+                    loop={true}
+                    loopAdditionalSlides={4}  // Add extra slides for smoother looping
+                    modules={[FreeMode, Pagination]}
+                    centeredSlides={true}
+                    className="mySwiper"
+                    style={{ padding: '20px 0' }}
+                    onSlideChange={handleSlideChange}
+                    onSwiper={(swiper) => {
+                        swiperRef.current = swiper;
+                    }}
+                    initialSlide={2} // Start with middle slide active
+                >
+                    {videos.map((video, index) => {
+                        // In loop mode, use realIndex from the swiper ref if available
+                        const isActive = swiperRef.current ?
+                            index === swiperRef.current.realIndex :
+                            index === activeIndex;
+
+                        const videoState = videoStates[video.id] || {};
+                        const isPlaying = videoState.isPlaying || false;
+
+                        return (
+                            <SwiperSlide
+                                key={video.id}
+                                style={{
+                                    width: '280px',  // Set fixed width for all slides
+                                    height: isActive ? '490px' : '390px',
+                                    transition: 'width 0.3s, height 0.3s',
+                                    display: 'flex',  // Ensure content is centered
+                                    justifyContent: 'center',
                                 }}
                             >
-                                <CardMedia
-                                    component="video"
-                                    ref={el => videoRefs.current[video.id] = el}
-                                    height="100%"
+                                <Card
                                     sx={{
                                         width: '100%',
                                         height: '100%',
-                                        objectFit: 'cover'
+                                        borderRadius: 4,
+                                        position: 'relative',
+                                        overflow: 'hidden',
+                                        boxShadow: isActive ? 5 : 3,
+                                        transform: isActive ? 'scale(1.05)' : 'scale(1)',
+                                        transition: 'transform 0.3s, box-shadow 0.3s',
+                                        zIndex: isActive ? 2 : 1,
+                                        '&:hover .overlay': {
+                                            bgcolor: 'rgba(0, 0, 0, 0.3)'
+                                        },
+                                        '&:hover .controls': {
+                                            opacity: 1
+                                        }
                                     }}
-                                    muted
-                                    loop
-                                    playsInline
-                                    poster={video.thumbnail}
-                                    onLoadedData={() => {
-                                        const videoEl = videoRefs.current[video.id];
-                                        if (videoEl) {
-                                            videoEl.currentTime = 1;
-                                            if (isActive) {
-                                                videoEl.play().catch(err => console.log(err));
-                                                setVideoStates(prev => ({
-                                                    ...prev,
-                                                    [video.id]: { ...prev[video.id], isPlaying: true }
-                                                }));
+                                    onClick={() => {
+                                        // If this isn't the active slide, make it active and play it
+                                        if (index !== activeIndex && swiperRef.current) {
+                                            // For loop mode, we need to handle the slide indexes differently
+                                            const realIndex = swiperRef.current.realIndex;
+                                            const indexDiff = index - realIndex;
+
+                                            // Calculate how many slides to move, accounting for the shortest path in loop mode
+                                            let slidesToMove = indexDiff;
+                                            if (Math.abs(indexDiff) > videos.length / 2) {
+                                                slidesToMove = indexDiff - Math.sign(indexDiff) * videos.length;
                                             }
+
+                                            swiperRef.current.slideToLoop(index);
+                                        } else {
+                                            // If already active, toggle play/pause
+                                            toggleVideoPlay(video.id, { stopPropagation: () => { } });
                                         }
                                     }}
                                 >
-                                    <source src={video.videoSrc} type="video/mp4" />
-                                </CardMedia>
-
-                                {/* Overlay */}
-                                <Box
-                                    className="overlay"
-                                    sx={{
-                                        position: 'absolute',
-                                        inset: 0,
-                                        bgcolor: isActive ? 'rgba(0, 0, 0, 0.15)' : 'rgba(0, 0, 0, 0)',
-                                        transition: 'background-color 0.3s',
-                                    }}
-                                >
-                                    {/* Time indicator */}
-                                    <Typography
-                                        variant="caption"
+                                    <CardMedia
+                                        component="video"
+                                        ref={el => videoRefs.current[video.id] = el}
+                                        height="100%"
                                         sx={{
-                                            position: 'absolute',
-                                            top: 12,
-                                            left: 12,
-                                            bgcolor: alpha('#000', 0.7),
-                                            color: 'white',
-                                            px: 1,
-                                            py: 0.5,
-                                            borderRadius: 1
+                                            width: '100%',
+                                            height: '100%',
+                                            objectFit: 'cover'
+                                        }}
+                                        muted
+                                        loop
+                                        playsInline
+                                        poster={video.thumbnail}
+                                        onLoadedData={() => {
+                                            const videoEl = videoRefs.current[video.id];
+                                            if (videoEl) {
+                                                videoEl.currentTime = 1;
+                                                // Only allow the active video to play
+                                                if (isActive) {
+                                                    videoEl.play().catch(err => console.log(err));
+                                                    setVideoStates(prev => ({
+                                                        ...prev,
+                                                        [video.id]: { ...prev[video.id], isPlaying: true }
+                                                    }));
+                                                } else {
+                                                    // Ensure inactive videos are paused
+                                                    videoEl.pause();
+                                                    setVideoStates(prev => ({
+                                                        ...prev,
+                                                        [video.id]: { ...prev[video.id], isPlaying: false }
+                                                    }));
+                                                }
+                                            }
+                                        }}
+                                        // Add onPlay event handler to ensure inactive videos can't play
+                                        onPlay={() => {
+                                            if (!isActive) {
+                                                const videoEl = videoRefs.current[video.id];
+                                                if (videoEl) {
+                                                    videoEl.pause();
+                                                    setVideoStates(prev => ({
+                                                        ...prev,
+                                                        [video.id]: { ...prev[video.id], isPlaying: false }
+                                                    }));
+                                                }
+                                            }
                                         }}
                                     >
-                                        1:00
-                                    </Typography>
+                                        <source src={video.videoSrc} type="video/mp4" />
+                                    </CardMedia>
 
-                                    {/* Volume Control */}
-                                    <IconButton
-                                        className="controls"
-                                        sx={{
-                                            position: 'absolute',
-                                            top: 12,
-                                            right: 12,
-                                            bgcolor: alpha('#000', 0.7),
-                                            color: 'white',
-                                            p: 1,
-                                            opacity: isActive ? 0.8 : 0,
-                                            transition: 'opacity 0.3s'
-                                        }}
-                                        onClick={(e) => toggleMute(video.id, e)}
-                                    >
-                                        {videoState.isMuted ? <VolumeOff fontSize="small" /> : <VolumeUp fontSize="small" />}
-                                    </IconButton>
-
-
-                                    {/* Bottom Info */}
+                                    {/* Overlay */}
                                     <Box
+                                        className="overlay"
                                         sx={{
                                             position: 'absolute',
-                                            bottom: 0,
-                                            left: 0,
-                                            right: 0,
-                                            background: 'linear-gradient(to top, rgba(0,0,0,1), rgba(0,0,0,0.5), transparent)',
-                                            p: 2,
-                                            color: 'white'
+                                            inset: 0,
+                                            bgcolor: isActive ? 'rgba(0, 0, 0, 0.15)' : 'rgba(0, 0, 0, 0)',
+                                            transition: 'background-color 0.3s',
                                         }}
                                     >
-                                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                            <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                                                <Typography
-                                                    variant="subtitle2"
-                                                    sx={{
-                                                        fontWeight: isActive ? 600 : 500,
-                                                        mb: 0.5,
-                                                        overflow: 'hidden',
-                                                        textOverflow: 'ellipsis',
-                                                        whiteSpace: 'nowrap'
-                                                    }}
-                                                >
-                                                    {video.title}
-                                                </Typography>
-                                                <Typography variant="caption" sx={{ color: 'grey.300' }}>
-                                                    {video.views}
-                                                </Typography>
-                                            </Box>
-                                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', ml: 2 }}>
-                                                <IconButton
-                                                    sx={{
-                                                        bgcolor: 'white',
-                                                        color: 'black',
-                                                        mb: 1,
-                                                        '&:hover': {
-                                                            bgcolor: 'grey.100'
-                                                        },
-                                                        p: 1
-                                                    }}
-                                                    onClick={(e) => e.stopPropagation()}
-                                                >
-                                                    <Add fontSize="small" />
-                                                </IconButton>
-                                                <IconButton
-                                                    sx={{
-                                                        color: 'white',
-                                                        p: 1
-                                                    }}
-                                                    onClick={(e) => e.stopPropagation()}
-                                                >
-                                                    <KeyboardArrowUp fontSize="small" />
-                                                </IconButton>
+                                        {/* Volume Control */}
+                                        <IconButton
+                                            className="controls"
+                                            sx={{
+                                                position: 'absolute',
+                                                top: 12,
+                                                right: 12,
+                                                bgcolor: alpha('#000', 0.7),
+                                                color: 'white',
+                                                p: 1,
+                                                opacity: isActive ? 0.8 : 0,
+                                                transition: 'opacity 0.3s'
+                                            }}
+                                            onClick={(e) => toggleMute(video.id, e)}
+                                        >
+                                            {videoState.isMuted ? <VolumeOff fontSize="small" /> : <VolumeUp fontSize="small" />}
+                                        </IconButton>
+
+                                        {/* Bottom Info */}
+                                        <Box
+                                            sx={{
+                                                position: 'absolute',
+                                                bottom: 0,
+                                                left: 0,
+                                                right: 0,
+                                                background: 'linear-gradient(to top, rgba(0,0,0,1), rgba(0,0,0,0.5), transparent)',
+                                                p: 2,
+                                                color: 'white'
+                                            }}
+                                        >
+                                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                                                    <Typography
+                                                        variant="subtitle2"
+                                                        sx={{
+                                                            fontWeight: isActive ? 600 : 500,
+                                                            mb: 0.5,
+                                                            overflow: 'hidden',
+                                                            textOverflow: 'ellipsis',
+                                                            whiteSpace: 'nowrap'
+                                                        }}
+                                                    >
+                                                        {video.title}
+                                                    </Typography>
+                                                    <Typography variant="caption" sx={{ color: 'grey.300' }}>
+                                                        {video.description}
+                                                    </Typography>
+                                                </Box>
+                                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', ml: 2 }}>
+                                                    <IconButton
+                                                        sx={{
+                                                            color: 'white',
+                                                            p: 1,
+                                                            '&:hover': {
+                                                                bgcolor: 'rgba(255, 255, 255, 0.2)'
+                                                            }
+                                                        }}
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    >
+                                                        <KeyboardArrowUp fontSize="small" />
+                                                    </IconButton>
+                                                </Box>
                                             </Box>
                                         </Box>
                                     </Box>
-                                </Box>
-                            </Card>
-                        </SwiperSlide>
-                    );
-                })}
-            </Swiper>
+                                </Card>
+                            </SwiperSlide>
+                        );
+                    })}
+                </Swiper>
+            </Container>
         </Box>
     );
 };
