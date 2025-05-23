@@ -13,8 +13,11 @@ import {
 import {
     VolumeUp,
     VolumeOff,
-    KeyboardArrowUp
+    KeyboardArrowUp,
+    Place as PlaceIcon
 } from '@mui/icons-material';
+import CustomProfileCard from '../schedule-tabs/CustomProfileCard';
+import ArtistPfp from '../../assets/artist-banner2.jpg';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -42,49 +45,91 @@ const VideoCarousel = () => {
             title: "Biến hình thành gái anime",
             description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             thumbnail: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=300&h=400&fit=crop&crop=face",
-            videoSrc: vid1
+            videoSrc: vid1,
+            artistData: {
+                id: 101,
+                name: "Michelle Kim",
+                avatar: ArtistPfp,
+                location: "Quận 1, TP.HCM"
+            }
         },
         {
             id: 2,
             title: "Biến hình thành gái anime",
             description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             thumbnail: "https://images.unsplash.com/photo-1583001809302-91e0b9a29b83?w=300&h=400&fit=crop&crop=face",
-            videoSrc: vid2
+            videoSrc: vid2,
+            artistData: {
+                id: 101,
+                name: "Michelle Kim",
+                avatar: ArtistPfp,
+                location: "Quận 1, TP.HCM"
+            }
         },
         {
             id: 3,
             title: "Biến hình thành gái anime",
             description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             thumbnail: "https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?w=300&h=400&fit=crop&crop=face",
-            videoSrc: vid3
+            videoSrc: vid3,
+            artistData: {
+                id: 101,
+                name: "Michelle Kim",
+                avatar: ArtistPfp,
+                location: "Quận 1, TP.HCM"
+            }
         },
         {
             id: 4,
             title: "Biến hình thành gái anime",
             description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             thumbnail: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=300&h=400&fit=crop&crop=face",
-            videoSrc: vid4
+            videoSrc: vid4,
+            artistData: {
+                id: 101,
+                name: "Michelle Kim",
+                avatar: ArtistPfp,
+                location: "Quận 1, TP.HCM"
+            }
         },
         {
             id: 5,
             title: "Makeup Tutorial",
             description: "Step by step makeup tutorial for beginners.",
             thumbnail: "https://images.unsplash.com/photo-1503236823255-94609f598e71?w=300&h=400&fit=crop&crop=face",
-            videoSrc: vid5
+            videoSrc: vid5,
+            artistData: {
+                id: 101,
+                name: "Michelle Kim",
+                avatar: ArtistPfp,
+                location: "Quận 1, TP.HCM"
+            }
         },
         {
             id: 6,
             title: "Professional Makeup Tips",
             description: "Learn professional makeup techniques for special occasions.",
             thumbnail: "https://images.unsplash.com/photo-1596704017243-78587f79ab5a?w=300&h=400&fit=crop&crop=face",
-            videoSrc: vid6
+            videoSrc: vid6,
+            artistData: {
+                id: 101,
+                name: "Michelle Kim",
+                avatar: ArtistPfp,
+                location: "Quận 1, TP.HCM"
+            }
         },
         {
             id: 7,
             title: "Natural Makeup Look",
             description: "Create a beautiful natural makeup look for everyday wear.",
             thumbnail: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=300&h=400&fit=crop&crop=face",
-            videoSrc: vid7
+            videoSrc: vid7,
+            artistData: {
+                id: 101,
+                name: "Michelle Kim",
+                avatar: ArtistPfp,
+                location: "Quận 1, TP.HCM"
+            }
         },
     ];
 
@@ -305,15 +350,16 @@ const VideoCarousel = () => {
                                 key={`${video.id}-${index}`}
                                 style={{
                                     width: '280px',
-                                    height: isActive ? '480px' : '400px',
+                                    height: isActive ? '550px' : '400px', // Increased height for active slides to accommodate the card
                                     display: 'flex',
-                                    justifyContent: 'center',
+                                    flexDirection: 'column',
+                                    justifyContent: 'flex-start',
                                 }}
                             >
                                 <Card
                                     sx={{
                                         width: '100%',
-                                        height: isActive ? '100%' : '90%',
+                                        height: isActive ? '470px' : '400px',
                                         borderRadius: 4,
                                         position: 'relative',
                                         overflow: 'hidden',
@@ -451,6 +497,26 @@ const VideoCarousel = () => {
                                         </Box>
                                     </Box>
                                 </Card>
+
+                                {/* Show CustomProfileCard below active videos */}
+                                {isActive && (
+                                    <Box sx={{ position: 'relative', width: '100%' }}>
+                                        <CustomProfileCard
+                                            customerData={video.artistData}
+                                            width="230px"
+                                            height="50px"
+                                            buttonText="Đặt lịch"
+                                            avatarSize="40px"
+                                            nameTextSize="14px"
+                                            locationTextSize="10px"
+                                            buttonTextSize="10px"
+                                            buttonSize='small'
+
+                                        />
+
+
+                                    </Box>
+                                )}
                             </SwiperSlide>
                         );
                     })}

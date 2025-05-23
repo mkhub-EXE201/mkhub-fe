@@ -3,7 +3,7 @@ import { Box, Typography } from "@mui/material";
 import PlaceIcon from "@mui/icons-material/Place";
 import PropTypes from "prop-types";
 
-const styles = {
+const defaultStyles = {
     customerInfo: {
         border: "1px solid #ccc",
         borderRadius: 4,
@@ -19,8 +19,6 @@ const styles = {
     },
     avatar: {
         borderRadius: "50%",
-        width: 60,
-        height: 60,
         objectFit: "cover",
     },
     locationContainer: {
@@ -32,7 +30,6 @@ const styles = {
     contactButton: {
         border: "1px solid #ddd",
         borderRadius: 2,
-        padding: "8px 16px",
         backgroundColor: "#fff",
         cursor: "pointer",
         "&:hover": {
@@ -41,31 +38,115 @@ const styles = {
     },
 };
 
-function CustomProfileCard({ customerData }) {
+function CustomProfileCard({
+    customerData,
+    width,
+    height,
+    avatarSize = 60,
+    nameTextSize = 16,
+    locationTextSize = 13,
+    buttonTextSize = 14,
+    buttonSize = "medium", // New prop for button size
+    customStyles = {},
+    buttonText = "Liên hệ",
+    onButtonClick,
+    renderAvatar,
+    renderContent,
+    renderButton,
+    className,
+}) {
+    // Define button padding based on buttonSize prop
+    const getButtonPadding = () => {
+        switch (buttonSize) {
+            case "small":
+                return "4px 8px";
+            case "large":
+                return "12px 24px";
+            case "medium":
+            default:
+                return "8px 16px"; // Default padding from original
+        }
+    };
+
     return (
-        <Box sx={styles.customerInfo}>
-            <Box sx={styles.profileContainer}>
-                <img
-                    src={customerData.avatar}
-                    alt={customerData.name}
-                    style={styles.avatar}
-                />
-                <Box sx={{ flex: 1 }}>
-                    <Typography sx={{ fontWeight: 500, fontSize: 16 }}>
-                        {customerData.name}
-                    </Typography>
-                    <Box sx={styles.locationContainer}>
-                        <PlaceIcon sx={{ fontSize: 16, color: "#666" }} />
-                        <Typography sx={{ fontSize: 13, color: "#666" }}>
-                            {customerData.location}
+        <Box
+            className={className}
+            sx={{
+                ...defaultStyles.customerInfo,
+                ...customStyles.customerInfo,
+                width: width || "100%",
+                height: height || "auto",
+            }}
+        >
+            <Box sx={{ ...defaultStyles.profileContainer, ...customStyles.profileContainer }}>
+                {renderAvatar ? (
+                    renderAvatar(customerData)
+                ) : (
+                    <img
+                        src={customerData.avatar}
+                        alt={customerData.name}
+                        style={{
+                            ...defaultStyles.avatar,
+                            ...customStyles.avatar,
+                            width: avatarSize,
+                            height: avatarSize,
+                        }}
+                    />
+                )}
+                {renderContent ? (
+                    renderContent(customerData)
+                ) : (
+                    <Box sx={{ flex: 1 }}>
+                        <Typography
+                            sx={{
+                                fontWeight: 500,
+                                fontSize: nameTextSize,
+                                ...customStyles.nameText,
+                            }}
+                        >
+                            {customerData.name}
+                        </Typography>
+                        <Box sx={{ ...defaultStyles.locationContainer, ...customStyles.locationContainer }}>
+                            <PlaceIcon
+                                sx={{
+                                    fontSize: locationTextSize,
+                                    color: "#666",
+                                    ...customStyles.locationIcon,
+                                }}
+                            />
+                            <Typography
+                                sx={{
+                                    fontSize: locationTextSize,
+                                    color: "#666",
+                                    ...customStyles.locationText,
+                                }}
+                            >
+                                {customerData.location}
+                            </Typography>
+                        </Box>
+                    </Box>
+                )}
+                {renderButton ? (
+                    renderButton(customerData)
+                ) : (
+                    <Box
+                        sx={{
+                            ...defaultStyles.contactButton,
+                            ...customStyles.contactButton,
+                            padding: getButtonPadding(), // Apply dynamic padding
+                        }}
+                        onClick={() => onButtonClick && onButtonClick(customerData)}
+                    >
+                        <Typography
+                            sx={{
+                                fontSize: buttonTextSize,
+                                ...customStyles.buttonText,
+                            }}
+                        >
+                            {buttonText}
                         </Typography>
                     </Box>
-                </Box>
-                <Box sx={styles.contactButton}>
-                    <Typography sx={{ fontSize: 14 }}>
-                        Liên hệ
-                    </Typography>
-                </Box>
+                )}
             </Box>
         </Box>
     );
@@ -82,8 +163,32 @@ CustomProfileCard.propTypes = {
         email: PropTypes.string,
         appointmentDate: PropTypes.instanceOf(Date),
         service: PropTypes.string,
-        time: PropTypes.string
-    }).isRequired
+        time: PropTypes.string,
+    }).isRequired,
+    width: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    height: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    avatarSize: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    nameTextSize: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    locationTextSize: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    buttonTextSize: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    buttonSize: PropTypes.oneOf(["small", "medium", "large"]), // New prop type
+    customStyles: PropTypes.shape({
+        customerInfo: PropTypes.object,
+        profileContainer: PropTypes.object,
+        avatar: PropTypes.object,
+        nameText: PropTypes.object,
+        locationContainer: PropTypes.object,
+        locationIcon: PropTypes.object,
+        locationText: PropTypes.object,
+        contactButton: PropTypes.object,
+        buttonText: PropTypes.object,
+    }),
+    buttonText: PropTypes.string,
+    onButtonClick: PropTypes.func,
+    renderAvatar: PropTypes.func,
+    renderContent: PropTypes.func,
+    renderButton: PropTypes.func,
+    className: PropTypes.string,
 };
 
 // Add default props
@@ -92,8 +197,22 @@ CustomProfileCard.defaultProps = {
         id: 0,
         name: "Guest User",
         avatar: "",
-        location: "Unknown location"
-    }
+        location: "Unknown location",
+    },
+    width: "100%",
+    height: "auto",
+    avatarSize: 60,
+    nameTextSize: 16,
+    locationTextSize: 13,
+    buttonTextSize: 14,
+    buttonSize: "medium", // Default button size
+    customStyles: {},
+    buttonText: "Liên hệ",
+    onButtonClick: null,
+    renderAvatar: null,
+    renderContent: null,
+    renderButton: null,
+    className: "",
 };
 
 export default CustomProfileCard;
