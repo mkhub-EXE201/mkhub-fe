@@ -227,6 +227,19 @@ const VideoCarousel = () => {
 
     return (
         <Box sx={{ bgcolor: 'white', py: 5, minHeight: '100vh' }}>
+            <style>
+                {`
+                    .mySwiper .swiper-pagination-bullet {
+                        background-color: #cccccc;
+                        opacity: 0.5;
+                    }
+                    .mySwiper .swiper-pagination-bullet-active {
+                        background-color: #091B65;
+                        opacity: 1;
+                    }
+                `}
+            </style>
+
             <Container maxWidth="lg">
                 <Typography
                     align="left"
@@ -258,7 +271,8 @@ const VideoCarousel = () => {
                     modules={[FreeMode, Pagination]}
                     centeredSlides={true}
                     className="mySwiper"
-                    style={{ padding: '20px 0' }}
+                    style={{ padding: '20px 0 100px' }}
+
                     onSlideChange={handleSlideChange}
                     onSwiper={(swiper) => {
                         swiperRef.current = swiper;
@@ -291,7 +305,7 @@ const VideoCarousel = () => {
                                 key={`${video.id}-${index}`}
                                 style={{
                                     width: '280px',
-                                    height: isActive ? '490px' : '390px',
+                                    height: isActive ? '480px' : '400px',
                                     display: 'flex',
                                     justifyContent: 'center',
                                 }}
@@ -299,15 +313,16 @@ const VideoCarousel = () => {
                                 <Card
                                     sx={{
                                         width: '100%',
-                                        height: '100%',
+                                        height: isActive ? '100%' : '90%',
                                         borderRadius: 4,
                                         position: 'relative',
                                         overflow: 'hidden',
                                         boxShadow: isActive ? 5 : 3,
                                         cursor: 'pointer',
-                                        transition: 'box-shadow 0.3s ease-in-out, height 0.3s ease-in-out',
-                                        transform: isActive ? 'scale(1.05)' : 'scale(1)',
+                                        transition: 'all 0.6s ease',
+                                        transform: isActive ? 'translateY(-3%)' : 'translateY(0)',
                                         zIndex: isActive ? 2 : 1,
+                                        margin: isActive ? '0' : '15% 0', // Center inactive cards vertically
                                     }}
                                     onClick={() => {
                                         if (!isActive) {
