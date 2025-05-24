@@ -71,6 +71,7 @@ export default function RegisterArtist() {
     resolver: yupResolver(registerArtistSchema),
     defaultValues: {
       name: "",
+      email: "",
       phone_number: "",
       address_type: ARTIST_WORKING_LOCATION_TYPE.HOME,
       province_id: undefined,
@@ -142,6 +143,7 @@ export default function RegisterArtist() {
         "name",
         "phone_number",
         "address_type",
+        "email",
         "location_name",
         "province_id",
         "district_id",
@@ -199,7 +201,7 @@ export default function RegisterArtist() {
       ward_code: watch("ward_code"),
       district_id: watch("district_id"),
       province_id: watch("province_id"),
-      email: "phm.giamy@gmail.com",
+      email: watch("email"),
     };
 
     response = await artistApis.registerArtist(payload);
@@ -396,11 +398,11 @@ export default function RegisterArtist() {
                       <label style={{ width: "20%" }}>Email</label>
                       <TextField
                         variant="outlined"
-                        disabled
                         margin="normal"
                         fullWidth
-                        value={"phm.giamy@gmail.com"}
-                        onChange={() => {}}
+                        {...register("email")}
+                        error={!!errors.email}
+                        helperText={errors.email?.message || " "}
                       />
                     </Box>
                     {/* input 4: location working type của artist */}
