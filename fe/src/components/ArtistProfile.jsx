@@ -2,8 +2,20 @@
 import React from "react";
 import { Box, Button, Link, TextField, Typography } from "@mui/material";
 import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { updateArtistProfileSchema } from "../schemas/updateArtistProfileSchema";
 
 export default function ArtistProfile({ portfolio }) {
+  const {
+    register,
+    setError,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(updateArtistProfileSchema),
+  });
   return (
     <>
       <Box
@@ -33,7 +45,12 @@ export default function ArtistProfile({ portfolio }) {
             >
               Họ tên:
             </Typography>
-            <TextField required value={portfolio.name} size="small" fullWidth />
+            <TextField
+              required
+              {...register("phone_number")}
+              size="small"
+              fullWidth
+            />
           </Box>
           <Box>
             <Typography

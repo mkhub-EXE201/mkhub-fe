@@ -31,7 +31,7 @@ export default function ArtistNavbar() {
 
   useEffect(() => {
     const getArtistProfile = async () => {
-      const response = await artistApis.getArtistProfile(profile.id);
+      const response = await artistApis.getArtistProfile(profile.artist_id);
       if (response.status === HttpStatusCode.Ok) {
         console.log(response.data.result.avatar_url);
         setArtistProfile(response.data.result);

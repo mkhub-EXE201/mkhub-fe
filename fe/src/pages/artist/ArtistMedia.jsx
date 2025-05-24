@@ -19,7 +19,7 @@ export default function ArtistMedia() {
   const { profile } = useContext(AppContext);
   useEffect(() => {
     const getArtistProfile = async () => {
-      const response = await artistApis.getArtistPhotos(profile.id);
+      const response = await artistApis.getArtistPhotos(profile.artist_id);
       if (response.status === 200) {
         console.log(response.data.result);
         setArtistPhotos(response.data.result);
