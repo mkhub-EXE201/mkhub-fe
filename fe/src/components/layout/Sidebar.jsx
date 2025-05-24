@@ -1,13 +1,15 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import Box from "@mui/material/Box";
 import { AppContext } from "../../contexts/app.context";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Skeleton, Typography } from "@mui/material";
 import artistApis from "../../apis/artists.apis";
 import HttpStatusCode from "../../constants/httpStatus";
-import { useEffect } from "react";
 import TruncatedText from "../TruncatedText";
 import path from "../../constants/path";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
 export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -16,6 +18,32 @@ export default function Sidebar() {
   const [artistProfile, setArtistProfile] = useState({});
   const { profile } = useContext(AppContext);
   const [selectedItem, setSelectedItem] = useState("");
+  const sidebarRef = useRef(null);
+
+  useEffect(() => {
+    // Register ScrollTrigger 
+    if (!gsap.plugins.ScrollTrigger) {
+      gsap.registerPlugin(ScrollTrigger);
+    }
+
+    // Make the sidebar sticky with GSAP
+    if (sidebarRef.current) {
+      ScrollTrigger.create({
+        trigger: sidebarRef.current,
+        start: "top 16px",
+        endTrigger: "html",
+        end: "bottom bottom",
+        pin: true,
+        pinSpacing: false,
+      });
+    }
+
+    return () => {
+      // Clean up ScrollTrigger when component unmounts
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+    };
+  }, [isLoading]);
+
   useEffect(() => {
     const pathToItemMap = {
       [path.artistPortfolioManagement]: "portfolio",
@@ -48,12 +76,12 @@ export default function Sidebar() {
 
   return (
     <Box
+      ref={sidebarRef}
       sx={{
-        position: "sticky",
-        top: 16,
         maxHeight: "calc(100vh - 32px)",
         overflowY: "auto",
         pb: 2,
+        width: "100%",
       }}
     >
       {isLoading ? (
