@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -26,7 +27,7 @@ import { ARTIST_WORKING_LOCATION_TYPE } from "../constants/enum";
 import { ADDRESS_MESSAGE } from "../constants/message";
 import HttpStatusCode from "../constants/httpStatus";
 
-export default function ArtistAddress() {
+export default function ArtistAddress({ profile }) {
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [provinces, setProvinces] = useState([]);
@@ -76,7 +77,9 @@ export default function ArtistAddress() {
   useEffect(() => {
     const getAllArtistLocations = async () => {
       try {
-        const response = await artistLocationApis.getArtistWorkingLocations();
+        const response = await artistLocationApis.getArtistWorkingLocations(
+          profile.artist_id
+        );
 
         const locations = await Promise.all(
           response.data.result.map(async (location) => {

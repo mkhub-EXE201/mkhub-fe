@@ -22,9 +22,8 @@ export default function ArtistPortfolio() {
   useEffect(() => {
     const getArtistPortfolio = async () => {
       try {
-        const response = await artistApis.getArtistProfile(profile.id);
+        const response = await artistApis.getArtistProfile(profile.artist_id);
         setPortfolio(response.data.result);
-        console.log(response.data.result);
       } catch (error) {
         toast.error(error.message || error.response.data.message);
       } finally {
@@ -76,7 +75,7 @@ export default function ArtistPortfolio() {
                 <ArtistProfile portfolio={portfolio} />
               </>
             )}
-            {value === 1 && <ArtistAddress />}
+            {value === 1 && <ArtistAddress profile={profile} />}
           </Box>
         )}
       </Box>

@@ -14,7 +14,7 @@ export default function ArtistPostManagement() {
   useEffect(() => {
     const getArtistPosts = async () => {
       try {
-        const response = await artistApis.getArtistPosts(profile.id);
+        const response = await artistApis.getArtistPosts(profile.artist_id);
         if (response.status === HttpStatusCode.Ok) {
           setPosts(response.data.result);
         }

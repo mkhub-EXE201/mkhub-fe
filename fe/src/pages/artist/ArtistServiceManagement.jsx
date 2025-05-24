@@ -72,7 +72,9 @@ export default function ArtistServiceManagement() {
   useEffect(() => {
     const getOneServices = async () => {
       try {
-        const response = await artistServiceApis.getOneAllServices(profile.id);
+        const response = await artistServiceApis.getOneAllServices(
+          profile.artist_id
+        );
         if (response.status === HttpStatusCode.Ok) {
           setServices(response.data.result);
         }
@@ -85,6 +87,7 @@ export default function ArtistServiceManagement() {
     getOneServices();
   }, []);
   const handleNext = async () => {
+    console.log(123);
     let stepFields = [];
     if (activeStep === 0) {
       stepFields = [
@@ -132,11 +135,9 @@ export default function ArtistServiceManagement() {
       files.forEach((file) => {
         serviceMediaFormData.append("images", file);
       });
-      await mediaApis.uploadImage(serviceMediaFormData);
-
       response = await mediaApis.uploadImage(serviceMediaFormData);
       const service_img = response.data.result;
-
+      console.log(service_img);
       const payload = {
         service_name: watch("service_name"),
         description: watch("description"),
@@ -203,7 +204,6 @@ export default function ArtistServiceManagement() {
         <>
           <Box
             sx={{
-              border: "1px solid red",
               display: "flex",
               marginTop: 4,
               marginBottom: 8,
@@ -577,7 +577,7 @@ export default function ArtistServiceManagement() {
                     <Button
                       variant="contained"
                       onClick={
-                        activeStep === steps.length ? handleNext : handleSubmit
+                        activeStep === steps.length ? handleSubmit : handleNext
                       }
                       sx={{ mr: 1 }}
                     >
