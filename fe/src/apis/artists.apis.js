@@ -5,15 +5,15 @@ export const artistUrl = "artists";
 
 const artistApis = {
   registerArtist: (payload) => http.post(`${artistUrl}/register`, payload),
-  getArtistProfile: (user_id) => http.get(`${artistUrl}/${user_id}/me`),
+  getArtistProfile: (artist_id) => http.get(`${artistUrl}/${artist_id}/me`),
   getPortfolioIcon: (domain, size) => {
     const corsProxy = "https://cors-anywhere.herokuapp.com/";
     return axios.get(
       `${corsProxy}https://www.google.com/s2/favicons?domain=${domain}&sz=${size}`
     );
   },
-  getArtistPhotos: (user_id) => http.get(`${artistUrl}/${user_id}/photos`),
-  getArtistPosts: (user_id) => http.get(`${artistUrl}/${user_id}/posts`),
+  getArtistPhotos: (artist_id) => http.get(`${artistUrl}/${artist_id}/photos`),
+  getArtistPosts: (artist_id) => http.get(`${artistUrl}/${artist_id}/posts`),
   getAllArtists: () => http.get(`${artistUrl}/all`),
 };
 export default artistApis;
