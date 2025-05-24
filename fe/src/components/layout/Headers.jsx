@@ -12,6 +12,7 @@ import {
 import React, { useContext, useState } from "react";
 import logo from "../../assets/logo.png";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
+import TelegramIcon from "@mui/icons-material/Telegram";
 import { Link, useNavigate } from "react-router-dom";
 import { AppContext } from "../../contexts/app.context";
 import Popover from "../Popover";
@@ -220,14 +221,7 @@ export default function Headers() {
           />
           <IconButton>
             <Badge badgeContent={unreadChatCount} color="error">
-              <SendIcon
-                sx={{
-                  color: "white",
-                  transform: "rotate(-45deg)",
-                  width: 30,
-                  height: 30,
-                }}
-              />
+              <TelegramIcon sx={{ width: 30, height: 30, color: 'white', }} />
             </Badge>
           </IconButton>
 
@@ -325,8 +319,8 @@ export default function Headers() {
                   }
                   alt="avatar"
                   sx={{
-                    width: 40,
-                    height: 40,
+                    width: 30,
+                    height: 30,
                   }}
                 />
               </Popover>

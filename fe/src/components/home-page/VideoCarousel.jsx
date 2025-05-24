@@ -569,6 +569,7 @@ const VideoCarousel = () => {
                                                     padding: isActive ? '8px' : '4px',
                                                     width: '100%',
                                                     transition: 'all 0.3s ease',
+
                                                 },
                                                 nameText: {
                                                     whiteSpace: 'nowrap',
