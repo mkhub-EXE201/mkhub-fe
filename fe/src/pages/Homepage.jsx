@@ -63,13 +63,13 @@ export default function Homepage() {
     <Box>
       <Headers />
       <StatCard />
-      <Suspense fallback={<StyledFallback height={200} text="Chờ xíu nha..." />}>
-        <TopServices />
-      </Suspense>
+      <TopServices />
       <Suspense fallback={<StyledFallback height={200} text="Chờ xíu nha..." />}>
         <Offers />
       </Suspense>
-      <VideoCarousel />
+      <Suspense fallback={<StyledFallback height={200} text="Chờ xíu nha..." />}>
+        <VideoCarousel />
+      </Suspense>
       <Suspense fallback={<StyledFallback height={200} text="Chờ xíu nha..." />}>
         <ArtistBanner />
       </Suspense>
