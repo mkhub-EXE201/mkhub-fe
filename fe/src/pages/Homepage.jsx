@@ -1,12 +1,62 @@
-import { Box } from "@mui/material";
-import React from "react";
+import { Box, CircularProgress, Typography, Paper } from "@mui/material";
+import React, { lazy, Suspense } from "react";
 import Headers from "../components/layout/Headers";
 import StatCard from "../components/home-page/StatCard";
-import TopServices from "../components/home-page/TopServices";
-import Offers from "../components/Offers";
-import Footer from "../components/layout/Footer";
-import ArtistBanner from "../components/home-page/ArtistBanner";
-import VideoCarousel from "../components/home-page/VideoCarousel";
+import VideoCarousel from "../components/home-page/VideoCarousel"; // Eager import
+import PropTypes from 'prop-types';
+
+// Lazy load other components
+const TopServices = lazy(() => import("../components/home-page/TopServices"));
+const Offers = lazy(() => import("../components/Offers"));
+const ArtistBanner = lazy(() => import("../components/home-page/ArtistBanner"));
+const Footer = lazy(() => import("../components/layout/Footer"));
+
+// Styled fallback component
+const StyledFallback = ({ height, text = "Chờ xíu nha..." }) => (
+  <Paper
+    elevation={0}
+    sx={{
+      height: height || 200,
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center",
+      borderRadius: 2,
+      my: 2,
+      mx: "auto",
+      maxWidth: "95%",
+      overflow: "hidden",
+      position: "relative",
+    }}
+  >
+    <CircularProgress color="primary" size={40} thickness={4} />
+    <Typography
+      variant="body1"
+      sx={{
+        mt: 2,
+        color: "darkBlue",
+        fontWeight: 500,
+      }}
+    >
+      {text}
+    </Typography>
+  </Paper>
+);
+
+// Add PropTypes validation
+StyledFallback.propTypes = {
+  height: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.string
+  ]),
+  text: PropTypes.string
+};
+
+// Add default props
+StyledFallback.defaultProps = {
+  height: 200,
+  text: "Chờ xíu nha..."
+};
 
 export default function Homepage() {
   return (
@@ -14,10 +64,18 @@ export default function Homepage() {
       <Headers />
       <StatCard />
       <TopServices />
-      <Offers />
-      <VideoCarousel />
-      <ArtistBanner />
-      <Footer />
+      <Suspense fallback={<StyledFallback height={200} text="Chờ xíu nha..." />}>
+        <Offers />
+      </Suspense>
+      <Suspense fallback={<StyledFallback height={200} text="Chờ xíu nha..." />}>
+        <VideoCarousel />
+      </Suspense>
+      <Suspense fallback={<StyledFallback height={200} text="Chờ xíu nha..." />}>
+        <ArtistBanner />
+      </Suspense>
+      <Suspense fallback={<StyledFallback height={100} text="Chờ xíu nha..." />}>
+        <Footer />
+      </Suspense>
     </Box>
   );
 }
