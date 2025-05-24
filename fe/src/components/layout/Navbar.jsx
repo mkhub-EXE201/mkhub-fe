@@ -1,62 +1,64 @@
 import {
   Avatar,
+  Badge,
   Box,
   Button,
-  InputAdornment,
-  TextField,
+  IconButton,
   Typography,
 } from "@mui/material";
 import React, { useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.png";
-import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
+import TelegramIcon from "@mui/icons-material/Telegram";
+import { Link, useNavigate } from "react-router-dom";
 import { AppContext } from "../../contexts/app.context";
-import path from "../../constants/path";
-import userApis from "../../apis/users.apis";
-import HttpStatusCode from "../../constants/httpStatus";
-import toast from "react-hot-toast";
 import Popover from "../Popover";
+import path from "../../constants/path";
+import Notification from "../Notification";
+import { USER_ROLE } from "../../constants/enum";
+import PropTypes from 'prop-types';
 
-export default function Navbar() {
-  const { isAuthenticated, profile, setIsAuthenticated, setProfile } =
-    useContext(AppContext);
+export default function Navbar({
+  notifications,
+  getNotificationsByStatus,
+  unreadNotiCount,
+  unreadChatCount,
+  handleLogout,
+}) {
   const navigate = useNavigate();
-  const handleLogout = async () => {
-    const response = await userApis.logout();
-    if (response.status === HttpStatusCode.Ok) {
-      setIsAuthenticated(false);
-      setProfile(null);
-      toast.success(response.data.message, {
-        position: "top-center",
-      });
-    }
-    navigate(path.home);
-  };
+  const { isAuthenticated, profile, role, setRole } = useContext(AppContext);
+
   return (
     <Box
       sx={{
-        paddingTop: { xs: 2, sm: 2, md: 5 },
+        // backgroundImage: "linear-gradient(0deg, #FEBED0 -17.62%, #091B65 58.6%)",
+        borderBottomLeftRadius: { xs: "20px", sm: "100px", md: "150px" },
+        borderBottomRightRadius: { xs: "20px", sm: "100px", md: "150px" },
         paddingX: { xs: 2, sm: 3, md: 7 },
         paddingBottom: { xs: 1, sm: 1, md: 1 },
-        display: "flex",
-        flexDirection: { xs: "column", sm: "row" },
-        justifyContent: "space-between",
-        alignItems: "center",
-        gap: { xs: 2, sm: 0 },
+        paddingTop: { xs: 2, sm: 2, md: 5 },
       }}
     >
-      {/* Left */}
       <Box
         sx={{
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },
-          gap: 2,
+          justifyContent: "space-between",
           alignItems: "center",
+          gap: { xs: 2, sm: 0 },
         }}
       >
-        <Link to={path.home}>
+        {/* Left */}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            gap: 2,
+            alignItems: "center",
+          }}
+        >
           <img
             src={logo}
+            onClick={() => navigate(path.home)} // Fixed onClick
             alt="header-logo"
             style={{
               width: "100px",
@@ -64,115 +66,87 @@ export default function Navbar() {
               objectFit: "cover",
             }}
           />
-        </Link>
-        <Link
-          to={path.explore}
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          <Typography>Khám phá</Typography>
-        </Link>
+          <Link to={path.explore} style={{ textDecoration: "none", color: "inherit" }}>
+            <Typography color="white">Khám phá</Typography>
+          </Link>
+          <Link to={path.home} style={{ textDecoration: "none", color: "inherit" }}>
+            <Typography color="white">Cộng đồng</Typography>
+          </Link>
+        </Box>
 
-        <Link
-          to={path.home}
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          <Typography>Cộng đồng</Typography>
-        </Link>
-      </Box>
-      {/* search box */}
-      <Box
-        display="flex"
-        flexDirection={"row"}
-        gap={2}
-        alignItems="center"
-        justifyContent="center"
-      >
-        <TextField
-          placeholder="Tìm kiếm"
-          size="small"
+        {/* Right */}
+        <Box
           sx={{
-            width: {
-              xs: "100%",
-              sm: "80%",
-              md: "400px",
-            },
-            "& .MuiOutlinedInput-root": {
-              "& fieldset": {
-                borderColor: "black",
-                borderRadius: "20px",
-              },
-              "&:hover fieldset": {
-                borderColor: "black",
-              },
-              "&.Mui-focused fieldset": {
-                borderColor: "black",
-              },
-            },
-            "& .MuiInputLabel-root": {
-              borderColor: "black",
-            },
-            "& .MuiInputLabel-root.Mui-focused": {
-              borderColor: "black",
-            },
-            "& .MuiInputBase-input::placeholder": {
-              borderColor: "black",
-              opacity: 1,
-            },
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            gap: 2,
+            alignItems: "center",
           }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchOutlinedIcon />
-              </InputAdornment>
-            ),
-          }}
-        />
-      </Box>
-      {/* Right */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: { xs: "column", sm: "row" },
-          gap: 2,
-          alignItems: "center",
-        }}
-      >
-        <Button variant="contained" sx={{ borderRadius: "50px" }}>
-          Trở thành makeup artist
-        </Button>
-        {!isAuthenticated ? (
-          <>
-            <Link
-              to={path.home}
-              style={{ textDecoration: "none", color: "inherit" }}
+        >
+          <Button
+            onClick={() => {
+              if (!isAuthenticated) {
+                navigate(path.login);
+                return;
+              }
+              if (profile.is_artist) {
+                const nextRole =
+                  role === USER_ROLE.MEMBER ? USER_ROLE.ARTIST : USER_ROLE.MEMBER;
+                setRole(nextRole);
+                navigate(
+                  nextRole === USER_ROLE.MEMBER
+                    ? path.onboardingArtist
+                    : path.artistPortfolioManagement
+                );
+              } else {
+                navigate(path.onboardingArtist);
+              }
+            }}
+            sx={{ borderRadius: "50px" }}
+          >
+            <Box
+              sx={{
+                backgroundColor: (theme) => theme.palette.darkPink,
+                paddingX: 2,
+                paddingY: 1,
+                borderRadius: 50,
+                ":hover": { opacity: "95%" },
+              }}
             >
-              <Typography>Đăng nhập</Typography>
-            </Link>
-            <Link
-              to={path.register}
-              style={{ textDecoration: "none", color: "inherit" }}
-            >
-              <Typography>Đăng kí</Typography>
-            </Link>
-          </>
-        ) : (
-          <Box>
+              <Typography sx={{ color: "white" }}>
+                {!isAuthenticated
+                  ? "Trở thành Makeup Artist"
+                  : role === USER_ROLE.ARTIST
+                    ? "Chuyển sang chế độ User"
+                    : profile.is_artist
+                      ? "Chuyển sang chế độ Makeup Artist"
+                      : "Trở thành Makeup Artist"}
+              </Typography>
+            </Box>
+          </Button>
+          <Notification
+            notifications={notifications}
+            getNotificationsByStatus={getNotificationsByStatus}
+          />
+          <IconButton>
+            <Badge badgeContent={unreadChatCount} color="error">
+              <TelegramIcon sx={{ width: 30, height: 30, color: "white" }} />
+            </Badge>
+          </IconButton>
+          {!isAuthenticated ? (
+            <>
+              <Link to={path.login} style={{ textDecoration: "none", color: "inherit" }}>
+                <Typography color="white">Đăng nhập</Typography>
+              </Link>
+              <Link to={path.register} style={{ textDecoration: "none", color: "inherit" }}>
+                <Typography color="white">Đăng kí</Typography>
+              </Link>
+            </>
+          ) : (
             <Popover
               renderPopover={
-                <Box
-                  sx={{
-                    position: "relative",
-                    borderRadius: 1,
-                    bgcolor: "white",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      color: "black",
-                    }}
-                  >
+                <Box sx={{ position: "relative", borderRadius: 1, bgcolor: "white" }}>
+                  <Box sx={{ display: "flex", flexDirection: "column", color: "black" }}>
                     <Link to={path.profile}>
                       <Button
                         sx={{
@@ -189,7 +163,6 @@ export default function Navbar() {
                         Thông tin tài khoản
                       </Button>
                     </Link>
-
                     <Button
                       sx={{
                         mt: 1,
@@ -205,9 +178,8 @@ export default function Navbar() {
                     >
                       Yêu cầu của tôi
                     </Button>
-
                     <Button
-                      onClick={() => handleLogout()}
+                      onClick={handleLogout}
                       sx={{
                         mt: 1,
                         py: 1,
@@ -227,17 +199,33 @@ export default function Navbar() {
               }
             >
               <Avatar
-                src={profile.avatar_url}
+                src={
+                  profile?.avatar_url ||
+                  "https://mkhub.s3.us-east-1.amazonaws.com/avatar/default_avt.jpg"
+                }
                 alt="avatar"
-                sx={{
-                  width: 40,
-                  height: 40,
-                }}
+                sx={{ width: 30, height: 30 }}
               />
             </Popover>
-          </Box>
-        )}
+          )}
+        </Box>
       </Box>
     </Box>
   );
 }
+
+// Add PropTypes validation
+Navbar.propTypes = {
+  notifications: PropTypes.array,
+  getNotificationsByStatus: PropTypes.func.isRequired,
+  unreadNotiCount: PropTypes.number,
+  unreadChatCount: PropTypes.number,
+  handleLogout: PropTypes.func.isRequired
+};
+
+// Default props
+Navbar.defaultProps = {
+  notifications: [],
+  unreadNotiCount: 0,
+  unreadChatCount: 0
+};
