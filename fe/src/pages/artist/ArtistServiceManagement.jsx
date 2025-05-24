@@ -16,10 +16,15 @@ import {
   CardContent,
   CardMedia,
   Card,
+  MenuItem,
+  FormControl,
+  Select,
+  FormHelperText,
+  Grid,
 } from "@mui/material";
 import React, { useContext, useEffect, useRef } from "react";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { addNewArtistServiceSchema } from "../../schemas/addNewArtistServiceSchema";
 import { useDropzone } from "react-dropzone";
 import RemoveIcon from "@mui/icons-material/Remove";
@@ -30,6 +35,7 @@ import mediaApis from "../../apis/media.apis";
 import { formatCurrency } from "../../utils/utils";
 import { AppContext } from "../../contexts/app.context";
 import Skeleton from "../../components/Skeleton";
+import categoryApis from "../../apis/categories.apis";
 
 export default function ArtistServiceManagement() {
   const [open, setOpen] = useState(false);
@@ -38,11 +44,23 @@ export default function ArtistServiceManagement() {
   const [loading, setLoading] = useState(true);
   const [services, setServices] = useState([]);
   const [activeStep, setActiveStep] = useState(0);
+  const [categories, setCategories] = useState([]);
   const { profile } = useContext(AppContext);
+
+  useEffect(() => {
+    const getAllCategories = async () => {
+      const response = await categoryApis.getAllCategories();
+      if (response.status === HttpStatusCode.Ok) {
+        setCategories(response.data.result);
+      }
+    };
+    getAllCategories();
+  }, []);
 
   const {
     register,
     watch,
+    control,
     setValue,
     trigger,
     formState: { errors },
@@ -50,6 +68,7 @@ export default function ArtistServiceManagement() {
     resolver: yupResolver(addNewArtistServiceSchema),
     defaultValues: {
       service_name: "",
+      category_id: "",
       description: "",
       duration: 0,
       group_size: 0,
@@ -69,25 +88,25 @@ export default function ArtistServiceManagement() {
     "Xác nhận trước khi gửi",
   ];
 
-  useEffect(() => {
-    const getOneServices = async () => {
-      try {
-        const response = await artistServiceApis.getOneAllServices(
-          profile.artist_id
-        );
-        if (response.status === HttpStatusCode.Ok) {
-          setServices(response.data.result);
-        }
-      } catch (error) {
-        toast.error(error.message || error.response.data.message);
-      } finally {
-        setLoading(false);
+  const getOneServices = async () => {
+    try {
+      const response = await artistServiceApis.getOneAllServices(
+        profile.artist_id
+      );
+      if (response.status === HttpStatusCode.Ok) {
+        setServices(response.data.result);
       }
-    };
+    } catch (error) {
+      toast.error(error.message || error.response.data.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     getOneServices();
   }, []);
   const handleNext = async () => {
-    console.log(123);
     let stepFields = [];
     if (activeStep === 0) {
       stepFields = [
@@ -140,6 +159,7 @@ export default function ArtistServiceManagement() {
       console.log(service_img);
       const payload = {
         service_name: watch("service_name"),
+        category_id: watch("category_id"),
         description: watch("description"),
         group_size: Number(watch("group_size")),
         min_price: Number(watch("min_price")),
@@ -239,7 +259,6 @@ export default function ArtistServiceManagement() {
               </Typography>
             </Button>
           </Box>
-
           <MuiModal
             open={open}
             onClose={handleClose}
@@ -335,6 +354,33 @@ export default function ArtistServiceManagement() {
                           error={!!errors.service_name}
                           helperText={errors.service_name?.message || " "}
                         />
+
+                        <Controller
+                          name="category_id"
+                          control={control}
+                          render={({ field }) => (
+                            <FormControl fullWidth error={!!errors.category_id}>
+                              <Select
+                                {...field}
+                                value={field.value ?? ""}
+                                onChange={(e) => field.onChange(e.target.value)}
+                                displayEmpty
+                              >
+                                <MenuItem value="">Chọn chủ đề makeup</MenuItem>
+                                {categories &&
+                                  categories.map((item) => (
+                                    <MenuItem key={item.id} value={item.id}>
+                                      {item.name}
+                                    </MenuItem>
+                                  ))}
+                              </Select>
+                              <FormHelperText>
+                                {errors.category_id?.message}
+                              </FormHelperText>
+                            </FormControl>
+                          )}
+                        />
+
                         <TextField
                           fullWidth
                           label="Mô tả gói dịch vụ"
@@ -591,65 +637,70 @@ export default function ArtistServiceManagement() {
               </Box>
             </Fade>
           </MuiModal>
-
-          <Box sx={{ marginX: 4 }}>
-            {services.map((item, index) => (
-              <Card
-                key={index}
-                sx={{
-                  width: "250px",
-                  height: "350px",
-                  display: "flex",
-                  flexDirection: "column",
-                  borderRadius: "15px",
-                }}
-              >
-                <CardMedia
-                  component="img"
-                  height="150"
-                  image={item.thumbnail}
-                  alt={item.service_name}
-                  sx={{ objectFit: "cover" }}
-                />
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Typography
-                    variant="h6"
-                    component="div"
-                    sx={{ fontWeight: 600, mb: 1 }}
-                  >
-                    {item.service_name}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
+          <Box
+            sx={{
+              marginX: 4,
+            }}
+          >
+            <Grid container disableGutters spacing={2} justifyContent="center">
+              {services.map((item, index) => (
+                <Grid item xs={12} sm={6} md={4} key={index}>
+                  <Card
                     sx={{
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      display: "-webkit-box",
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: "vertical",
-                      fontSize: 13,
+                      width: "250px",
+                      height: "350px",
+                      display: "flex",
+                      flexDirection: "column",
+                      borderRadius: "15px",
                     }}
                   >
-                    {item.description}
-                  </Typography>
-                  <Typography sx={{ mt: 2, fontWeight: "600", fontSize: 14 }}>
-                    Từ {formatCurrency(item.min_price)} -{" "}
-                    {formatCurrency(item.max_price)} VND
-                  </Typography>
-                </CardContent>
-                <CardActions
-                  sx={{ justifyContent: "space-between", px: 2, pb: 2 }}
-                >
-                  <Button size="small" variant="outlined">
-                    Liên hệ
-                  </Button>
-                  <Button size="small" variant="contained">
-                    Đặt lịch
-                  </Button>
-                </CardActions>
-              </Card>
-            ))}
+                    <CardMedia
+                      component="img"
+                      height="150"
+                      image={item.thumbnail}
+                      alt={item.service_name}
+                      sx={{ objectFit: "cover" }}
+                    />
+                    <CardContent sx={{ flexGrow: 1 }}>
+                      <Typography
+                        variant="h6"
+                        component="div"
+                        sx={{ fontWeight: 600, mb: 1 }}
+                      >
+                        {item.service_name}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          fontSize: 13,
+                        }}
+                      >
+                        {item.description}
+                      </Typography>
+                      <Typography
+                        sx={{ mt: 2, fontWeight: "600", fontSize: 14 }}
+                      >
+                        Từ {formatCurrency(item.min_price)} -{" "}
+                        {formatCurrency(item.max_price)} VND
+                      </Typography>
+                    </CardContent>
+                    <CardActions
+                      sx={{ justifyContent: "space-between", px: 2, pb: 2 }}
+                    >
+                      <Button size="small" variant="outlined">
+                        Chỉnh sửa
+                      </Button>
+                    </CardActions>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
           </Box>
         </>
       )}

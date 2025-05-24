@@ -3,6 +3,7 @@ import { ARTIST_WORKING_LOCATION_TYPE } from "../constants/enum";
 import { REGISTER_ARTIST_MESSAGE } from "../constants/message";
 
 export const registerArtistSchema = Yup.object().shape({
+  email: Yup.string().email("Email không hợp lệ").optional(),
   name: Yup.string()
     .trim()
     .required(REGISTER_ARTIST_MESSAGE.NAME_IS_REQUIRED)

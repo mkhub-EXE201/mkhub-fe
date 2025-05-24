@@ -5,7 +5,9 @@ export const addNewArtistServiceSchema = Yup.object().shape({
   service_name: Yup.string()
     .trim()
     .required(ARTIST_SERVICE_MESSAGES.SERVICE_NAME_NOT_EMPTY),
-
+  category_id: Yup.string().required(
+    ARTIST_SERVICE_MESSAGES.CATEGORY_ID_NOT_EMPTY
+  ),
   description: Yup.string()
     .trim()
     .required(ARTIST_SERVICE_MESSAGES.SERVICE_DESCRIPTION_NOT_EMPTY)
