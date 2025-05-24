@@ -2,12 +2,12 @@ import { Box, CircularProgress, Typography, Paper } from "@mui/material";
 import React, { lazy, Suspense } from "react";
 import Headers from "../components/layout/Headers";
 import StatCard from "../components/home-page/StatCard";
+import VideoCarousel from "../components/home-page/VideoCarousel"; // Eager import
 import PropTypes from 'prop-types';
 
-// Lazy load components
+// Lazy load other components
 const TopServices = lazy(() => import("../components/home-page/TopServices"));
 const Offers = lazy(() => import("../components/Offers"));
-const VideoCarousel = lazy(() => import("../components/home-page/VideoCarousel"));
 const ArtistBanner = lazy(() => import("../components/home-page/ArtistBanner"));
 const Footer = lazy(() => import("../components/layout/Footer"));
 
@@ -21,7 +21,6 @@ const StyledFallback = ({ height, text = "Chờ xíu nha..." }) => (
       flexDirection: "column",
       justifyContent: "center",
       alignItems: "center",
-      // backgroundColor: "lightPink",
       borderRadius: 2,
       my: 2,
       mx: "auto",
@@ -64,21 +63,14 @@ export default function Homepage() {
     <Box>
       <Headers />
       <StatCard />
-      <TopServices />
+      <Suspense fallback={<StyledFallback height={200} text="Chờ xíu nha..." />}>
+        <TopServices />
+      </Suspense>
       <Suspense fallback={<StyledFallback height={200} text="Chờ xíu nha..." />}>
         <Offers />
       </Suspense>
-      <Suspense fallback={<StyledFallback height={300} text="Chờ xíu nha..." />}>
-        <VideoCarousel />
-      </Suspense>
-      <Suspense
-        fallback={
-          <StyledFallback
-            height={200}
-            text="Chờ xíu nha..."
-          />
-        }
-      >
+      <VideoCarousel />
+      <Suspense fallback={<StyledFallback height={200} text="Chờ xíu nha..." />}>
         <ArtistBanner />
       </Suspense>
       <Suspense fallback={<StyledFallback height={100} text="Chờ xíu nha..." />}>
