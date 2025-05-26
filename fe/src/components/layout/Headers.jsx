@@ -133,7 +133,7 @@ const MainLayout = () => {
       {/* Left: Artist Banner (50% width) */}
       <Box
         sx={{
-          width: { xs: '100%', md: '40%' },
+          width: { xs: '100%', md: '50%' },
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
@@ -151,7 +151,7 @@ const MainLayout = () => {
             maxHeight: '550px',  
             objectFit: 'cover',
             objectPosition: 'center',
-            borderRadius: '12px'
+            borderRadius: '10px'
           }}
         />
       </Box>
@@ -159,7 +159,7 @@ const MainLayout = () => {
       {/* Right: All other content (50% width) */}
       <Box
         sx={{
-          width: { xs: '100%', md: '60%' },
+          width: { xs: '100%', md: '50%' },
           display: 'flex',
           flexDirection: 'column',
           gap: 4,
@@ -174,7 +174,7 @@ const MainLayout = () => {
         >
           <TypeAnimation
             sequence={[
-              'Nền tảng kết nối makeup artist', 2000,
+              'Kết nối makeup artist', 2000,
               'Makeup hub', 1500,
             ]}
             wrapper="span"
@@ -390,7 +390,7 @@ export default function Headers({ isScrolled }) {
             <Box textAlign="center">
               <TypeAnimation
                 sequence={[
-                  'Nền tảng kết nối makeup artist', 2000,
+                  'Kết nối makeup artist', 2000,
                   'Makeup hub', 1500,
                 ]}
                 wrapper="span"
