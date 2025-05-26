@@ -9,7 +9,7 @@ import {
 import React, { useContext, useState, useEffect } from "react";
 import logo from "../../assets/logo.png";
 import TelegramIcon from "@mui/icons-material/Telegram";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { AppContext } from "../../contexts/app.context";
 import Popover from "../Popover";
 import path from "../../constants/path";
@@ -23,35 +23,40 @@ export default function Navbar({
   unreadNotiCount,
   unreadChatCount,
   handleLogout,
+  alwaysScrolled = false,
 }) {
   const navigate = useNavigate();
   const { isAuthenticated, profile, role, setRole } = useContext(AppContext);
+  const location = useLocation();
 
   // Track scroll position for collapsing behavior
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(alwaysScrolled);
+
+  // Reset scroll state when route changes
+  useEffect(() => {
+    if (location.pathname === path.home) {
+      setIsScrolled(window.scrollY > 200);
+    } else {
+      setIsScrolled(true);
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
-    let timeoutId;
-    const handleScroll = () => {
-      // Clear any existing timeout
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
+    if (alwaysScrolled) {
+      setIsScrolled(true);
+      return;
+    }
 
-      // Set a new timeout to update the state
-      timeoutId = setTimeout(() => {
-        setIsScrolled(window.scrollY > 200);
-      }, 10); // Small delay for smoother transition
+    const handleScroll = () => {
+      const shouldBeScrolled = window.scrollY > 200;
+      if (shouldBeScrolled !== isScrolled) {
+        setIsScrolled(shouldBeScrolled);
+      }
     };
 
     window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-    };
-  }, []);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [alwaysScrolled, isScrolled]);
 
   return (
     <Box
@@ -67,7 +72,7 @@ export default function Navbar({
         paddingX: { xs: 2, sm: 3, md: 7 },
         paddingBottom: { xs: 1, sm: 1, md: 1 },
         paddingTop: isScrolled ? { xs: 1, sm: 1.5, md: 2 } : { xs: 2, sm: 2, md: 5 },
-        transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+        transition: 'all 0.3s ease',
         boxShadow: isScrolled ? '0 2px 10px rgba(0,0,0,0.1)' : 'none',
         width: "100%",
         backgroundColor: isScrolled ? "#fec9d9" : "transparent"

@@ -112,7 +112,7 @@ const AppRouter = () => {
     },
     {
       path: path.explore,
-      element: <Explore />,
+      element: <Layout><Explore /></Layout>,
     },
     {
       path: path.forgotPassword,
