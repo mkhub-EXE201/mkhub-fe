@@ -45,12 +45,16 @@ const RunningChips = () => {
               key={index}
               label="#skincare"
               sx={{
-                backgroundColor: "#FFD54F",
-                color: "#333",
+                backgroundColor: (theme) => theme.palette.ochre?.lightGrey || "#FFD54F",
+                color: (theme) => theme.palette.ochre?.dark || "#333",
                 fontWeight: 500,
                 borderRadius: "999px",
                 marginRight: 1,
-                "&:hover": { backgroundColor: "#FFB300" },
+                transition: "transform 0.3s ease, background-color 0.3s ease",
+                "&:hover": {
+                  transform: "scale(1.05)",
+                  backgroundColor: (theme) => theme.palette.ochre?.light || "#FFB300",
+                },
               }}
             />
           ))}
@@ -61,12 +65,16 @@ const RunningChips = () => {
               key={index + 10}
               label="#beauty"
               sx={{
-                backgroundColor: "#FFD54F",
-                color: "#333",
+                backgroundColor: (theme) => theme.palette.ochre?.lightGrey || "#FFD54F",
+                color: (theme) => theme.palette.ochre?.dark || "#333",
                 fontWeight: 500,
                 borderRadius: "999px",
                 marginRight: 1,
-                "&:hover": { backgroundColor: "#FFB300" },
+                transition: "transform 0.3s ease, background-color 0.3s ease",
+                "&:hover": {
+                  transform: "scale(1.05)",
+                  backgroundColor: (theme) => theme.palette.ochre?.light || "#FFB300",
+                },
               }}
             />
           ))}
