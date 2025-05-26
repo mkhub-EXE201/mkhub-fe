@@ -17,9 +17,10 @@ import { io } from "socket.io-client";
 import notificationsApis from "../../apis/notifications.apis";
 import { TypeAnimation } from 'react-type-animation';
 import { scrollLeft, scrollLeft2, animationSpeeds } from '../../styles/HomeBannerAnimation';
-import Navbar from "./Navbar";
+import { motion, AnimatePresence } from 'framer-motion';
+import PropTypes from 'prop-types';
 
-export default function Headers() {
+export default function Headers({ isScrolled }) {
   const navigate = useNavigate();
   const {
     setIsAuthenticated,
@@ -92,231 +93,255 @@ export default function Headers() {
   };
 
   return (
-    <Box
-      sx={{
-        backgroundImage:
-          "linear-gradient(0deg, #FEBED0 -17.62%, #091B65 58.6%)",
-        borderBottomLeftRadius: { xs: "20px", sm: "100px", md: "150px" },
-        borderBottomRightRadius: { xs: "20px", sm: "100px", md: "150px" },
-        paddingBottom: { xs: 1, sm: 1, md: 1 },
-
-      }}
-    >
-
-
-      {/* Main Content */}
-      <Box
-        sx={{
-          pt: { xs: 5, md: 25 },
-          pb: { xs: 5, md: 20 },
-          mx: "auto",
-          px: { xs: 2, sm: 4, md: 10 },
+    <AnimatePresence>
+      <motion.div
+        initial={{ height: "auto", opacity: 1 }}
+        animate={{
+          height: isScrolled ? 0 : "auto",
+          opacity: isScrolled ? 0 : 1,
+        }}
+        transition={{
+          duration: 0.3,
+          ease: "easeInOut"
+        }}
+        style={{
+          overflow: "hidden",
+          position: "relative",
+          zIndex: 999
         }}
       >
-        <Box textAlign="center">
-          <TypeAnimation
-            sequence={[
-              'Một nền tảng kết nối makeup artist', 2000,
-              'Makeup hub', 1500,
-            ]}
-            wrapper="span"
-            cursor={true}
-            repeat={Infinity}
-            style={{
-              color: "white",
-              fontSize: "44px",
-              fontWeight: 600,
-              textTransform: "uppercase",
-              display: "block",
-            }}
-          />
-
-          {/* Search */}
-          <Box
-            display="flex"
-            gap={2}
-            alignItems="center"
-            justifyContent="center"
-          >
-            <TextField
-              placeholder="Tôi đang tìm kiếm dịch vụ..."
-              size="small"
-              sx={{
-                mt: 3,
-                width: {
-                  xs: "100%",
-                  sm: "80%",
-                  md: "600px",
-                },
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": {
-                    borderColor: "#fff",
-                    borderRadius: "20px",
-                  },
-                  "&:hover fieldset": {
-                    borderColor: "#fff",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#fff",
-                  },
-                },
-                "& .MuiInputLabel-root": {
-                  color: "#fff",
-                },
-                "& .MuiInputLabel-root.Mui-focused": {
-                  color: "#fff",
-                },
-                "& .MuiInputBase-input::placeholder": {
-                  color: "#fff",
-                  opacity: 1,
-                },
-              }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchOutlinedIcon sx={{ color: "white" }} />
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Box>
-
-          {/* hashtag */}
+        <Box
+          sx={{
+            backgroundImage:
+              "linear-gradient(0deg, #FEBED0 -17.62%, #091B65 58.6%)",
+            borderBottomLeftRadius: { xs: "20px", sm: "100px", md: "150px" },
+            borderBottomRightRadius: { xs: "20px", sm: "100px", md: "150px" },
+            paddingBottom: { xs: 1, sm: 1, md: 1 },
+          }}
+        >
+          {/* Main Content */}
           <Box
             sx={{
-              marginTop: { md: 5, sm: 5, xs: 2 },
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: { lg: 4, md: 4, sm: 2, xs: 1 },
+              pt: { xs: 5, md: 25 },
+              pb: { xs: 5, md: 20 },
+              mx: "auto",
+              px: { xs: 2, sm: 4, md: 10 },
             }}
           >
-            {/* Both rows wrapped in a container to ensure synchronized movement */}
-            <Box
-              sx={{
-                display: "inline-block",
-                width: "100%"
-              }}
-            >
-              {/* row 1: 4 chips with horizontal scrolling animation */}
-              <Box
-                sx={{
-                  width: "100%",
-                  overflow: "hidden",
-                  whiteSpace: "nowrap",
-                  position: "relative",
-                  mb: { lg: 3, md: 3, sm: 2, xs: 1 }
+            <Box textAlign="center">
+              <TypeAnimation
+                sequence={[
+                  'Một nền tảng kết nối makeup artist', 2000,
+                  'Makeup hub', 1500,
+                ]}
+                wrapper="span"
+                cursor={true}
+                repeat={Infinity}
+                style={{
+                  color: "white",
+                  fontSize: "44px",
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  display: "block",
                 }}
+              />
+
+              {/* Search */}
+              <Box
+                display="flex"
+                gap={2}
+                alignItems="center"
+                justifyContent="center"
               >
-                <Box
-                  className="scroll-animation"
+                <TextField
+                  placeholder="Tôi đang tìm kiếm dịch vụ..."
+                  size="small"
                   sx={{
-                    display: "inline-flex",
-                    animation: `${scrollLeft} ${animationSpeeds.medium}s linear infinite`,
-                    animationPlayState: "running",
-                    width: "calc(250px * 16)",
-                    "&:hover": {
-                      animationPlayState: "paused"
-                    }
+                    mt: 3,
+                    width: {
+                      xs: "100%",
+                      sm: "80%",
+                      md: "600px",
+                    },
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": {
+                        borderColor: "#fff",
+                        borderRadius: "20px",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "#fff",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#fff",
+                      },
+                    },
+                    "& .MuiInputLabel-root": {
+                      color: "#fff",
+                    },
+                    "& .MuiInputLabel-root.Mui-focused": {
+                      color: "#fff",
+                    },
+                    "& .MuiInputBase-input::placeholder": {
+                      color: "#fff",
+                      opacity: 1,
+                    },
                   }}
-                >
-                  {Array(16).fill(0).map((_, cycle) => (
-                    <Box
-                      key={cycle}
-                      sx={{
-                        display: "flex",
-                        gap: { lg: 4, md: 4, sm: 2, xs: 1 },
-                        justifyContent: "center",
-                        px: { lg: 2, md: 1.5, sm: 1, xs: 0.5 }
-                      }}
-                    >
-                      {Array(4).fill(0).map((_, index) => {
-                        const labels = ["#makeup", "#beauty", "#style", "#trends"];
-                        return (
-                          <Chip
-                            key={cycle * 4 + index}
-                            label={labels[index]}
-                            sx={{
-                              backgroundColor: (theme) => theme.palette.ochre.lightGrey,
-                              color: (theme) => theme.palette.ochre.dark,
-                              fontWeight: 500,
-                              borderRadius: "999px",
-                              transition: "transform 0.3s ease, background-color 0.3s ease",
-                              "&:hover": {
-                                transform: "scale(1.05)",
-                                backgroundColor: (theme) => theme.palette.ochre.light,
-                              },
-                            }}
-                            onClick={() => { }}
-                          />
-                        );
-                      })}
-                    </Box>
-                  ))}
-                </Box>
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchOutlinedIcon sx={{ color: "white" }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
               </Box>
 
-              {/* row 2: 3 chips with optimized animation */}
+              {/* hashtag */}
               <Box
                 sx={{
-                  width: "100%",
-                  overflow: "hidden",
-                  whiteSpace: "nowrap",
-                  position: "relative"
+                  marginTop: { md: 5, sm: 5, xs: 2 },
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: { lg: 4, md: 4, sm: 2, xs: 1 },
                 }}
               >
+                {/* Both rows wrapped in a container to ensure synchronized movement */}
                 <Box
-                  className="scroll-animation-2"
                   sx={{
-                    display: "inline-flex",
-                    animation: `${scrollLeft2} ${animationSpeeds.medium}s linear infinite`,
-                    animationDelay: "0s",
-                    animationPlayState: "running",
-                    width: "calc(220px * 16)",
-                    "&:hover": {
-                      animationPlayState: "paused"
-                    }
+                    display: "inline-block",
+                    width: "100%"
                   }}
                 >
-                  {Array(16).fill(0).map((_, cycle) => (
+                  {/* row 1: 4 chips with horizontal scrolling animation */}
+                  <Box
+                    sx={{
+                      width: "100%",
+                      overflow: "hidden",
+                      whiteSpace: "nowrap",
+                      position: "relative",
+                      mb: { lg: 3, md: 3, sm: 2, xs: 1 }
+                    }}
+                  >
                     <Box
-                      key={cycle}
+                      className="scroll-animation"
                       sx={{
-                        display: "flex",
-                        gap: { lg: 4, md: 4, sm: 2, xs: 1 },
-                        justifyContent: "center",
-                        px: { lg: 1.5, md: 1, sm: 0.75, xs: 0.5 }
+                        display: "inline-flex",
+                        animation: `${scrollLeft} ${animationSpeeds.medium}s linear infinite`,
+                        animationPlayState: "running",
+                        width: "calc(250px * 16)",
+                        "&:hover": {
+                          animationPlayState: "paused"
+                        }
                       }}
                     >
-                      {Array(3).fill(0).map((_, index) => {
-                        const labels = ["#artist", "#look", "#tutorial"];
-                        return (
-                          <Chip
-                            key={cycle * 3 + index}
-                            label={labels[index]}
-                            sx={{
-                              backgroundColor: (theme) => theme.palette.ochre.lightGrey,
-                              color: (theme) => theme.palette.ochre.dark,
-                              fontWeight: 500,
-                              borderRadius: "999px",
-                              transition: "transform 0.3s ease, background-color 0.3s ease",
-                              "&:hover": {
-                                transform: "scale(1.05)",
-                                backgroundColor: (theme) => theme.palette.ochre.light,
-                              },
-                            }}
-                            onClick={() => { }}
-                          />
-                        );
-                      })}
+                      {Array(16).fill(0).map((_, cycle) => (
+                        <Box
+                          key={cycle}
+                          sx={{
+                            display: "flex",
+                            gap: { lg: 4, md: 4, sm: 2, xs: 1 },
+                            justifyContent: "center",
+                            px: { lg: 2, md: 1.5, sm: 1, xs: 0.5 }
+                          }}
+                        >
+                          {Array(4).fill(0).map((_, index) => {
+                            const labels = ["#makeup", "#beauty", "#style", "#trends"];
+                            return (
+                              <Chip
+                                key={cycle * 4 + index}
+                                label={labels[index]}
+                                sx={{
+                                  backgroundColor: (theme) => theme.palette.ochre.lightGrey,
+                                  color: (theme) => theme.palette.ochre.dark,
+                                  fontWeight: 500,
+                                  borderRadius: "999px",
+                                  transition: "transform 0.3s ease, background-color 0.3s ease",
+                                  "&:hover": {
+                                    transform: "scale(1.05)",
+                                    backgroundColor: (theme) => theme.palette.ochre.light,
+                                  },
+                                }}
+                                onClick={() => { }}
+                              />
+                            );
+                          })}
+                        </Box>
+                      ))}
                     </Box>
-                  ))}
+                  </Box>
+
+                  {/* row 2: 3 chips with optimized animation */}
+                  <Box
+                    sx={{
+                      width: "100%",
+                      overflow: "hidden",
+                      whiteSpace: "nowrap",
+                      position: "relative"
+                    }}
+                  >
+                    <Box
+                      className="scroll-animation-2"
+                      sx={{
+                        display: "inline-flex",
+                        animation: `${scrollLeft2} ${animationSpeeds.medium}s linear infinite`,
+                        animationDelay: "0s",
+                        animationPlayState: "running",
+                        width: "calc(220px * 16)",
+                        "&:hover": {
+                          animationPlayState: "paused"
+                        }
+                      }}
+                    >
+                      {Array(16).fill(0).map((_, cycle) => (
+                        <Box
+                          key={cycle}
+                          sx={{
+                            display: "flex",
+                            gap: { lg: 4, md: 4, sm: 2, xs: 1 },
+                            justifyContent: "center",
+                            px: { lg: 1.5, md: 1, sm: 0.75, xs: 0.5 }
+                          }}
+                        >
+                          {Array(3).fill(0).map((_, index) => {
+                            const labels = ["#artist", "#look", "#tutorial"];
+                            return (
+                              <Chip
+                                key={cycle * 3 + index}
+                                label={labels[index]}
+                                sx={{
+                                  backgroundColor: (theme) => theme.palette.ochre.lightGrey,
+                                  color: (theme) => theme.palette.ochre.dark,
+                                  fontWeight: 500,
+                                  borderRadius: "999px",
+                                  transition: "transform 0.3s ease, background-color 0.3s ease",
+                                  "&:hover": {
+                                    transform: "scale(1.05)",
+                                    backgroundColor: (theme) => theme.palette.ochre.light,
+                                  },
+                                }}
+                                onClick={() => { }}
+                              />
+                            );
+                          })}
+                        </Box>
+                      ))}
+                    </Box>
+                  </Box>
                 </Box>
               </Box>
             </Box>
           </Box>
         </Box>
-      </Box>
-    </Box>
+      </motion.div>
+    </AnimatePresence>
   );
 }
+
+Headers.propTypes = {
+  isScrolled: PropTypes.bool
+};
+
+Headers.defaultProps = {
+  isScrolled: false
+};

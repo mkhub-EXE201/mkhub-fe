@@ -31,12 +31,26 @@ export default function Navbar({
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
+    let timeoutId;
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 550);
+      // Clear any existing timeout
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+
+      // Set a new timeout to update the state
+      timeoutId = setTimeout(() => {
+        setIsScrolled(window.scrollY > 200);
+      }, 10); // Small delay for smoother transition
     };
 
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, []);
 
   return (
@@ -47,16 +61,16 @@ export default function Navbar({
         left: 0,
         right: 0,
         zIndex: 1000,
-        backgroundImage: isScrolled ? "linear-gradient(0deg, #FEBED0 -17.62%, #091B65 58.6%)" : "none",
+        backgroundImage: isScrolled ? "#linear-gradient(0deg, #FEBED0 -17.62%, #091B65 58.6%)" : "none",
         borderBottomLeftRadius: isScrolled ? { xs: "20px", sm: "100px", md: "150px" } : 0,
         borderBottomRightRadius: isScrolled ? { xs: "20px", sm: "100px", md: "150px" } : 0,
         paddingX: { xs: 2, sm: 3, md: 7 },
         paddingBottom: { xs: 1, sm: 1, md: 1 },
         paddingTop: isScrolled ? { xs: 1, sm: 1.5, md: 2 } : { xs: 2, sm: 2, md: 5 },
-        transition: 'all 0.3s ease',
+        transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
         boxShadow: isScrolled ? '0 2px 10px rgba(0,0,0,0.1)' : 'none',
         width: "100%",
-        backgroundColor: "transparent"
+        backgroundColor: isScrolled ? "#fec9d9" : "transparent"
       }}
     >
       <Box
@@ -90,10 +104,10 @@ export default function Navbar({
             }}
           />
           <Link to={path.explore} style={{ textDecoration: "none", color: "inherit" }}>
-            <Typography color="white">Khám phá</Typography>
+            <Typography color={isScrolled ? "black" : "white"}>Khám phá</Typography>
           </Link>
           <Link to={path.home} style={{ textDecoration: "none", color: "inherit" }}>
-            <Typography color="white">Cộng đồng</Typography>
+            <Typography color={isScrolled ? "black" : "white"}>Cộng đồng</Typography>
           </Link>
         </Box>
 
@@ -140,7 +154,7 @@ export default function Navbar({
                 ":hover": { opacity: "95%" },
               }}
             >
-              <Typography sx={{ color: "white" }}>
+              <Typography sx={{ color: isScrolled ? "black" : "white" }}>
                 {!isAuthenticated
                   ? "Trở thành Makeup Artist"
                   : role === USER_ROLE.ARTIST
@@ -154,13 +168,14 @@ export default function Navbar({
           <Notification
             notifications={notifications}
             getNotificationsByStatus={getNotificationsByStatus}
+            isScrolled={isScrolled}
           />
           <IconButton>
             <Badge badgeContent={unreadChatCount} color="error">
               <TelegramIcon sx={{
                 width: isScrolled ? 25 : 30,
                 height: isScrolled ? 25 : 30,
-                color: "white",
+                color: isScrolled ? "black" : "white",
                 transition: "width 0.3s ease, height 0.3s ease"
               }} />
             </Badge>
@@ -168,10 +183,10 @@ export default function Navbar({
           {!isAuthenticated ? (
             <>
               <Link to={path.login} style={{ textDecoration: "none", color: "inherit" }}>
-                <Typography color="white">Đăng nhập</Typography>
+                <Typography color={isScrolled ? "black" : "white"}>Đăng nhập</Typography>
               </Link>
               <Link to={path.register} style={{ textDecoration: "none", color: "inherit" }}>
-                <Typography color="white">Đăng kí</Typography>
+                <Typography color={isScrolled ? "black" : "white"}>Đăng kí</Typography>
               </Link>
             </>
           ) : (

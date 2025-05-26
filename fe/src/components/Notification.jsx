@@ -8,9 +8,11 @@ import { USER_ROLE } from "../constants/enum";
 export default function Notification({
   notifications,
   getNotificationsByStatus,
+  isScrolled,
 }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedFilter, setSelectedFilter] = useState("Tất cả");
+
   const handleClick = (event) => {
     setAnchorEl(anchorEl ? null : event.currentTarget);
   };
@@ -38,7 +40,7 @@ export default function Notification({
         sx={{ position: "relative" }}
       >
         <Badge badgeContent={notifications?.length ?? 0} color="error">
-          <NotificationsIcon sx={{ color: "white", width: 30, height: 30 }} />
+          <NotificationsIcon sx={{ color: isScrolled ? "black" : "white", width: isScrolled ? 25 : 30, height: isScrolled ? 25 : 30 }} />
         </Badge>
       </IconButton>
 
