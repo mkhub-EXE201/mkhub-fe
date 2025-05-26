@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { useContext } from "react";
-import { Outlet, Navigate, useRoutes } from "react-router-dom";
+import { Outlet, Navigate, useRoutes, useLocation } from "react-router-dom";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import Homepage from "../pages/Homepage";
@@ -83,9 +83,12 @@ export const checkHomeAccess = () => {
 };
 
 const Layout = ({ children }) => {
+  const location = useLocation();
+  const isHomepage = location.pathname === path.home;
+
   return (
     <Box sx={{ position: "relative" }}>
-      <Navbar />
+      <Navbar alwaysScrolled={!isHomepage} />
       <Box sx={{
         mt: { xs: "80px", sm: "90px", md: "100px" },
         position: "relative",
