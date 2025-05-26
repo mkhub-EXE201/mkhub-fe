@@ -4,6 +4,7 @@ import {
   InputAdornment,
   TextField,
   Grid,
+  keyframes,
 } from "@mui/material";
 import React, { useContext, useState, useEffect } from "react";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
@@ -19,66 +20,101 @@ import notificationsApis from "../../apis/notifications.apis";
 import { TypeAnimation } from 'react-type-animation';
 import { motion, AnimatePresence } from 'framer-motion';
 import PropTypes from 'prop-types';
-import artistBanner from '../../assets/artist-banner.jpg';
-import miniHeader from '../../assets/mini-header.jpg';
+import artistBanner from '../../assets/artist-banner2.jpg';
+import headerBanner from '../../assets/header-banner2.jpg';
+import headerbanner4 from '../../assets/header-banner4.jpg';
+import miniHeader from '../../assets/mini-header2.jpg';
+
+// Define animations
+const scrollLeft = keyframes`
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+`;
+
+// Define animation speeds
+const animationSpeeds = {
+  slow: 60,
+  medium: 40,
+  fast: 20
+};
 
 // Running Chips Component
 const RunningChips = () => {
   return (
     <Box
       sx={{
-        mb: 3,
-        overflow: "hidden",
-        whiteSpace: "nowrap",
-        position: "relative",
+        marginTop: { md: 5, sm: 5, xs: 2 },
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: { lg: 4, md: 4, sm: 2, xs: 1 },
       }}
     >
-      <motion.div
-        animate={{ x: ["0%", "-100%"] }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        style={{ display: "inline-flex", gap: 2 }}
+      {/* Container for chips */}
+      <Box
+        sx={{
+          display: "inline-block",
+          width: "100%"
+        }}
       >
-        {Array(10)
-          .fill(0)
-          .map((_, index) => (
-            <Chip
-              key={index}
-              label="#skincare"
-              sx={{
-                backgroundColor: (theme) => theme.palette.ochre.lightGrey,
-                color: (theme) => theme.palette.ochre.dark,
-                fontWeight: 500,
-                borderRadius: "999px",
-                marginRight: 1,
-                transition: "transform 0.3s ease, background-color 0.3s ease",
-                "&:hover": {
-                  transform: "scale(1.05)",
-                  backgroundColor: (theme) => theme.palette.ochre.light,
-                },
-              }}
-            />
-          ))}
-        {Array(10)
-          .fill(0)
-          .map((_, index) => (
-            <Chip
-              key={index + 10}
-              label="#beauty"
-              sx={{
-                backgroundColor: (theme) => theme.palette.ochre.lightGrey,
-                color: (theme) => theme.palette.ochre.dark,
-                fontWeight: 500,
-                borderRadius: "999px",
-                marginRight: 1,
-                transition: "transform 0.3s ease, background-color 0.3s ease",
-                "&:hover": {
-                  transform: "scale(1.05)",
-                  backgroundColor: (theme) => theme.palette.ochre.light,
-                },
-              }}
-            />
-          ))}
-      </motion.div>
+        {/* Single row of chips with horizontal scrolling animation */}
+        <Box
+          sx={{
+            width: "100%",
+            overflow: "hidden",
+            whiteSpace: "nowrap",
+            position: "relative",
+            mb: { lg: 3, md: 3, sm: 2, xs: 1 }
+          }}
+        >
+          <Box
+            className="scroll-animation"
+            sx={{
+              display: "inline-flex",
+              animation: `${scrollLeft} ${animationSpeeds.medium}s linear infinite`,
+              animationPlayState: "running",
+              width: "calc(250px * 16)",
+              "&:hover": {
+                animationPlayState: "paused"
+              }
+            }}
+          >
+            {Array(16).fill(0).map((_, cycle) => (
+              <Box
+                key={cycle}
+                sx={{
+                  display: "flex",
+                  gap: { lg: 4, md: 4, sm: 2, xs: 1 },
+                  justifyContent: "center",
+                  px: { lg: 2, md: 1.5, sm: 1, xs: 0.5 }
+                }}
+              >
+                {Array(4).fill(0).map((_, index) => {
+                  const labels = ["#makeup", "#beauty", "#style", "#trends"];
+                  return (
+                    <Chip
+                      key={cycle * 4 + index}
+                      label={labels[index]}
+                      sx={{
+                        backgroundColor: (theme) => theme.palette.ochre.lightGrey,
+                        color: (theme) => theme.palette.ochre.dark,
+                        fontWeight: 500,
+                        borderRadius: "999px",
+                        transition: "transform 0.3s ease, background-color 0.3s ease",
+                        "&:hover": {
+                          transform: "scale(1.05)",
+                          backgroundColor: (theme) => theme.palette.ochre.light,
+                        },
+                      }}
+                      onClick={() => { }}
+                    />
+                  );
+                })}
+              </Box>
+            ))}
+          </Box>
+        </Box>
+      </Box>
     </Box>
   );
 };
@@ -90,9 +126,9 @@ const MainLayout = () => {
       display: 'flex',
       flexDirection: { xs: 'column', md: 'row' },
       width: '100%',
-      gap: { xs: 4, md: 0 },
-      pt: { xs: 2, md: 6 },
-      mt: { xs: 2, md: 6 }
+      gap: { xs: 2, md: 0 },  
+      pt: { xs: 1, md: 6 },   
+      mt: { xs: 1, md: 6 }   
     }}>
       {/* Left: Artist Banner (50% width) */}
       <Box
@@ -106,13 +142,13 @@ const MainLayout = () => {
         }}
       >
         <img
-          src={artistBanner}
+          src={headerbanner4}
           alt="Artist Banner"
           style={{
             width: '100%',
             height: '100%',
-            minHeight: '300px',
-            maxHeight: '500px',
+            minHeight: '550px',   
+            maxHeight: '550px',  
             objectFit: 'cover',
             objectPosition: 'center',
             borderRadius: '12px'
@@ -198,15 +234,16 @@ const MainLayout = () => {
               boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
               padding: 3,
               borderRadius: 2,
-              textAlign: "center",
+              textAlign: "left",
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
             }}
           >
-            <h2 style={{ margin: '0 0 16px 0', fontSize: '24px' }}>The drops that started it all</h2>
+            <h2 style={{ margin: '0 0 16px 0', fontSize: '24px' }}>Beauty with MAKEUP HUB</h2>
             <p style={{ margin: 0, fontSize: '16px', lineHeight: 1.5 }}>
-              No dupe about it: Our color serum drops deliver skincare-first benefits with a stunning all-over wash of color.
+              
+              Đặt Lịch Trang Điểm Dễ Dàng
             </p>
           </Box>
 
@@ -223,7 +260,7 @@ const MainLayout = () => {
             }}
           >
             <img
-              src={miniHeader}
+              src={headerBanner}
               alt="Product Image"
               style={{
                 width: '100%',
@@ -332,17 +369,17 @@ export default function Headers({ isScrolled }) {
           sx={{
             backgroundImage:
               "linear-gradient(0deg, #FEBED0 -17.62%, #091B65 58.6%)",
-            borderBottomLeftRadius: { xs: "20px", sm: "100px", md: "150px" },
-            borderBottomRightRadius: { xs: "20px", sm: "100px", md: "150px" },
+            borderBottomLeftRadius: { xs: "20px", sm: "100px", md: "50px" },
+            borderBottomRightRadius: { xs: "20px", sm: "100px", md: "50px" },
             paddingBottom: { xs: 1, sm: 1, md: 1 },
-            minHeight: { xs: 'auto', md: '80vh' },
+            minHeight: { xs: 'auto', md: '85vh' },  // Increased minimum height
             display: 'flex',
             alignItems: 'center',
           }}
         >
           <Box sx={{
-            py: { xs: 5, md: 10 },
-            px: { xs: 2, sm: 4, md: 10 },
+            py: { xs: 3, md: 5 },  // Reduced vertical padding
+            px: { xs: 2, sm: 4, md: 8 },  // Adjusted horizontal padding
             width: '100%'
           }}>
             <MainLayout />
