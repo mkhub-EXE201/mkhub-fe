@@ -99,21 +99,16 @@ export default function Headers() {
         borderBottomLeftRadius: { xs: "20px", sm: "100px", md: "150px" },
         borderBottomRightRadius: { xs: "20px", sm: "100px", md: "150px" },
         paddingBottom: { xs: 1, sm: 1, md: 1 },
+
       }}
     >
-      {/* Use Navbar component for the header */}
-      <Navbar
-        notifications={noti}
-        getNotificationsByStatus={getNotificationsByStatus}
-        unreadNotiCount={unreadNotiCount}
-        unreadChatCount={unreadChatCount}
-        handleLogout={handleLogout}
-      />
+
 
       {/* Main Content */}
       <Box
         sx={{
-          my: { xs: 5, md: 10 },
+          pt: { xs: 5, md: 25 },
+          pb: { xs: 5, md: 20 },
           mx: "auto",
           px: { xs: 2, sm: 4, md: 10 },
         }}

@@ -25,6 +25,8 @@ import Artists from "../pages/Artists";
 import ArtistDetail from "../pages/ArtistDetail";
 import ArtistServiceManagement from "../pages/artist/ArtistServiceManagement";
 import ArtistScheduleManagement from "../pages/artist/ArtistScheduleManagement";
+import Navbar from "../components/layout/Navbar";
+import { Box } from "@mui/material";
 
 export const ProtectedRoute = ({ isAdmin, isArtist }) => {
   const { isAuthenticated, role } = useContext(AppContext);
@@ -80,11 +82,24 @@ export const checkHomeAccess = () => {
   return null;
 };
 
+const Layout = ({ children }) => {
+  return (
+    <Box >
+      <Navbar />  
+      {children}
+    </Box>
+  );
+};
+
 const AppRouter = () => {
   const routeElements = useRoutes([
     {
       path: path.home,
-      element: checkHomeAccess() || <Homepage />,
+      element: checkHomeAccess() ||
+        <Layout>
+          <Homepage />
+        </Layout>
+
     },
     {
       path: path.explore,

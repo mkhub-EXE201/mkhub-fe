@@ -12,6 +12,11 @@
   transition: filter 300ms;
 }
 
+.fixed-navbar {
+  position: fixed !important;
+  z-index: 1000 !important;
+}
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }

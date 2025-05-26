@@ -9,16 +9,14 @@ import { BrowserRouter } from "react-router-dom";
 import SmoothScroll from "./layouts/SmoothScroll";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
+
     <BrowserRouter>
       <ThemeProvider theme={theme}>
         <AppProvider>
           <CssBaseline />
-          <SmoothScroll>
-            <App />
-          </SmoothScroll>
+            <App /> 
         </AppProvider>
       </ThemeProvider>
     </BrowserRouter>
-  </React.StrictMode>
+
 );

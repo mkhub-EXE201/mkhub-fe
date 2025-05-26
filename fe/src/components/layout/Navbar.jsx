@@ -6,7 +6,7 @@ import {
   IconButton,
   Typography,
 } from "@mui/material";
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import logo from "../../assets/logo.png";
 import TelegramIcon from "@mui/icons-material/Telegram";
 import { Link, useNavigate } from "react-router-dom";
@@ -27,19 +27,40 @@ export default function Navbar({
   const navigate = useNavigate();
   const { isAuthenticated, profile, role, setRole } = useContext(AppContext);
 
+  // Track scroll position for collapsing behavior
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 100);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <Box
       sx={{
-        // backgroundImage: "linear-gradient(0deg, #FEBED0 -17.62%, #091B65 58.6%)",
+        position: "fixed", // Changed to fixed for better cross-browser compatibility
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
+        backgroundImage: "linear-gradient(0deg, #FEBED0 -17.62%, #091B65 58.6%)",
         borderBottomLeftRadius: { xs: "20px", sm: "100px", md: "150px" },
         borderBottomRightRadius: { xs: "20px", sm: "100px", md: "150px" },
         paddingX: { xs: 2, sm: 3, md: 7 },
         paddingBottom: { xs: 1, sm: 1, md: 1 },
-        paddingTop: { xs: 2, sm: 2, md: 5 },
+        paddingTop: isScrolled ? { xs: 1, sm: 1.5, md: 2 } : { xs: 2, sm: 2, md: 5 },
+        transition: 'all 0.3s ease',
+        boxShadow: isScrolled ? '0 2px 10px rgba(0,0,0,0.1)' : 'none',
+        width: "100%",
       }}
     >
       <Box
         sx={{
+
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },
           justifyContent: "space-between",
@@ -58,12 +79,14 @@ export default function Navbar({
         >
           <img
             src={logo}
-            onClick={() => navigate(path.home)} // Fixed onClick
+            onClick={() => navigate(path.home)}
             alt="header-logo"
             style={{
-              width: "100px",
+              width: isScrolled ? "80px" : "100px",
               height: "auto",
               objectFit: "cover",
+              cursor: "pointer",
+              transition: "width 0.3s ease"
             }}
           />
           <Link to={path.explore} style={{ textDecoration: "none", color: "inherit" }}>
@@ -102,7 +125,11 @@ export default function Navbar({
                 navigate(path.onboardingArtist);
               }
             }}
-            sx={{ borderRadius: "50px" }}
+            sx={{
+              borderRadius: "50px",
+              transform: isScrolled ? "scale(0.9)" : "scale(1)",
+              transition: "transform 0.3s ease"
+            }}
           >
             <Box
               sx={{
@@ -130,7 +157,12 @@ export default function Navbar({
           />
           <IconButton>
             <Badge badgeContent={unreadChatCount} color="error">
-              <TelegramIcon sx={{ width: 30, height: 30, color: "white" }} />
+              <TelegramIcon sx={{
+                width: isScrolled ? 25 : 30,
+                height: isScrolled ? 25 : 30,
+                color: "white",
+                transition: "width 0.3s ease, height 0.3s ease"
+              }} />
             </Badge>
           </IconButton>
           {!isAuthenticated ? (
@@ -204,7 +236,11 @@ export default function Navbar({
                   "https://mkhub.s3.us-east-1.amazonaws.com/avatar/default_avt.jpg"
                 }
                 alt="avatar"
-                sx={{ width: 30, height: 30 }}
+                sx={{
+                  width: isScrolled ? 25 : 30,
+                  height: isScrolled ? 25 : 30,
+                  transition: "width 0.3s ease, height 0.3s ease"
+                }}
               />
             </Popover>
           )}
@@ -217,15 +253,17 @@ export default function Navbar({
 // Add PropTypes validation
 Navbar.propTypes = {
   notifications: PropTypes.array,
-  getNotificationsByStatus: PropTypes.func.isRequired,
+  getNotificationsByStatus: PropTypes.func,
   unreadNotiCount: PropTypes.number,
   unreadChatCount: PropTypes.number,
-  handleLogout: PropTypes.func.isRequired
+  handleLogout: PropTypes.func
 };
 
 // Default props
 Navbar.defaultProps = {
   notifications: [],
   unreadNotiCount: 0,
-  unreadChatCount: 0
+  unreadChatCount: 0,
+  getNotificationsByStatus: () => { },
+  handleLogout: () => { }
 };

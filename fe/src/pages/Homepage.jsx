@@ -1,9 +1,10 @@
-import { Box, CircularProgress, Typography, Paper } from "@mui/material";
+import {  CircularProgress, Typography, Paper } from "@mui/material";
 import React, { lazy, Suspense } from "react";
-import Headers from "../components/layout/Headers";
 import StatCard from "../components/home-page/StatCard";
 import VideoCarousel from "../components/home-page/VideoCarousel"; // Eager import
 import PropTypes from 'prop-types';
+import Headers from "../components/layout/Headers";
+import SmoothScroll from "../layouts/SmoothScroll";
 
 // Lazy load other components
 const TopServices = lazy(() => import("../components/home-page/TopServices"));
@@ -58,24 +59,31 @@ StyledFallback.defaultProps = {
   text: "Chờ xíu nha..."
 };
 
+
+
+// Only one default export for the module
 export default function Homepage() {
   return (
-    <Box>
+    
+  <SmoothScroll>
       <Headers />
       <StatCard />
-      <TopServices />
-      <Suspense fallback={<StyledFallback height={200} text="Chờ xíu nha..." />}>
+      <Suspense fallback={<StyledFallback />}>
+        <TopServices />
+      </Suspense>
+      <Suspense fallback={<StyledFallback />}>
         <Offers />
       </Suspense>
-      <Suspense fallback={<StyledFallback height={200} text="Chờ xíu nha..." />}>
+      <Suspense fallback={<StyledFallback />}>
         <VideoCarousel />
       </Suspense>
-      <Suspense fallback={<StyledFallback height={200} text="Chờ xíu nha..." />}>
+      <Suspense fallback={<StyledFallback />}>
         <ArtistBanner />
       </Suspense>
-      <Suspense fallback={<StyledFallback height={100} text="Chờ xíu nha..." />}>
+      <Suspense fallback={<StyledFallback height={100} />}>
         <Footer />
       </Suspense>
-    </Box>
+      
+      </SmoothScroll>
   );
 }
