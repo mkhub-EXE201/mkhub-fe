@@ -20,6 +20,7 @@ import { TypeAnimation } from 'react-type-animation';
 import { motion, AnimatePresence } from 'framer-motion';
 import PropTypes from 'prop-types';
 import artistBanner from '../../assets/artist-banner.jpg';
+import miniHeader from '../../assets/mini-header.jpg';
 
 // Running Chips Component
 const RunningChips = () => {
@@ -81,7 +82,9 @@ const MainLayout = () => {
       display: 'flex',
       flexDirection: { xs: 'column', md: 'row' },
       width: '100%',
-      gap: { xs: 4, md: 0 }
+      gap: { xs: 4, md: 0 },
+      pt: { xs: 2, md: 6 },
+      mt: { xs: 2, md: 6 }
     }}>
       {/* Left: Artist Banner (50% width) */}
       <Box
@@ -90,7 +93,8 @@ const MainLayout = () => {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          pr: { xs: 0, md: 2 }
+          pr: { xs: 0, md: 2 },
+          height: { md: '100%' }, // Ensure box has full height
         }}
       >
         <img
@@ -98,9 +102,11 @@ const MainLayout = () => {
           alt="Artist Banner"
           style={{
             width: '100%',
-            height: 'auto',
+            height: '100%',
+            minHeight: '300px',
             maxHeight: '500px',
             objectFit: 'cover',
+            objectPosition: 'center',
             borderRadius: '12px'
           }}
         />
@@ -179,7 +185,9 @@ const MainLayout = () => {
           <Box
             sx={{
               flex: 1,
-              backgroundColor: "#FFF9C4",
+              backgroundColor: "rgba(255, 255, 255, 0.25)",
+              backdropFilter: "blur(10px)",
+              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
               padding: 3,
               borderRadius: 2,
               textAlign: "center",
@@ -202,11 +210,20 @@ const MainLayout = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '14px',
-              color: '#666'
+              overflow: 'hidden', // Added to ensure image doesn't overflow
+              padding: 0 // Remove padding to allow image to fill box
             }}
           >
-            Product Image 1
+            <img
+              src={miniHeader}
+              alt="Product Image"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: 'center'
+              }}
+            />
           </Box>
         </Box>
       </Box>
