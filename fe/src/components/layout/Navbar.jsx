@@ -32,7 +32,7 @@ export default function Navbar({
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 100);
+      setIsScrolled(window.scrollY > 550);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -42,25 +42,25 @@ export default function Navbar({
   return (
     <Box
       sx={{
-        position: "fixed", // Changed to fixed for better cross-browser compatibility
+        position: "fixed",
         top: 0,
         left: 0,
         right: 0,
         zIndex: 1000,
-        backgroundImage: "linear-gradient(0deg, #FEBED0 -17.62%, #091B65 58.6%)",
-        borderBottomLeftRadius: { xs: "20px", sm: "100px", md: "150px" },
-        borderBottomRightRadius: { xs: "20px", sm: "100px", md: "150px" },
+        backgroundImage: isScrolled ? "linear-gradient(0deg, #FEBED0 -17.62%, #091B65 58.6%)" : "none",
+        borderBottomLeftRadius: isScrolled ? { xs: "20px", sm: "100px", md: "150px" } : 0,
+        borderBottomRightRadius: isScrolled ? { xs: "20px", sm: "100px", md: "150px" } : 0,
         paddingX: { xs: 2, sm: 3, md: 7 },
         paddingBottom: { xs: 1, sm: 1, md: 1 },
         paddingTop: isScrolled ? { xs: 1, sm: 1.5, md: 2 } : { xs: 2, sm: 2, md: 5 },
         transition: 'all 0.3s ease',
         boxShadow: isScrolled ? '0 2px 10px rgba(0,0,0,0.1)' : 'none',
         width: "100%",
+        backgroundColor: "transparent"
       }}
     >
       <Box
         sx={{
-
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },
           justifyContent: "space-between",

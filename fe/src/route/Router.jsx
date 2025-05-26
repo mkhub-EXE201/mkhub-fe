@@ -84,9 +84,15 @@ export const checkHomeAccess = () => {
 
 const Layout = ({ children }) => {
   return (
-    <Box >
-      <Navbar />  
-      {children}
+    <Box sx={{ position: "relative" }}>
+      <Navbar />
+      <Box sx={{
+        mt: { xs: "80px", sm: "90px", md: "100px" },
+        position: "relative",
+        zIndex: 1
+      }}>
+        {children}
+      </Box>
     </Box>
   );
 };
