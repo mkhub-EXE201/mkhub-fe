@@ -38,6 +38,153 @@ const animationSpeeds = {
   fast: 20
 };
 
+// Hero slide data
+const heroSlides = [
+  {
+    id: 1,
+    leftImage: headerbanner4,
+    rightImage: headerBanner,
+    title: "Beauty with MAKEUP HUB",
+    subtitle: "Đặt Lịch Trang Điểm Dễ Dàng",
+    typeText: ['Kết nối makeup artist', 'Makeup hub']
+  },
+  {
+    id: 2,
+    leftImage: artistBanner,
+    rightImage: miniHeader,
+    title: "Professional Artists",
+    subtitle: "Chuyên Gia Trang Điểm Hàng Đầu",
+    typeText: ['Chuyên nghiệp', 'Tận tâm']
+  },
+  {
+    id: 3,
+    leftImage: miniHeader,
+    rightImage: headerbanner4,
+    title: "Premium Services",
+    subtitle: "Dịch Vụ Trang Điểm Cao Cấp",
+    typeText: ['Sang trọng', 'Đẳng cấp']
+  }
+];
+
+// ============ ANIMATION COMPONENTS ============
+
+// Unified slide animation variants - all elements slide from left to right
+const slideVariants = {
+  enter: {
+    x: '100%',
+    opacity: 0,
+    scale: 0.95
+  },
+  center: {
+    x: 0,
+    opacity: 1,
+    scale: 1
+  },
+  exit: {
+    x: '-100%',
+    opacity: 0,
+    scale: 0.95
+  }
+};
+
+// Animation configuration
+const animationConfig = {
+  duration: 0.8,
+  ease: [0.25, 0.46, 0.45, 0.94]
+};
+
+// Reusable Animated Image Component
+const AnimatedImage = ({
+  src,
+  alt,
+  slideKey,
+  style = {},
+  delay = 0,
+  containerSx = {}
+}) => {
+  return (
+    <Box sx={{ position: 'relative', overflow: 'hidden', ...containerSx }}>
+      <AnimatePresence mode="wait">
+        <motion.img
+          key={slideKey}
+          src={src}
+          alt={alt}
+          variants={slideVariants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{
+            ...animationConfig,
+            delay
+          }}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            ...style
+          }}
+        />
+      </AnimatePresence>
+    </Box>
+  );
+};
+
+// Reusable Animated Content Component
+const AnimatedContent = ({
+  slideKey,
+  children,
+  delay = 0,
+  style = {}
+}) => {
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={slideKey}
+        variants={slideVariants}
+        initial="enter"
+        animate="center"
+        exit="exit"
+        transition={{
+          ...animationConfig,
+          delay
+        }}
+        style={style}
+      >
+        {children}
+      </motion.div>
+    </AnimatePresence>
+  );
+};
+
+// Reusable Animated Text Component
+const AnimatedText = ({
+  slideKey,
+  children,
+  delay = 0,
+  style = {}
+}) => {
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={slideKey}
+        variants={slideVariants}
+        initial="enter"
+        animate="center"
+        exit="exit"
+        transition={{
+          ...animationConfig,
+          delay
+        }}
+        style={style}
+      >
+        {children}
+      </motion.div>
+    </AnimatePresence>
+  );
+};
+
+// ============ END ANIMATION COMPONENTS ============
+
 // Running Chips Component
 const RunningChips = () => {
   return (
@@ -50,14 +197,12 @@ const RunningChips = () => {
         gap: { lg: 4, md: 4, sm: 2, xs: 1 },
       }}
     >
-      {/* Container for chips */}
       <Box
         sx={{
           display: "inline-block",
           width: "100%"
         }}
       >
-        {/* Single row of chips with horizontal scrolling animation */}
         <Box
           sx={{
             width: "100%",
@@ -119,18 +264,79 @@ const RunningChips = () => {
   );
 };
 
-// Main layout component
+// Slide indicators component
+const SlideIndicators = ({ currentSlide, totalSlides, onSlideChange }) => {
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        gap: 1,
+        mt: 3,
+        position: 'absolute',
+        bottom: 20,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        zIndex: 10
+      }}
+    >
+      {Array.from({ length: totalSlides }, (_, index) => (
+        <Box
+          key={index}
+          onClick={() => onSlideChange(index)}
+          sx={{
+            width: 12,
+            height: 12,
+            borderRadius: '50%',
+            backgroundColor: currentSlide === index ? 'white' : 'rgba(255, 255, 255, 0.5)',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+            '&:hover': {
+              backgroundColor: 'white',
+              transform: 'scale(1.2)'
+            }
+          }}
+        />
+      ))}
+    </Box>
+  );
+};
+
+// Main layout component with synchronized sliding
 const MainLayout = () => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
+  // Auto-advance slides
+  useEffect(() => {
+    if (!isAutoPlaying) return;
+
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+    }, 5000); // Change slide every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [isAutoPlaying]);
+
+  const handleSlideChange = (slideIndex) => {
+    setCurrentSlide(slideIndex);
+    setIsAutoPlaying(false);
+    // Resume auto-play after 10 seconds
+    setTimeout(() => setIsAutoPlaying(true), 10000);
+  };
+
   return (
     <Box sx={{
       display: 'flex',
       flexDirection: { xs: 'column', md: 'row' },
       width: '100%',
-      gap: { xs: 2, md: 0 },  
-      pt: { xs: 1, md: 6 },   
-      mt: { xs: 1, md: 6 }   
+      gap: { xs: 2, md: 0 },
+      pt: { xs: 1, md: 6 },
+      mt: { xs: 1, md: 6 },
+      position: 'relative',
+      overflow: 'hidden'
     }}>
-      {/* Left: Artist Banner (50% width) */}
+      {/* Left: Artist Banner (50% width) - Animated Image */}
       <Box
         sx={{
           width: { xs: '100%', md: '50%' },
@@ -138,19 +344,28 @@ const MainLayout = () => {
           justifyContent: 'center',
           alignItems: 'center',
           pr: { xs: 0, md: 2 },
-          height: { md: '100%' }, // Ensure box has full height
+          height: { md: '100%' },
+          minHeight: '550px'
         }}
       >
-        <img
-          src={headerbanner4}
+        <AnimatedImage
+          src={heroSlides[currentSlide].leftImage}
           alt="Artist Banner"
+          slideKey={`left-${currentSlide}`}
+          delay={0}
           style={{
             width: '100%',
             height: '100%',
-            minHeight: '550px',   
-            maxHeight: '550px',  
+            minHeight: '550px',
+            maxHeight: '550px',
             objectFit: 'cover',
             objectPosition: 'center',
+            borderRadius: '10px',
+            position: 'relative'
+          }}
+          containerSx={{
+            width: '100%',
+            height: '550px',
             borderRadius: '10px'
           }}
         />
@@ -166,29 +381,36 @@ const MainLayout = () => {
           pl: { xs: 0, md: 2 }
         }}
       >
-        {/* Top: TypeAnimation and Search */}
+        {/* Top: TypeAnimation and Search - Animated Text */}
         <Box
           sx={{
             display: { xs: 'none', md: 'block' },
           }}
         >
-          <TypeAnimation
-            sequence={[
-              'Kết nối makeup artist', 2000,
-              'Makeup hub', 1500,
-            ]}
-            wrapper="span"
-            cursor={true}
-            repeat={Infinity}
-            style={{
-              color: "white",
-              fontSize: "32px",
-              fontWeight: 600,
-              textTransform: "uppercase",
-              display: "block",
-              marginBottom: "16px"
-            }}
-          />
+          <AnimatedText
+            slideKey={`text-${currentSlide}`}
+            delay={0.1}
+          >
+            <TypeAnimation
+              key={currentSlide}
+              sequence={[
+                heroSlides[currentSlide].typeText[0], 2000,
+                heroSlides[currentSlide].typeText[1], 1500,
+              ]}
+              wrapper="span"
+              cursor={true}
+              repeat={Infinity}
+              style={{
+                color: "white",
+                fontSize: "32px",
+                fontWeight: 600,
+                textTransform: "uppercase",
+                display: "block",
+                marginBottom: "16px"
+              }}
+            />
+          </AnimatedText>
+
           <TextField
             placeholder="Tìm kiếm dịch vụ..."
             size="small"
@@ -224,54 +446,80 @@ const MainLayout = () => {
         {/* Running Chips */}
         <RunningChips />
 
-        {/* Bottom: Product Section with Images - Equal Height and Width */}
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2, width: '100%', height: 280 }}>
-          <Box
-            sx={{
-              flex: 1,
-              backgroundColor: "rgba(255, 255, 255, 0.25)",
-              backdropFilter: "blur(10px)",
-              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-              padding: 3,
-              borderRadius: 2,
-              textAlign: "left",
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-            }}
+        {/* Bottom: Product Section - Animated Content and Images */}
+        <Box sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          gap: 2,
+          width: '100%',
+          height: 280
+        }}>
+          {/* Left Content Box - Animated */}
+          <AnimatedContent
+            slideKey={`content-${currentSlide}`}
+            delay={0.2}
+            style={{ flex: 1 }}
           >
-            <h2 style={{ margin: '0 0 16px 0', fontSize: '24px' }}>Beauty with MAKEUP HUB</h2>
-            <p style={{ margin: 0, fontSize: '16px', lineHeight: 1.5 }}>
-              
-              Đặt Lịch Trang Điểm Dễ Dàng
-            </p>
-          </Box>
+            <Box
+              sx={{
+                height: '100%',
+                backgroundColor: "rgba(255, 255, 255, 0.25)",
+                backdropFilter: "blur(10px)",
+                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                padding: 3,
+                borderRadius: 2,
+                textAlign: "left",
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+              }}
+            >
+              <h2 style={{ margin: '0 0 16px 0', fontSize: '24px' }}>
+                {heroSlides[currentSlide].title}
+              </h2>
+              <p style={{ margin: 0, fontSize: '16px', lineHeight: 1.5 }}>
+                {heroSlides[currentSlide].subtitle}
+              </p>
+            </Box>
+          </AnimatedContent>
 
+          {/* Right Image Box - Animated */}
           <Box
             sx={{
               flex: 1,
               backgroundColor: '#E1F5FE',
               borderRadius: 2,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              overflow: 'hidden', // Added to ensure image doesn't overflow
-              padding: 0 // Remove padding to allow image to fill box
+              position: 'relative',
+              overflow: 'hidden',
+              padding: 0
             }}
           >
-            <img
-              src={headerBanner}
+            <AnimatedImage
+              src={heroSlides[currentSlide].rightImage}
               alt="Product Image"
+              slideKey={`right-${currentSlide}`}
+              delay={0.3}
               style={{
                 width: '100%',
                 height: '100%',
                 objectFit: 'cover',
                 objectPosition: 'center'
               }}
+              containerSx={{
+                width: '100%',
+                height: '100%'
+              }}
             />
           </Box>
         </Box>
       </Box>
+
+      {/* Slide Indicators */}
+      <SlideIndicators
+        currentSlide={currentSlide}
+        totalSlides={heroSlides.length}
+        onSlideChange={handleSlideChange}
+      />
     </Box>
   );
 };
@@ -372,14 +620,14 @@ export default function Headers({ isScrolled }) {
             borderBottomLeftRadius: { xs: "20px", sm: "100px", md: "50px" },
             borderBottomRightRadius: { xs: "20px", sm: "100px", md: "50px" },
             paddingBottom: { xs: 1, sm: 1, md: 1 },
-            minHeight: { xs: 'auto', md: '85vh' },  // Increased minimum height
+            minHeight: { xs: 'auto', md: '85vh' },
             display: 'flex',
             alignItems: 'center',
           }}
         >
           <Box sx={{
-            py: { xs: 3, md: 5 },  // Reduced vertical padding
-            px: { xs: 2, sm: 4, md: 8 },  // Adjusted horizontal padding
+            py: { xs: 3, md: 5 },
+            px: { xs: 2, sm: 4, md: 8 },
             width: '100%'
           }}>
             <MainLayout />
