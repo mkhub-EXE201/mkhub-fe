@@ -11,6 +11,8 @@ import HttpStatusCode from "../constants/httpStatus";
 import toast from "react-hot-toast";
 import Skeleton from "../components/Skeleton";
 import PlaceIcon from "@mui/icons-material/Place";
+import { Link } from "react-router-dom";
+import path from "../constants/path";
 
 export default function Artists() {
   const [artists, setArtists] = useState();
@@ -69,80 +71,85 @@ export default function Artists() {
                     padding: 2,
                   }}
                 >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      gap: 2,
-                    }}
+                  <Link
+                    to={`/artists/${artist.id}/profile`}
+                    style={{ textDecoration: "none", color: "inherit" }}
                   >
-                    <img
-                      src={artist.avatar_url}
-                      width={50}
-                      height={50}
-                      style={{ objectFit: "cover", borderRadius: "50%" }}
-                    />
                     <Box
                       sx={{
                         display: "flex",
-                        flexDirection: "column",
+                        gap: 2,
                       }}
                     >
-                      <Typography>{artist.name}</Typography>
-                      <Typography
-                        sx={{ display: "flex", alignItems: "center" }}
+                      <img
+                        src={artist.avatar_url}
+                        width={50}
+                        height={50}
+                        style={{ objectFit: "cover", borderRadius: "50%" }}
+                      />
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                        }}
                       >
-                        <PlaceIcon />
-                        {artist.locations[0].districtName},{" "}
-                        {artist.locations[0].provinceName}
-                      </Typography>
-                      <Typography
-                        sx={{ display: "flex", alignItems: "center" }}
-                      >
-                        <Rating
-                          value={4}
-                          precision={0.5}
-                          sx={{
-                            color: "black",
-                          }}
-                          readOnly
-                          size="small"
-                        />
-                        4.5
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Box sx={{ marginTop: 1 }}>
-                    <Swiper
-                      modules={[Autoplay]}
-                      spaceBetween={10}
-                      slidesPerView={1}
-                      autoplay={{
-                        delay: 1500,
-                        disableOnInteraction: false,
-                      }}
-                      style={{
-                        borderRadius: 8,
-                        overflow: "hidden",
-                        width: 150,
-                        height: 120,
-                      }}
-                    >
-                      {[1, 2, 3].map((imgIndex) => (
-                        <SwiperSlide key={imgIndex}>
-                          <img
-                            src={artist.media_urls[0]}
-                            alt={`slide-${imgIndex}`}
-                            style={{
-                              width: "150px",
-                              height: "120px",
-                              objectFit: "cover",
-                              borderRadius: 8,
+                        <Typography>{artist.name}</Typography>
+                        <Typography
+                          sx={{ display: "flex", alignItems: "center" }}
+                        >
+                          <PlaceIcon />
+                          {artist.locations[0].districtName},{" "}
+                          {artist.locations[0].provinceName}
+                        </Typography>
+                        <Typography
+                          sx={{ display: "flex", alignItems: "center" }}
+                        >
+                          <Rating
+                            value={4}
+                            precision={0.5}
+                            sx={{
+                              color: "black",
                             }}
+                            readOnly
+                            size="small"
                           />
-                        </SwiperSlide>
-                      ))}
-                    </Swiper>
-                  </Box>
+                          4.5
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box sx={{ marginTop: 1 }}>
+                      <Swiper
+                        modules={[Autoplay]}
+                        spaceBetween={10}
+                        slidesPerView={1}
+                        autoplay={{
+                          delay: 1000,
+                          disableOnInteraction: false,
+                        }}
+                        style={{
+                          borderRadius: 8,
+                          overflow: "hidden",
+                          width: 150,
+                          height: 120,
+                        }}
+                      >
+                        {artist.media_urls.map((url, index) => (
+                          <SwiperSlide key={index}>
+                            <img
+                              src={url}
+                              alt={`slide-${index}`}
+                              style={{
+                                width: "150px",
+                                height: "120px",
+                                objectFit: "cover",
+                                borderRadius: 8,
+                              }}
+                            />
+                          </SwiperSlide>
+                        ))}
+                      </Swiper>
+                    </Box>
+                  </Link>
                 </Box>
               ))}
           </Box>
