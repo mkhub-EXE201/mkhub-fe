@@ -177,7 +177,6 @@ export default function Modal({ open, onClose, selectedApplication }) {
                 }}
               />
             </Box>
-            selectedApplication?.status
             {/* Stepper ở dưới phần thông tin */}
             <Box sx={{ mt: 4 }}>
               <Stepper activeStep={activeStep} orientation="vertical">
