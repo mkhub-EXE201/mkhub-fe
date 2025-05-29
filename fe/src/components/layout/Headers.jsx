@@ -19,11 +19,16 @@ import { io } from "socket.io-client";
 import notificationsApis from "../../apis/notifications.apis";
 import { TypeAnimation } from 'react-type-animation';
 import { motion, AnimatePresence } from 'framer-motion';
+import RunningChips from "../animations/RunningChips";
+import AnimatedComponents from "../animations/AnimatedComponents";
+import SlideIndicators from "../animations/SlideIndicators";
 import PropTypes from 'prop-types';
 import artistBanner from '../../assets/artist-banner2.jpg';
 import headerBanner from '../../assets/header-banner2.jpg';
 import headerbanner4 from '../../assets/header-banner4.jpg';
-import miniHeader from '../../assets/mini-header2.jpg';
+import headerBanner1 from '../../assets/header-banner1.jpg';
+import headerBanner3 from '../../assets/header-banner3.jpg';
+import artistBanner4 from '../../assets/artist-banner4.jpg';
 
 // Define animations
 const scrollLeft = keyframes`
@@ -51,256 +56,22 @@ const heroSlides = [
   {
     id: 2,
     leftImage: artistBanner,
-    rightImage: miniHeader,
+    rightImage: headerBanner3,
     title: "Professional Artists",
     subtitle: "Chuyên Gia Trang Điểm Hàng Đầu",
     typeText: ['Chuyên nghiệp', 'Tận tâm']
   },
   {
     id: 3,
-    leftImage: miniHeader,
-    rightImage: headerbanner4,
+    leftImage: headerBanner1,
+    rightImage: artistBanner4,
     title: "Premium Services",
     subtitle: "Dịch Vụ Trang Điểm Cao Cấp",
     typeText: ['Sang trọng', 'Đẳng cấp']
   }
 ];
 
-// ============ ANIMATION COMPONENTS ============
-
-// Unified slide animation variants - all elements slide from left to right
-const slideVariants = {
-  enter: {
-    x: '100%',
-    opacity: 0,
-    scale: 0.95
-  },
-  center: {
-    x: 0,
-    opacity: 1,
-    scale: 1
-  },
-  exit: {
-    x: '-100%',
-    opacity: 0,
-    scale: 0.95
-  }
-};
-
-// Animation configuration
-const animationConfig = {
-  duration: 0.8,
-  ease: [0.25, 0.46, 0.45, 0.94]
-};
-
-// Reusable Animated Image Component
-const AnimatedImage = ({
-  src,
-  alt,
-  slideKey,
-  style = {},
-  delay = 0,
-  containerSx = {}
-}) => {
-  return (
-    <Box sx={{ position: 'relative', overflow: 'hidden', ...containerSx }}>
-      <AnimatePresence mode="wait">
-        <motion.img
-          key={slideKey}
-          src={src}
-          alt={alt}
-          variants={slideVariants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={{
-            ...animationConfig,
-            delay
-          }}
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            ...style
-          }}
-        />
-      </AnimatePresence>
-    </Box>
-  );
-};
-
-// Reusable Animated Content Component
-const AnimatedContent = ({
-  slideKey,
-  children,
-  delay = 0,
-  style = {}
-}) => {
-  return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={slideKey}
-        variants={slideVariants}
-        initial="enter"
-        animate="center"
-        exit="exit"
-        transition={{
-          ...animationConfig,
-          delay
-        }}
-        style={style}
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
-  );
-};
-
-// Reusable Animated Text Component
-const AnimatedText = ({
-  slideKey,
-  children,
-  delay = 0,
-  style = {}
-}) => {
-  return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={slideKey}
-        variants={slideVariants}
-        initial="enter"
-        animate="center"
-        exit="exit"
-        transition={{
-          ...animationConfig,
-          delay
-        }}
-        style={style}
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
-  );
-};
-
-// ============ END ANIMATION COMPONENTS ============
-
-// Running Chips Component
-const RunningChips = () => {
-  return (
-    <Box
-      sx={{
-        marginTop: { md: 5, sm: 5, xs: 2 },
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: { lg: 4, md: 4, sm: 2, xs: 1 },
-      }}
-    >
-      <Box
-        sx={{
-          display: "inline-block",
-          width: "100%"
-        }}
-      >
-        <Box
-          sx={{
-            width: "100%",
-            overflow: "hidden",
-            whiteSpace: "nowrap",
-            position: "relative",
-            mb: { lg: 3, md: 3, sm: 2, xs: 1 }
-          }}
-        >
-          <Box
-            className="scroll-animation"
-            sx={{
-              display: "inline-flex",
-              animation: `${scrollLeft} ${animationSpeeds.medium}s linear infinite`,
-              animationPlayState: "running",
-              width: "calc(250px * 16)",
-              "&:hover": {
-                animationPlayState: "paused"
-              }
-            }}
-          >
-            {Array(16).fill(0).map((_, cycle) => (
-              <Box
-                key={cycle}
-                sx={{
-                  display: "flex",
-                  gap: { lg: 4, md: 4, sm: 2, xs: 1 },
-                  justifyContent: "center",
-                  px: { lg: 2, md: 1.5, sm: 1, xs: 0.5 }
-                }}
-              >
-                {Array(4).fill(0).map((_, index) => {
-                  const labels = ["#makeup", "#beauty", "#style", "#trends"];
-                  return (
-                    <Chip
-                      key={cycle * 4 + index}
-                      label={labels[index]}
-                      sx={{
-                        backgroundColor: (theme) => theme.palette.ochre.lightGrey,
-                        color: (theme) => theme.palette.ochre.dark,
-                        fontWeight: 500,
-                        borderRadius: "999px",
-                        transition: "transform 0.3s ease, background-color 0.3s ease",
-                        "&:hover": {
-                          transform: "scale(1.05)",
-                          backgroundColor: (theme) => theme.palette.ochre.light,
-                        },
-                      }}
-                      onClick={() => { }}
-                    />
-                  );
-                })}
-              </Box>
-            ))}
-          </Box>
-        </Box>
-      </Box>
-    </Box>
-  );
-};
-
-// Slide indicators component
-const SlideIndicators = ({ currentSlide, totalSlides, onSlideChange }) => {
-  return (
-    <Box
-      sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        gap: 1,
-        mt: 3,
-        position: 'absolute',
-        bottom: 20,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        zIndex: 10
-      }}
-    >
-      {Array.from({ length: totalSlides }, (_, index) => (
-        <Box
-          key={index}
-          onClick={() => onSlideChange(index)}
-          sx={{
-            width: 12,
-            height: 12,
-            borderRadius: '50%',
-            backgroundColor: currentSlide === index ? 'white' : 'rgba(255, 255, 255, 0.5)',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            '&:hover': {
-              backgroundColor: 'white',
-              transform: 'scale(1.2)'
-            }
-          }}
-        />
-      ))}
-    </Box>
-  );
-};
+const { AnimatedImage, AnimatedContent, AnimatedText } = AnimatedComponents;
 
 // Main layout component with synchronized sliding
 const MainLayout = () => {
@@ -351,8 +122,8 @@ const MainLayout = () => {
         <AnimatedImage
           src={heroSlides[currentSlide].leftImage}
           alt="Artist Banner"
-          slideKey={`left-${currentSlide}`}
-          delay={0}
+          slideKey={`slide-${currentSlide}`}
+          delay={0.5}
           style={{
             width: '100%',
             height: '100%',
@@ -388,8 +159,8 @@ const MainLayout = () => {
           }}
         >
           <AnimatedText
-            slideKey={`text-${currentSlide}`}
-            delay={0.1}
+            slideKey={`slide-${currentSlide}`}
+            delay={0.5}
           >
             <TypeAnimation
               key={currentSlide}
@@ -456,8 +227,8 @@ const MainLayout = () => {
         }}>
           {/* Left Content Box - Animated */}
           <AnimatedContent
-            slideKey={`content-${currentSlide}`}
-            delay={0.2}
+            slideKey={`slide-${currentSlide}`}
+            delay={0.5}
             style={{ flex: 1 }}
           >
             <Box
@@ -487,7 +258,7 @@ const MainLayout = () => {
           <Box
             sx={{
               flex: 1,
-              backgroundColor: '#E1F5FE',
+              // backgroundColor: '#E1F5FE',
               borderRadius: 2,
               position: 'relative',
               overflow: 'hidden',
@@ -497,8 +268,8 @@ const MainLayout = () => {
             <AnimatedImage
               src={heroSlides[currentSlide].rightImage}
               alt="Product Image"
-              slideKey={`right-${currentSlide}`}
-              delay={0.3}
+              slideKey={`slide-${currentSlide}`}
+              delay={0.5}
               style={{
                 width: '100%',
                 height: '100%',

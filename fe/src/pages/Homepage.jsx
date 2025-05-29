@@ -1,4 +1,4 @@
-import {  CircularProgress, Typography, Paper } from "@mui/material";
+import { CircularProgress, Typography, Paper } from "@mui/material";
 import React, { lazy, Suspense } from "react";
 import StatCard from "../components/home-page/StatCard";
 import VideoCarousel from "../components/home-page/VideoCarousel"; // Eager import
@@ -64,8 +64,8 @@ StyledFallback.defaultProps = {
 // Only one default export for the module
 export default function Homepage() {
   return (
-    
-  <SmoothScroll>
+
+    <SmoothScroll>
       <Headers />
       <StatCard />
       <Suspense fallback={<StyledFallback />}>
@@ -83,7 +83,7 @@ export default function Homepage() {
       <Suspense fallback={<StyledFallback height={100} />}>
         <Footer />
       </Suspense>
-      
-      </SmoothScroll>
+
+    </SmoothScroll>
   );
 }
