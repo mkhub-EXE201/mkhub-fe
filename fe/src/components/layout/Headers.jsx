@@ -1,12 +1,17 @@
 import {
   Box,
+  Chip,
   InputAdornment,
   TextField,
   Grid,
   keyframes,
 } from "@mui/material";
-import React, { useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
+import { useNavigate } from "react-router-dom";
+import { AppContext } from "../../contexts/app.context";
+import path from "../../constants/path";
+import { USER_ROLE } from "../../constants/enum";
 import { TypeAnimation } from 'react-type-animation';
 import { motion, AnimatePresence } from 'framer-motion';
 import RunningChips from "../animations/RunningChips";
@@ -61,7 +66,7 @@ const heroSlides = [
   }
 ];
 
-const { AnimatedImage, AnimatedContent } = AnimatedComponents;
+const { AnimatedImage, AnimatedContent, AnimatedText } = AnimatedComponents;
 
 // Main layout component with synchronized sliding
 const MainLayout = ({ currentSlide, onSlideChange, isAutoPlaying, setIsAutoPlaying }) => {
@@ -75,6 +80,13 @@ const MainLayout = ({ currentSlide, onSlideChange, isAutoPlaying, setIsAutoPlayi
 
     return () => clearInterval(interval);
   }, [isAutoPlaying, onSlideChange]);
+
+  const handleSlideChange = (slideIndex) => {
+    onSlideChange(slideIndex);
+    setIsAutoPlaying(false);
+    // Resume auto-play after 10 seconds
+    setTimeout(() => setIsAutoPlaying(true), 10000);
+  };
 
   return (
     <Box sx={{
@@ -234,6 +246,7 @@ const MainLayout = ({ currentSlide, onSlideChange, isAutoPlaying, setIsAutoPlayi
           <Box
             sx={{
               flex: 1,
+              // backgroundColor: '#E1F5FE',
               borderRadius: 2,
               position: 'relative',
               overflow: 'hidden',
@@ -272,7 +285,10 @@ MainLayout.propTypes = {
 };
 
 export default function Headers({ isScrolled }) {
-  // Move slide state management to parent component
+  const navigate = useNavigate();
+  const { profile } = useContext(AppContext);
+
+  // Slide state management
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
@@ -353,7 +369,7 @@ export default function Headers({ isScrolled }) {
             </Box>
           </Box>
 
-          {/* Display TypeAnimation and search field only on small screens */}
+          {/* Display search field only on small screens */}
           <Grid item xs={12} sx={{ display: { xs: 'block', md: 'none' }, mt: 3, px: { xs: 2, sm: 5 } }}>
             <Box textAlign="center">
               <TypeAnimation
