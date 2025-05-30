@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Box } from "@mui/material";
+import PropTypes from 'prop-types';
 
 // Animation variants for the right-to-left slide transition with fade
 const imageVariants = {
@@ -116,6 +117,32 @@ const AnimatedText = ({ children, slideKey, delay = 0, style = {} }) => {
             {children}
         </motion.div>
     );
+};
+
+
+AnimatedImage.propTypes = {
+    src: PropTypes.string.isRequired,
+    alt: PropTypes.string.isRequired,
+    slideKey: PropTypes.string.isRequired,
+    delay: PropTypes.number,
+    style: PropTypes.object,
+    containerSx: PropTypes.object
+};
+
+
+AnimatedContent.propTypes = {
+    children: PropTypes.node.isRequired,
+    slideKey: PropTypes.string.isRequired,
+    delay: PropTypes.number,
+    style: PropTypes.object
+};
+
+
+AnimatedText.propTypes = {
+    children: PropTypes.node.isRequired,
+    slideKey: PropTypes.string.isRequired,
+    delay: PropTypes.number,
+    style: PropTypes.object
 };
 
 const AnimatedComponents = {

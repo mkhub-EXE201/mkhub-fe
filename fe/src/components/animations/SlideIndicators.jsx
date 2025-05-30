@@ -1,19 +1,20 @@
 import React from "react";
 import { Box } from "@mui/material";
+import PropTypes from 'prop-types';
 
-const SlideIndicators = ({ currentSlide, totalSlides, onSlideChange }) => {
+const SlideIndicators = ({ currentSlide, totalSlides, onSlideChange, containerSx = {} }) => {
     return (
         <Box
             sx={{
                 display: 'flex',
                 justifyContent: 'center',
                 gap: 1,
-                mt: 3,
                 position: 'absolute',
-                bottom: 20,
+                bottom: 10,
                 left: '50%',
                 transform: 'translateX(-50%)',
-                zIndex: 10
+                zIndex: 10,
+                ...containerSx // Allow custom styling from parent
             }}
         >
             {Array.from({ length: totalSlides }, (_, index) => (
@@ -21,8 +22,8 @@ const SlideIndicators = ({ currentSlide, totalSlides, onSlideChange }) => {
                     key={index}
                     onClick={() => onSlideChange(index)}
                     sx={{
-                        width: 12,
-                        height: 12,
+                        width: 8,
+                        height: 8,
                         borderRadius: '50%',
                         backgroundColor: currentSlide === index ? 'white' : 'rgba(255, 255, 255, 0.5)',
                         cursor: 'pointer',
@@ -38,5 +39,15 @@ const SlideIndicators = ({ currentSlide, totalSlides, onSlideChange }) => {
     );
 };
 
+SlideIndicators.propTypes = {
+    currentSlide: PropTypes.number.isRequired,
+    totalSlides: PropTypes.number.isRequired,
+    onSlideChange: PropTypes.func.isRequired,
+    containerSx: PropTypes.object
+};
+
+SlideIndicators.defaultProps = {
+    containerSx: {}
+};
 
 export default SlideIndicators;

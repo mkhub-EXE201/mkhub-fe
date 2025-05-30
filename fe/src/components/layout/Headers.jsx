@@ -74,23 +74,20 @@ const heroSlides = [
 const { AnimatedImage, AnimatedContent, AnimatedText } = AnimatedComponents;
 
 // Main layout component with synchronized sliding
-const MainLayout = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-
+const MainLayout = ({ currentSlide, onSlideChange, isAutoPlaying, setIsAutoPlaying }) => {
   // Auto-advance slides
   useEffect(() => {
     if (!isAutoPlaying) return;
 
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+      onSlideChange((prev) => (prev + 1) % heroSlides.length);
     }, 5000); // Change slide every 5 seconds
 
     return () => clearInterval(interval);
-  }, [isAutoPlaying]);
+  }, [isAutoPlaying, onSlideChange]);
 
   const handleSlideChange = (slideIndex) => {
-    setCurrentSlide(slideIndex);
+    onSlideChange(slideIndex);
     setIsAutoPlaying(false);
     // Resume auto-play after 10 seconds
     setTimeout(() => setIsAutoPlaying(true), 10000);
@@ -280,15 +277,16 @@ const MainLayout = () => {
           </Box>
         </Box>
       </Box>
-
-      {/* Slide Indicators */}
-      <SlideIndicators
-        currentSlide={currentSlide}
-        totalSlides={heroSlides.length}
-        onSlideChange={handleSlideChange}
-      />
     </Box>
   );
+};
+
+// Add PropTypes validation for MainLayout
+MainLayout.propTypes = {
+  currentSlide: PropTypes.number.isRequired,
+  onSlideChange: PropTypes.func.isRequired,
+  isAutoPlaying: PropTypes.bool.isRequired,
+  setIsAutoPlaying: PropTypes.func.isRequired
 };
 
 export default function Headers({ isScrolled }) {
@@ -362,6 +360,17 @@ export default function Headers({ isScrolled }) {
     navigate(path.home);
   };
 
+  // Move slide state management to parent component
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
+  const handleSlideChange = (slideIndex) => {
+    setCurrentSlide(slideIndex);
+    setIsAutoPlaying(false);
+    // Resume auto-play after 10 seconds
+    setTimeout(() => setIsAutoPlaying(true), 10000);
+  };
+
   return (
     <AnimatePresence>
       <motion.div
@@ -397,7 +406,39 @@ export default function Headers({ isScrolled }) {
             px: { xs: 2, sm: 4, md: 8 },
             width: '100%'
           }}>
-            <MainLayout />
+            <Box sx={{
+              position: 'relative',
+            }}>
+              <MainLayout
+                currentSlide={currentSlide}
+                onSlideChange={setCurrentSlide}
+                isAutoPlaying={isAutoPlaying}
+                setIsAutoPlaying={setIsAutoPlaying}
+              />
+
+              {/* Position SlideIndicators after MainLayout but still in the header area */}
+              <Box sx={{
+                width: '100%',
+                position: 'relative',
+                marginTop: '20px',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}>
+                <SlideIndicators
+                  currentSlide={currentSlide}
+                  totalSlides={heroSlides.length}
+                  onSlideChange={handleSlideChange}
+                  containerSx={{
+                    position: 'relative',
+                    bottom: 'auto',
+                    left: 'auto',
+                    transform: 'none',
+                    padding: '10px 0',
+                  }}
+                />
+              </Box>
+            </Box>
           </Box>
 
           {/* Display TypeAnimation and search field only on small screens */}
