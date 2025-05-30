@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Modal as MuiModal,
   Card,
   CardActions,
   CardContent,
@@ -9,6 +10,15 @@ import {
   Tab,
   Tabs,
   Typography,
+  Backdrop,
+  Fade,
+  Stepper,
+  Step,
+  StepLabel,
+  Modal as ModalMui,
+  TextField,
+  Avatar,
+  Divider,
 } from "@mui/material";
 import React, { useEffect } from "react";
 import Navbar from "../components/layout/Navbar";
@@ -17,7 +27,6 @@ import { useState } from "react";
 import userApis from "../apis/users.apis";
 import toast from "react-hot-toast";
 import HttpStatusCode from "../constants/httpStatus";
-
 import LinkIcon from "@mui/icons-material/Link";
 import { formatCurrency } from "../utils/utils";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -27,6 +36,11 @@ import "swiper/css/pagination";
 import Footer from "../components/layout/Footer";
 import LocationPinIcon from "@mui/icons-material/LocationPin";
 import locationApi from "../apis/locations.apis";
+import FullCalendarComponent from "../components/FullCalendar";
+import artistSchedulesApis from "../apis/artistSchedules.apis";
+import artistApis from "../apis/artists.apis";
+
+const steps = ["Thông tin cơ bản", "Hình ảnh mô tả", "Xác nhận trước khi gửi"];
 
 export default function ArtistDetail() {
   const { id } = useParams();
@@ -36,9 +50,57 @@ export default function ArtistDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [value, setValue] = useState(0);
+  const [currentModal, setCurrentModal] = useState(null);
 
+  const openImageModal = () => setCurrentModal("post");
+  const openConfirmModal = () => setCurrentModal("booking");
+  const closeModal = () => setCurrentModal(null);
+
+  const [activeStep, setActiveStep] = useState(0);
+  const [events, setCalendarEvents] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [photos, setPhotos] = useState([]);
+  const [videos, setVideos] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [selectedMedia, setSelectedMedia] = useState([]);
+  const [selectedPost, setSelectedPost] = useState({});
+  const getAllSchedules = async () => {
+    const response = await artistSchedulesApis.getAllArtistWokingSchedule();
+    if (response.status === HttpStatusCode.Ok) {
+      setCalendarEvents(response.data.result);
+    }
+  };
+  const getPhotos = async () => {
+    try {
+      const response = await artistApis.getArtistPhotos(id);
+      if (response.status === HttpStatusCode.Ok) {
+        setPhotos(response.data.result);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const getPosts = async () => {
+    try {
+      const response = await artistApis.getArtistPosts(id);
+      if (response.status === HttpStatusCode.Ok) {
+        setPosts(response.data.result);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const handleSubmit = () => {};
+  const handleNext = () => {};
+  const handleBack = () => {};
   const handleChange = (event, newValue) => {
     setValue(newValue);
+  };
+
+  const handleImageClick = (mediaList, post) => {
+    setSelectedMedia(mediaList);
+    setCurrentModal("post");
+    setSelectedPost(post);
   };
 
   function a11yProps(index) {
@@ -89,6 +151,8 @@ export default function ArtistDetail() {
 
   useEffect(() => {
     getArtistProfileDetail();
+    getPhotos();
+    getPosts();
   }, []);
 
   return (
@@ -346,7 +410,12 @@ export default function ArtistDetail() {
                         <Button size="small" variant="outlined">
                           Liên hệ
                         </Button>
-                        <Button size="small" variant="contained">
+                        <Button
+                          size="small"
+                          variant="contained"
+                          // onClick={() => setOpen(item.id)}
+                          onClick={() => setCurrentModal("booking")}
+                        >
                           Đặt lịch
                         </Button>
                       </CardActions>
@@ -374,18 +443,273 @@ export default function ArtistDetail() {
                   aria-label="basic tabs example"
                 >
                   <Tab label="Hình ảnh" {...a11yProps(0)} />
-                  <Tab label="Video" {...a11yProps(2)} />
+                  <Tab label="Video" {...a11yProps(1)} />
+                  <Tab label="Bài Đăng" {...a11yProps(2)} />
                 </Tabs>
               </Box>
               <CustomTabPanel value={value} index={0}>
-                Hình ảnh
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 2,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  {photos.map((item, index) => (
+                    <img
+                      key={index}
+                      src={item}
+                      alt={`photo-${index}`}
+                      style={{
+                        width: 100,
+                        height: 100,
+                        borderRadius: 8,
+                        objectFit: "cover",
+                      }}
+                    />
+                  ))}
+                </Box>
               </CustomTabPanel>
+
               <CustomTabPanel value={value} index={1}>
                 Video
+              </CustomTabPanel>
+
+              <CustomTabPanel value={value} index={2}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 2,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  {posts.map((item, index) => (
+                    <img
+                      key={index}
+                      src={item.media_url[0]}
+                      alt={`photo-${index}`}
+                      onClick={() => handleImageClick(item.media_url, item)}
+                      style={{
+                        width: 100,
+                        height: 100,
+                        borderRadius: 8,
+                        objectFit: "cover",
+                        cursor: "pointer",
+                      }}
+                    />
+                  ))}
+                </Box>
+                <ModalMui
+                  open={currentModal === "post"}
+                  onClose={closeModal}
+                  post={selectedPost}
+                >
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                      width: "90%",
+                      maxWidth: 1000,
+                      height: 500,
+                      bgcolor: "background.paper",
+                      boxShadow: 24,
+                      outline: "none",
+                      borderRadius: 2,
+                      display: "flex",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {/* Left: Swiper */}
+                    <Box sx={{ width: "50%", height: "100%", bgcolor: "#000" }}>
+                      <Swiper
+                        spaceBetween={10}
+                        style={{ width: "100%", height: "100%" }}
+                        slidesPerView={1}
+                      >
+                        {selectedMedia.map((url, idx) => (
+                          <SwiperSlide key={idx}>
+                            <img
+                              src={url}
+                              alt={`slide-${idx}`}
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "contain",
+                                backgroundColor: "#000",
+                              }}
+                            />
+                          </SwiperSlide>
+                        ))}
+                      </Swiper>
+                    </Box>
+
+                    {/* Right: Content */}
+                    <Box
+                      sx={{
+                        width: "50%",
+                        height: "100%",
+                        p: 2,
+                        display: "flex",
+                        flexDirection: "column",
+                        overflowY: "auto",
+                      }}
+                    >
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <Avatar src={profile.avatar_url} />
+                        <Typography variant="h6" gutterBottom>
+                          {profile.name}
+                        </Typography>
+                      </Box>
+                      <Typography variant="body2" sx={{ mt: 2, mb: 1 }}>
+                        {selectedPost.content}
+                      </Typography>
+                      <Divider />
+                      <Box sx={{ flexGrow: 1 }}></Box>
+
+                      <Box sx={{ mt: "auto" }}>
+                        <TextField
+                          fullWidth
+                          placeholder="Comment..."
+                          variant="outlined"
+                          size="small"
+                          InputProps={{
+                            sx: {
+                              borderRadius: "20px",
+                              paddingY: "6px",
+                              paddingX: "12px",
+                            },
+                          }}
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              borderRadius: "20px",
+                              backgroundColor: "#f9f9f9",
+                              "& fieldset": {
+                                borderColor: "#ccc",
+                              },
+                              "&:hover fieldset": {
+                                borderColor: "#aaa",
+                              },
+                              "&.Mui-focused fieldset": {
+                                borderColor: "#555",
+                              },
+                            },
+                            "& .MuiInputBase-input::placeholder": {
+                              color: "#888",
+                              opacity: 1,
+                            },
+                          }}
+                        />
+                      </Box>
+                    </Box>
+                  </Box>
+                </ModalMui>
               </CustomTabPanel>
             </Box>
           </Box>
         )}
+        <MuiModal
+          open={currentModal === "booking"}
+          onClose={closeModal}
+          closeAfterTransition
+          BackdropComponent={Backdrop}
+          BackdropProps={{ timeout: 500 }}
+        >
+          <Fade in={open}>
+            <Box
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: 800,
+                maxHeight: "90vh",
+                overflowY: "auto",
+                bgcolor: "background.paper",
+                borderRadius: 2,
+                boxShadow: 24,
+                p: 4,
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Typography id="modal-title" variant="h6" component="h2">
+                  Thêm gói makeup mới
+                </Typography>
+              </Box>
+
+              <Box sx={{ mt: 4 }}>
+                <Stepper activeStep={activeStep}>
+                  {steps.map((label, index) => {
+                    const stepProps = {};
+                    const labelProps = {};
+
+                    return (
+                      <Step key={index} {...stepProps}>
+                        <StepLabel {...labelProps}>{label}</StepLabel>
+                      </Step>
+                    );
+                  })}
+                </Stepper>
+
+                <Box sx={{ mt: 4 }}>
+                  {activeStep === 0 && (
+                    <>
+                      <FullCalendarComponent
+                        events={events.map((schedule) => ({
+                          id: schedule.id,
+                          title: schedule.is_available
+                            ? "Available"
+                            : "Unavailable",
+                          start: schedule.start_time,
+                          end: schedule.end_time,
+                          backgroundColor: schedule.is_available
+                            ? "#28a745"
+                            : "#dc3545",
+                          extendedProps: {
+                            artistId: schedule.artist_id,
+                            dayOfWeek: schedule.day_of_week,
+                          },
+                        }))}
+                        getAllSchedules={getAllSchedules}
+                        selectedDate={selectedDate}
+                      />
+                    </>
+                  )}
+                </Box>
+
+                {/* Nút Tiếp theo / Quay lại */}
+                <Box sx={{ mb: 2, mt: 2 }}>
+                  <Button
+                    variant="contained"
+                    onClick={
+                      activeStep === steps.length ? handleSubmit : handleNext
+                    }
+                    sx={{ mr: 1 }}
+                  >
+                    {activeStep === steps.length ? "Gửi" : "Tiếp theo"}
+                  </Button>
+                  <Button onClick={handleBack} disabled={activeStep === 0}>
+                    Quay lại
+                  </Button>
+                </Box>
+              </Box>
+            </Box>
+          </Fade>
+        </MuiModal>
       </Box>
       <Footer />
     </Box>

@@ -172,11 +172,16 @@ export default function RegisterArtist() {
   const onSubmit = async () => {
     setIsSubmitting(true);
     // 1. upload avatar
-    const avatarFormData = new FormData();
-    avatarFormData.append("folderName", "avatar");
-    avatarFormData.append("images", getValues("avatar_url"));
-    let response = await mediaApis.uploadImage(avatarFormData);
-    const avatar_url = response.data.result[0];
+    const avatarData = getValues("avatar_url");
+    let avatar_url = avatarData;
+
+    if (avatarData instanceof File) {
+      const avatarFormData = new FormData();
+      avatarFormData.append("folderName", "avatar");
+      avatarFormData.append("images", avatarData);
+      const response = await mediaApis.uploadImage(avatarFormData);
+      avatar_url = response.data.result[0];
+    }
 
     // 2. upload ảnh làm profile
     const files = watch("media_urls") || [];
@@ -187,12 +192,12 @@ export default function RegisterArtist() {
     });
     await mediaApis.uploadImage(profileMediaFormData);
 
-    response = await mediaApis.uploadImage(profileMediaFormData);
+    let response = await mediaApis.uploadImage(profileMediaFormData);
     const profileMedia = response.data.result;
     const payload = {
       name: watch("name"),
       phone_number: watch("phone_number"),
-      avatar_url: avatar_url,
+      ...(avatar_url && { avatar_url }),
       portfolio_url: watch("portfolio_urls"),
       media_url: profileMedia,
       address_type: watch("address_type"),
