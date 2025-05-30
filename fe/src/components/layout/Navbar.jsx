@@ -19,18 +19,25 @@ import PropTypes from 'prop-types';
 import userApis from "../../apis/users.apis";
 import HttpStatusCode from "../../constants/httpStatus";
 import toast from "react-hot-toast";
+import notificationsApis from "../../apis/notifications.apis";
+import { io } from "socket.io-client";
 
 export default function Navbar({
-  notifications,
-  getNotificationsByStatus,
-  unreadNotiCount,
-  unreadChatCount,
+  notifications: externalNotifications,
+  getNotificationsByStatus: externalGetNotificationsByStatus,
+  unreadNotiCount: externalUnreadNotiCount,
+  unreadChatCount: externalUnreadChatCount,
   handleLogout: externalHandleLogout,
   alwaysScrolled = false,
 }) {
   const navigate = useNavigate();
   const { isAuthenticated, profile, role, setRole, setIsAuthenticated, setProfile } = useContext(AppContext);
   const location = useLocation();
+
+  // Notifications state
+  const [noti, setNoti] = useState(externalNotifications || []);
+  const [unreadNotiCount, setUnreadNotiCount] = useState(externalUnreadNotiCount || 0);
+  const [unreadChatCount, setUnreadChatCount] = useState(externalUnreadChatCount || 0);
 
   const handleLogout = async () => {
     try {
@@ -51,8 +58,87 @@ export default function Navbar({
     }
   };
 
+  // Function to get notifications
+  const getNotifications = async (roleValue, isRead) => {
+    if (!isAuthenticated || !profile?.id) return;
+
+    try {
+      const payload = {
+        role: roleValue,
+        is_read: isRead
+      };
+
+      const response = await notificationsApis.getAllNotifications(payload);
+      if (response.status === HttpStatusCode.Ok) {
+        const notifications = response.data.result || [];
+        setNoti(notifications);
+
+        if (isRead === false) {
+          setUnreadNotiCount(notifications.length);
+        }
+
+        return notifications;
+      }
+    } catch (error) {
+      console.error("Failed to fetch notifications:", error);
+    }
+  };
+
   // Track scroll position for collapsing behavior
   const [isScrolled, setIsScrolled] = useState(alwaysScrolled);
+
+  // Set up socket connection for real-time notifications
+  useEffect(() => {
+    if (!isAuthenticated || !profile?.id) return;
+
+    let socket;
+    try {
+      // Use the production URL or a fallback for development
+      const socketUrl = process.env.REACT_APP_SOCKET_URL || "https://api.mkhub.space";
+
+      socket = io(socketUrl, {
+        transports: ["websocket"],
+        withCredentials: true,
+        query: {
+          userId: profile.id,
+        },
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+        timeout: 10000,
+      });
+
+      socket.on("connect", () => {
+        console.log("✅ Connected to socket:", socket.id);
+      });
+
+      socket.on("connect_error", (err) => {
+        console.error("Socket connection error:", err.message);
+      });
+
+      socket.on("NOTIFICATION", (notification) => {
+        toast.success(notification.message, {
+          position: "top-right",
+          duration: 3000,
+        });
+
+        // Refresh unread notifications
+        getNotifications(role.toLowerCase(), false);
+        setUnreadNotiCount(prev => prev + 1);
+      });
+
+      // Initial fetch of notifications
+      getNotifications(role.toLowerCase(), false);
+
+      return () => {
+        socket.off("NOTIFICATION");
+        socket.off("connect");
+        socket.off("connect_error");
+        socket.disconnect();
+      };
+    } catch (error) {
+      console.error("Socket initialization error:", error);
+    }
+  }, [isAuthenticated, profile?.id, role]);
 
   // Reset scroll state when route changes
   useEffect(() => {
@@ -193,8 +279,8 @@ export default function Navbar({
             </Box>
           </Button>
           <Notification
-            notifications={notifications}
-            getNotificationsByStatus={getNotificationsByStatus}
+            notifications={noti}
+            getNotificationsByStatus={getNotifications}
             isScrolled={isScrolled}
           />
           <IconButton>
@@ -298,7 +384,8 @@ Navbar.propTypes = {
   getNotificationsByStatus: PropTypes.func,
   unreadNotiCount: PropTypes.number,
   unreadChatCount: PropTypes.number,
-  handleLogout: PropTypes.func
+  handleLogout: PropTypes.func,
+  alwaysScrolled: PropTypes.bool,
 };
 
 // Default props
@@ -307,5 +394,6 @@ Navbar.defaultProps = {
   unreadNotiCount: 0,
   unreadChatCount: 0,
   getNotificationsByStatus: () => { },
-  handleLogout: () => { }
+  handleLogout: () => { },
+  alwaysScrolled: false,
 };

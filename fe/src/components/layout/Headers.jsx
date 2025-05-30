@@ -1,22 +1,12 @@
 import {
   Box,
-  Chip,
   InputAdornment,
   TextField,
   Grid,
   keyframes,
 } from "@mui/material";
-import React, { useContext, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
-import { useNavigate } from "react-router-dom";
-import { AppContext } from "../../contexts/app.context";
-import path from "../../constants/path";
-import userApis from "../../apis/users.apis";
-import { HttpStatusCode } from "axios";
-import toast from "react-hot-toast";
-import { USER_ROLE } from "../../constants/enum";
-import { io } from "socket.io-client";
-import notificationsApis from "../../apis/notifications.apis";
 import { TypeAnimation } from 'react-type-animation';
 import { motion, AnimatePresence } from 'framer-motion';
 import RunningChips from "../animations/RunningChips";
@@ -71,7 +61,7 @@ const heroSlides = [
   }
 ];
 
-const { AnimatedImage, AnimatedContent, AnimatedText } = AnimatedComponents;
+const { AnimatedImage, AnimatedContent } = AnimatedComponents;
 
 // Main layout component with synchronized sliding
 const MainLayout = ({ currentSlide, onSlideChange, isAutoPlaying, setIsAutoPlaying }) => {
@@ -85,13 +75,6 @@ const MainLayout = ({ currentSlide, onSlideChange, isAutoPlaying, setIsAutoPlayi
 
     return () => clearInterval(interval);
   }, [isAutoPlaying, onSlideChange]);
-
-  const handleSlideChange = (slideIndex) => {
-    onSlideChange(slideIndex);
-    setIsAutoPlaying(false);
-    // Resume auto-play after 10 seconds
-    setTimeout(() => setIsAutoPlaying(true), 10000);
-  };
 
   return (
     <Box sx={{
@@ -251,7 +234,6 @@ const MainLayout = ({ currentSlide, onSlideChange, isAutoPlaying, setIsAutoPlayi
           <Box
             sx={{
               flex: 1,
-              // backgroundColor: '#E1F5FE',
               borderRadius: 2,
               position: 'relative',
               overflow: 'hidden',
@@ -290,76 +272,6 @@ MainLayout.propTypes = {
 };
 
 export default function Headers({ isScrolled }) {
-  const navigate = useNavigate();
-  const {
-    setIsAuthenticated,
-    profile,
-    setProfile,
-  } = useContext(AppContext);
-  const [unreadChatCount, setUnreadChatCount] = useState(0);
-  const [unreadNotiCount, setUnreadNotiCount] = useState(0);
-  const [noti, setNoti] = useState([]);
-
-  useEffect(() => {
-    if (profile?.id) {
-      getNotificationsByStatus(USER_ROLE.MEMBER.toLowerCase(), false);
-    }
-  }, [profile?.id]);
-
-  useEffect(() => {
-    const socket = io("http://localhost:3000", {
-      transports: ["websocket"],
-      withCredentials: true,
-      query: {
-        userId: profile?.id,
-      },
-    });
-    socket.on("connect", () => {
-      console.log("✅ Connected to socket:", socket.id);
-    });
-
-    socket.on("NOTIFICATION", (noti) => {
-      toast.success(noti.message, {
-        position: "top-right",
-        autoClose: 2000,
-        pauseOnHover: true,
-        draggable: true,
-      });
-      getNotificationsByStatus(USER_ROLE.MEMBER.toLowerCase(), false);
-      setUnreadNotiCount((prev) => prev + 1);
-    });
-
-    return () => {
-      socket.off("NOTIFICATION");
-      socket.off("connect");
-    };
-  }, []);
-
-  const getNotificationsByStatus = async (role, status) => {
-    const payload = {
-      role,
-      status,
-    };
-    const response = await notificationsApis.getAllNotifications(payload);
-    if (response.status === HttpStatusCode.Ok) {
-      setNoti(response.data.result);
-      setUnreadNotiCount(response.data.result.length);
-    }
-  };
-
-  const handleLogout = async () => {
-    const response = await userApis.logout();
-    if (response.status === HttpStatusCode.Ok) {
-      setIsAuthenticated(false);
-      setProfile(null);
-      setNoti(null);
-      toast.success(response.data.message, {
-        position: "top-center",
-      });
-    }
-    navigate(path.home);
-  };
-
   // Move slide state management to parent component
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
