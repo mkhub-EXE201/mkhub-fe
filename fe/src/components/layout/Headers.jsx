@@ -59,7 +59,7 @@ const heroSlides = [
     rightImage: headerBanner3,
     title: "Professional Artists",
     subtitle: "Chuyên Gia Trang Điểm Hàng Đầu",
-    typeText: ['Chuyên nghiệp', 'Tận tâm']
+    typeText: ['Kết nối makeup artist', 'Makeup hub']
   },
   {
     id: 3,
@@ -67,7 +67,7 @@ const heroSlides = [
     rightImage: artistBanner4,
     title: "Premium Services",
     subtitle: "Dịch Vụ Trang Điểm Cao Cấp",
-    typeText: ['Sang trọng', 'Đẳng cấp']
+    typeText: ['Kết nối makeup artist', 'Makeup hub']
   }
 ];
 
@@ -158,15 +158,11 @@ const MainLayout = () => {
             display: { xs: 'none', md: 'block' },
           }}
         >
-          <AnimatedText
-            slideKey={`slide-${currentSlide}`}
-            delay={0.5}
-          >
+          <Box>
             <TypeAnimation
-              key={currentSlide}
               sequence={[
-                heroSlides[currentSlide].typeText[0], 2000,
-                heroSlides[currentSlide].typeText[1], 1500,
+                'Kết nối makeup artist', 2000,
+                'Makeup hub', 1500,
               ]}
               wrapper="span"
               cursor={true}
@@ -180,7 +176,7 @@ const MainLayout = () => {
                 marginBottom: "16px"
               }}
             />
-          </AnimatedText>
+          </Box>
 
           <TextField
             placeholder="Tìm kiếm dịch vụ..."
