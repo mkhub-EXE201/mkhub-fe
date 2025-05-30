@@ -16,18 +16,40 @@ import path from "../../constants/path";
 import Notification from "../Notification";
 import { USER_ROLE } from "../../constants/enum";
 import PropTypes from 'prop-types';
+import userApis from "../../apis/users.apis";
+import HttpStatusCode from "../../constants/httpStatus";
+import toast from "react-hot-toast";
 
 export default function Navbar({
   notifications,
   getNotificationsByStatus,
   unreadNotiCount,
   unreadChatCount,
-  handleLogout,
+  handleLogout: externalHandleLogout,
   alwaysScrolled = false,
 }) {
   const navigate = useNavigate();
-  const { isAuthenticated, profile, role, setRole } = useContext(AppContext);
+  const { isAuthenticated, profile, role, setRole, setIsAuthenticated, setProfile } = useContext(AppContext);
   const location = useLocation();
+
+  const handleLogout = async () => {
+    try {
+      const response = await userApis.logout();
+      if (response.status === HttpStatusCode.Ok) {
+        setIsAuthenticated(false);
+        setProfile(null);
+        toast.success(response.data.message, {
+          position: "top-center",
+        });
+      }
+      navigate(path.home);
+    } catch (error) {
+      console.error("Logout failed:", error);
+      toast.error("Đăng xuất thất bại. Vui lòng thử lại sau.", {
+        position: "top-center",
+      });
+    }
+  };
 
   // Track scroll position for collapsing behavior
   const [isScrolled, setIsScrolled] = useState(alwaysScrolled);
