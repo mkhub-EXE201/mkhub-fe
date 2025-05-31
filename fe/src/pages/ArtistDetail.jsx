@@ -19,8 +19,9 @@ import {
   TextField,
   Avatar,
   Divider,
+  IconButton,
 } from "@mui/material";
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import Navbar from "../components/layout/Navbar";
 import { useParams } from "react-router-dom";
 import { useState } from "react";
@@ -41,11 +42,18 @@ import artistSchedulesApis from "../apis/artistSchedules.apis";
 import artistApis from "../apis/artists.apis";
 import postApis from "../apis/posts.apis";
 import commentApis from "../apis/comment.apis";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import reactionApis from "../apis/reactions.apis";
+import { REACTION_REFERENCE_TYPE, REACTION_TYPE } from "../constants/enum";
+import { AppContext } from "../contexts/app.context";
 
 const steps = ["Thông tin cơ bản", "Hình ảnh mô tả", "Xác nhận trước khi gửi"];
 
 export default function ArtistDetail() {
   const { id } = useParams();
+  const { profile: userProfileFromContext } = useContext(AppContext);
+
   const [profile, setProfile] = useState();
   const [services, setServices] = useState([]);
   const [locations, setLocations] = useState([]);
@@ -68,6 +76,8 @@ export default function ArtistDetail() {
   const [comment, setComment] = useState("");
   const [selectedMedia, setSelectedMedia] = useState([]);
   const [selectedPost, setSelectedPost] = useState({});
+  const [reactions, setReactions] = useState([]);
+  const [myReaction, setMyReaction] = useState(null);
   const getAllSchedules = async () => {
     const response = await artistSchedulesApis.getAllArtistWokingSchedule();
     if (response.status === HttpStatusCode.Ok) {
@@ -94,6 +104,22 @@ export default function ArtistDetail() {
       console.log(error);
     }
   };
+  const getAllReactions = async (postId) => {
+    try {
+      const response = await postApis.getAllReactions(postId);
+      if (response.status === HttpStatusCode.Ok) {
+        setReactions(response.data.result);
+        response.data.result.map((item) => {
+          console.log(item.user_id, profile.id);
+          if (item.user_id === userProfileFromContext.id) {
+            setMyReaction(item);
+          }
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const handleSubmit = () => {};
   const handleNext = () => {};
   const handleBack = () => {};
@@ -106,6 +132,7 @@ export default function ArtistDetail() {
     setCurrentModal("post");
     setSelectedPost(post);
     getAllComments(post.id);
+    getAllReactions(post.id);
   };
 
   const getAllComments = async (postId) => {
@@ -171,7 +198,6 @@ export default function ArtistDetail() {
         post_id: selectedPost.id,
         content: comment,
       };
-      console.log(payload);
       const response = await commentApis.addComment(payload);
       if (response.status === HttpStatusCode.Ok) {
         setComment("");
@@ -181,6 +207,7 @@ export default function ArtistDetail() {
       throw new Error(error);
     }
   };
+
   useEffect(() => {
     getArtistProfileDetail();
     getPhotos();
@@ -606,6 +633,54 @@ export default function ArtistDetail() {
                         <Typography variant="body2" sx={{ mt: 2, mb: 1 }}>
                           {selectedPost.content}
                         </Typography>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                            my: 1,
+                          }}
+                        >
+                          {!myReaction ? (
+                            <IconButton
+                              onClick={async () => {
+                                const payload = {
+                                  reference_id: selectedPost.id,
+                                  reference_type: REACTION_REFERENCE_TYPE.POST,
+                                  reaction_type: REACTION_TYPE.LOVE,
+                                };
+                                await reactionApis.addReaction(payload);
+                                await postApis.getAllReactions(selectedPost.id);
+                              }}
+                            >
+                              <FavoriteBorderIcon
+                                sx={{
+                                  fontSize: 26,
+                                }}
+                              />
+                            </IconButton>
+                          ) : (
+                            <IconButton
+                              onClick={async () => {
+                                await reactionApis.deleteReaction(
+                                  myReaction.id
+                                );
+                                setMyReaction(null);
+                                await postApis.getAllReactions(selectedPost.id);
+                              }}
+                            >
+                              <FavoriteIcon
+                                sx={{
+                                  color: "red",
+                                  fontSize: 26,
+                                }}
+                              />
+                            </IconButton>
+                          )}
+                          <Typography variant="body2">
+                            {reactions.length || 0} lượt thích
+                          </Typography>
+                        </Box>
                         <Divider />
                       </Box>
 
