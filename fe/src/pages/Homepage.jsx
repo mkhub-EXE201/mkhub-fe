@@ -111,7 +111,7 @@ export default function Homepage() {
         <ArtistBanner />
       </Suspense>
 
-      {/* Performance toggle - fixed at bottom right */}
+      {/* SmoothSroll toggle */}
       <Box
         sx={{
           position: 'fixed',

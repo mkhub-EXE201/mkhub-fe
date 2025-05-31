@@ -183,7 +183,8 @@ export default function Navbar({
         transition: 'all 0.3s ease',
         boxShadow: isScrolled ? '0 2px 10px rgba(0,0,0,0.1)' : 'none',
         width: "100%",
-        backgroundColor: isScrolled ? "#fec9d9" : "#091B65"
+        backgroundColor: isScrolled ? "#fec9d9" : "transparent",
+
       }}
     >
       <Box

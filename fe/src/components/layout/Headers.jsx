@@ -95,7 +95,7 @@ const MainLayout = ({ currentSlide, onSlideChange, isAutoPlaying, setIsAutoPlayi
       width: '100%',
       gap: { xs: 2, md: 0 },
       pt: { xs: 1, md: 6 },
-      mt: { xs: 1, md: 6 },
+      mt: { xs: 1, md: 0 },
       position: 'relative',
       overflow: 'hidden'
     }}>
@@ -313,8 +313,9 @@ export default function Headers({ isScrolled }) {
         }}
         style={{
           overflow: "hidden",
+          zIndex: 998, 
           position: "relative",
-          zIndex: 999
+          marginTop: "-100px", 
         }}
       >
         <Box
@@ -327,6 +328,7 @@ export default function Headers({ isScrolled }) {
             minHeight: { xs: 'auto', md: '85vh' },
             display: 'flex',
             alignItems: 'center',
+            paddingTop: { xs: "80px", sm: "90px", md: "40px" }, 
           }}
         >
           <Box sx={{
