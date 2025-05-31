@@ -37,3 +37,11 @@ export const WEEKDAY = {
   SATURDAY: "SATURDAY",
   SUNDAY: "SUNDAY",
 };
+
+export const REACTION_REFERENCE_TYPE = {
+  POST: "POST",
+};
+
+export const REACTION_TYPE = {
+  LOVE: "LOVE",
+};
