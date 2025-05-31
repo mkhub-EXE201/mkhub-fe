@@ -142,15 +142,15 @@ export default function Navbar({
 
   // Reset scroll state when route changes
   useEffect(() => {
-    if (location.pathname === path.home) {
-      setIsScrolled(window.scrollY > 200);
-    } else {
+    if (alwaysScrolled || location.pathname !== path.home) {
       setIsScrolled(true);
+    } else {
+      setIsScrolled(window.scrollY > 200);
     }
-  }, [location.pathname]);
+  }, [location.pathname, alwaysScrolled]);
 
   useEffect(() => {
-    if (alwaysScrolled) {
+    if (alwaysScrolled || location.pathname !== path.home) {
       setIsScrolled(true);
       return;
     }
@@ -164,7 +164,7 @@ export default function Navbar({
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [alwaysScrolled, isScrolled]);
+  }, [alwaysScrolled, isScrolled, location.pathname]);
 
   return (
     <Box
