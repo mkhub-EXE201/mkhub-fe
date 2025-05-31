@@ -3,7 +3,6 @@ import {
   InputAdornment,
   TextField,
   Grid,
-  keyframes,
 } from "@mui/material";
 import React, { useContext, useState, useEffect } from "react";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";

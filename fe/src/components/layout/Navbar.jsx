@@ -21,7 +21,7 @@ import HttpStatusCode from "../../constants/httpStatus";
 import toast from "react-hot-toast";
 import notificationsApis from "../../apis/notifications.apis";
 import { io } from "socket.io-client";
-import AnimatedUnderlineLink from "../common/AnimatedUnderline";
+import { AnimatedUnderlineLink } from "../animations/AnimatedUnderline";
 
 export default function Navbar({
   notifications: externalNotifications,
