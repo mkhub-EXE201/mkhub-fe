@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { useContext } from "react";
-import { Outlet, Navigate, useRoutes } from "react-router-dom";
+import { Outlet, Navigate, useRoutes, useLocation } from "react-router-dom";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import Homepage from "../pages/Homepage";
@@ -25,6 +25,8 @@ import Artists from "../pages/Artists";
 import ArtistDetail from "../pages/ArtistDetail";
 import ArtistServiceManagement from "../pages/artist/ArtistServiceManagement";
 import ArtistScheduleManagement from "../pages/artist/ArtistScheduleManagement";
+import Navbar from "../components/layout/Navbar";
+import { Box } from "@mui/material";
 
 export const ProtectedRoute = ({ isAdmin, isArtist }) => {
   const { isAuthenticated, role } = useContext(AppContext);
@@ -80,15 +82,37 @@ export const checkHomeAccess = () => {
   return null;
 };
 
+const Layout = ({ children }) => {
+  const location = useLocation();
+  const isHomepage = location.pathname === path.home;
+
+  return (
+    <Box sx={{ position: "relative" }}>
+      <Navbar alwaysScrolled={!isHomepage} />
+      <Box sx={{
+        mt: { xs: "80px", sm: "90px", md: "100px" },
+        position: "relative",
+        zIndex: 1
+      }}>
+        {children}
+      </Box>
+    </Box>
+  );
+};
+
 const AppRouter = () => {
   const routeElements = useRoutes([
     {
       path: path.home,
-      element: checkHomeAccess() || <Homepage />,
+      element: checkHomeAccess() ||
+        <Layout>
+          <Homepage />
+        </Layout>
+
     },
     {
       path: path.explore,
-      element: <Explore />,
+      element: <Layout><Explore /></Layout>,
     },
     {
       path: path.forgotPassword,

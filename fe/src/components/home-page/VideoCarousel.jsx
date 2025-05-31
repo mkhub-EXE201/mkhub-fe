@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { FreeMode, Pagination } from 'swiper/modules';
 import {
@@ -18,7 +18,6 @@ import {
 } from '@mui/icons-material';
 import CustomProfileCard from '../schedule-tabs/CustomProfileCard';
 
-
 // Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/free-mode';
@@ -32,6 +31,19 @@ import vid4 from '../../assets/vid4.mp4';
 import vid5 from '../../assets/vid5.mp4';
 import vid6 from '../../assets/vid6.mp4';
 import vid7 from '../../assets/vid7.mp4';
+
+// Simple debounce utility function
+const debounce = (func, wait) => {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+};
 
 const VideoCarousel = () => {
     const [videoStates, setVideoStates] = useState({});
@@ -100,22 +112,32 @@ const VideoCarousel = () => {
         },
     ];
 
-    // Helper function to update video states
-    const updateVideoState = (videoId, updatedState) => {
-        setVideoStates(prev => ({
-            ...prev,
-            [videoId]: { ...prev[videoId], ...updatedState }
-        }));
-    };
+    // Enhanced and optimized updateVideoState function with useCallback
+    const updateVideoState = useCallback((videoId, updatedState) => {
+        setVideoStates(prev => {
+            // Only update if there's an actual change to avoid unnecessary re-renders
+            const currentState = prev[videoId] || {};
+            const hasChange = Object.entries(updatedState).some(
+                ([key, value]) => currentState[key] !== value
+            );
 
-    const updateLoadingState = (videoId, isLoading) => {
+            if (!hasChange) return prev;
+
+            return {
+                ...prev,
+                [videoId]: { ...currentState, ...updatedState }
+            };
+        });
+    }, []);
+
+    const updateLoadingState = useCallback((videoId, isLoading) => {
         setLoadingStates(prev => ({
             ...prev,
             [videoId]: isLoading
         }));
-    };
+    }, []);
 
-    const toggleVideoPlay = (videoId, e) => {
+    const toggleVideoPlay = useCallback((videoId, e) => {
         e.stopPropagation();
         const video = videoRefs.current[videoId];
         if (video) {
@@ -127,18 +149,18 @@ const VideoCarousel = () => {
                 updateVideoState(videoId, { isPlaying: false });
             }
         }
-    };
+    }, [updateVideoState]);
 
-    const toggleMute = (videoId, e) => {
+    const toggleMute = useCallback((videoId, e) => {
         e.stopPropagation();
         const video = videoRefs.current[videoId];
         if (video) {
             video.muted = !video.muted;
             updateVideoState(videoId, { isMuted: video.muted });
         }
-    };
+    }, [updateVideoState]);
 
-    const pauseInactiveVideos = (activeVideoId) => {
+    const pauseInactiveVideos = useCallback((activeVideoId) => {
         Object.entries(videoRefs.current).forEach(([id, videoEl]) => {
             const videoId = Number(id);
             if (videoId !== activeVideoId && videoEl && !videoEl.paused) {
@@ -146,9 +168,9 @@ const VideoCarousel = () => {
                 updateVideoState(videoId, { isPlaying: false });
             }
         });
-    };
+    }, [updateVideoState]);
 
-    const playActiveVideo = (videoId) => {
+    const playActiveVideo = useCallback((videoId) => {
         if (videoId && videoRefs.current[videoId]) {
             const video = videoRefs.current[videoId];
             video.play().catch(error => {
@@ -157,9 +179,9 @@ const VideoCarousel = () => {
             updateVideoState(videoId, { isPlaying: true });
             pauseInactiveVideos(videoId);
         }
-    };
+    }, [pauseInactiveVideos, updateVideoState]);
 
-    const handleSlideChange = (swiper) => {
+    const handleSlideChange = useCallback((swiper) => {
         const newActiveIndex = swiper.realIndex;
         const previousActiveIndex = activeIndex;
 
@@ -179,9 +201,9 @@ const VideoCarousel = () => {
             const activeVideoId = videos[newActiveIndex]?.id;
             playActiveVideo(activeVideoId);
         }, 100);
-    };
+    }, [activeIndex, playActiveVideo, updateVideoState, videos]);
 
-    const goToSlide = (targetIndex) => {
+    const goToSlide = useCallback((targetIndex) => {
         if (!swiperRef.current) return;
 
         const currentIndex = activeIndex;
@@ -206,8 +228,9 @@ const VideoCarousel = () => {
             };
             slideStep();
         }
-    };
+    }, [activeIndex, videos.length]);
 
+    // Initialize video states and add cleanup
     useEffect(() => {
         // Initialize video and loading states
         const initialVideoStates = {};
@@ -234,6 +257,7 @@ const VideoCarousel = () => {
         };
     }, []);
 
+    // Play active video when it's ready
     useEffect(() => {
         const activeVideoId = videos[activeIndex]?.id;
         if (activeVideoId && videoRefs.current[activeVideoId]) {
@@ -242,7 +266,67 @@ const VideoCarousel = () => {
                 playActiveVideo(activeVideoId);
             }
         }
-    }, [activeIndex, videos]);
+    }, [activeIndex, playActiveVideo, videos]);
+
+    // Handle tab visibility changes
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                // Pause all videos when tab is not visible
+                Object.entries(videoRefs.current).forEach(([id, videoEl]) => {
+                    if (videoEl && !videoEl.paused) {
+                        videoEl.pause();
+                        updateVideoState(Number(id), { isPlaying: false });
+                    }
+                });
+            } else {
+                // Play only the active video when tab becomes visible again
+                const activeVideoId = videos[activeIndex]?.id;
+                if (activeVideoId) {
+                    playActiveVideo(activeVideoId);
+                }
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, [activeIndex, playActiveVideo, updateVideoState, videos]);
+
+    // Handle scroll events
+    useEffect(() => {
+        const handleScroll = debounce(() => {
+            const activeVideoId = videos[activeIndex]?.id;
+            if (activeVideoId) {
+                // Check if component is in viewport before playing
+                const element = document.getElementById(`video-container-${activeVideoId}`);
+                if (element) {
+                    const rect = element.getBoundingClientRect();
+                    const isInViewport = rect.top >= 0 &&
+                        rect.left >= 0 &&
+                        rect.bottom <= window.innerHeight &&
+                        rect.right <= window.innerWidth;
+
+                    if (isInViewport) {
+                        playActiveVideo(activeVideoId);
+                    } else {
+                        const video = videoRefs.current[activeVideoId];
+                        if (video && !video.paused) {
+                            video.pause();
+                            updateVideoState(activeVideoId, { isPlaying: false });
+                        }
+                    }
+                }
+            }
+        }, 150);
+
+        window.addEventListener('scroll', handleScroll);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, [activeIndex, playActiveVideo, updateVideoState, videos]);
 
     // Reusable style objects to reduce inline style duplication
     const styles = {
@@ -393,6 +477,7 @@ const VideoCarousel = () => {
                                 style={isActive ? styles.activeCardWrapper : styles.inactiveCardWrapper}
                             >
                                 <Card
+                                    id={`video-container-${video.id}`}
                                     sx={styles.getCardStyle(isActive)}
                                     onClick={() => {
                                         if (!isActive) {
@@ -569,6 +654,7 @@ const VideoCarousel = () => {
                                                     padding: isActive ? '8px' : '4px',
                                                     width: '100%',
                                                     transition: 'all 0.3s ease',
+
                                                 },
                                                 nameText: {
                                                     whiteSpace: 'nowrap',

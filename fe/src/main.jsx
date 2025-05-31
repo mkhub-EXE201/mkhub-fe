@@ -6,16 +6,17 @@ import CssBaseline from "@mui/material/CssBaseline";
 import theme from "./theme/theme";
 import { AppProvider } from "./contexts/app.context";
 import { BrowserRouter } from "react-router-dom";
+import SmoothScroll from "./layouts/SmoothScroll";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
+
     <BrowserRouter>
       <ThemeProvider theme={theme}>
         <AppProvider>
           <CssBaseline />
-          <App />
+            <App /> 
         </AppProvider>
       </ThemeProvider>
     </BrowserRouter>
-  </React.StrictMode>
+
 );

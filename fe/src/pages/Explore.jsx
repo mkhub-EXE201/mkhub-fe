@@ -78,7 +78,7 @@ export default function Explore() {
 
   return (
     <Box>
-      <Navbar />
+
       <Box sx={{ display: "flex", gap: 2, marginTop: 5, marginX: 5 }}>
         {/* left - filter*/}
         <Box

@@ -1,553 +1,485 @@
 import {
-  Avatar,
-  Badge,
   Box,
-  Button,
-  Chip,
-  IconButton,
   InputAdornment,
   TextField,
-  Typography,
+  Grid,
 } from "@mui/material";
-import React, { useContext, useState } from "react";
-import logo from "../../assets/logo.png";
+import React, { useContext, useState, useEffect } from "react";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { AppContext } from "../../contexts/app.context";
-import Popover from "../Popover";
-import path from "../../constants/path";
-import userApis from "../../apis/users.apis";
-import { HttpStatusCode } from "axios";
-import toast from "react-hot-toast";
-import { USER_ROLE } from "../../constants/enum";
-import SendIcon from "@mui/icons-material/Send";
-import { useEffect } from "react";
-import { io } from "socket.io-client";
-import notificationsApis from "../../apis/notifications.apis";
-import Notification from "../Notification";
 import { TypeAnimation } from 'react-type-animation';
-import { scrollLeft, scrollLeft2, fadeIn, animationSpeeds } from '../../styles/HomeBannerAnimation';
+import { motion, AnimatePresence } from 'framer-motion';
+import RunningChips from "../animations/RunningChips";
+import AnimatedComponents from "../animations/AnimatedComponents";
+import SlideIndicators from "../animations/SlideIndicators";
+import PropTypes from 'prop-types';
+import artistBanner from '../../assets/artist-banner2.jpg';
+import headerBanner from '../../assets/header-banner2.jpg';
+import headerbanner4 from '../../assets/header-banner4.jpg';
+import headerBanner1 from '../../assets/header-banner1.jpg';
+import headerBanner3 from '../../assets/header-banner3.jpg';
+import artistBanner4 from '../../assets/artist-banner4.jpg';
 
-export default function Headers() {
-  const navigate = useNavigate();
-  const {
-    isAuthenticated,
-    setIsAuthenticated,
-    profile,
-    setProfile,
-    role,
-    setRole,
-  } = useContext(AppContext);
-  const [unreadChatCount, setUnreadChatCount] = useState(0);
-  const [unreadNotiCount, setUnreadNotiCount] = useState(0);
-  const [noti, setNoti] = useState([]);
+// Hero slide data
+const heroSlides = [
+  {
+    id: 1,
+    leftImage: headerbanner4,
+    rightImage: headerBanner,
+    title: "Đẹp Mọi Khoảnh Khắc",
+    subtitle: "Mang đến vẻ đẹp rạng ngời và sự tự tin qua dịch vụ trang điểm chuyên nghiệp.",
+  },
+  {
+    id: 2,
+    leftImage: artistBanner,
+    rightImage: headerBanner3,
+    title: "Đội Ngũ Chuyên Nghiệp",
+    subtitle: "Makeup Artist dày dạn kinh nghiệm, sẵn sàng biến hoá bạn trong mọi dịp quan trọng.",
+  },
+  {
+    id: 3,
+    leftImage: headerBanner1,
+    rightImage: artistBanner4,
+    title: "Dịch Vụ Trang Điểm Cao Cấp",
+    subtitle: "Dịch vụ makeup chuyên nghiệp cho mọi sự kiện, giúp bạn luôn tỏa sáng ở bất cứ nơi đâu.",
+  }
+];
 
+
+const { AnimatedImage, AnimatedContent } = AnimatedComponents;
+
+// Main layout component with synchronized sliding
+const MainLayout = ({ currentSlide, onSlideChange, isAutoPlaying, setIsAutoPlaying }) => {
+  // Auto-advance slides
   useEffect(() => {
-    if (profile?.id) {
-      getNotificationsByStatus(USER_ROLE.MEMBER.toLowerCase(), false);
-    }
-  }, [profile?.id]);
+    if (!isAutoPlaying) return;
 
-  useEffect(() => {
-    const socket = io("http://localhost:3000", {
-      transports: ["websocket"],
-      withCredentials: true,
-      query: {
-        userId: profile?.id,
-      },
-    });
-    socket.on("connect", () => {
-      console.log("✅ Connected to socket:", socket.id);
-    });
+    const interval = setInterval(() => {
+      onSlideChange((prev) => (prev + 1) % heroSlides.length);
+    }, 5000); // Change slide every 5 seconds
 
-    socket.on("NOTIFICATION", (noti) => {
-      // Hiển thị toast
-      toast.success(noti.message, {
-        position: "top-right",
-        autoClose: 2000,
-        pauseOnHover: true,
-        draggable: true,
-      });
-      getNotificationsByStatus(USER_ROLE.MEMBER.toLowerCase(), false);
-      setUnreadNotiCount((prev) => prev + 1);
-    });
+    return () => clearInterval(interval);
+  }, [isAutoPlaying, onSlideChange]);
 
-    return () => {
-      socket.off("NOTIFICATION");
-      socket.off("connect");
-    };
-  }, []);
-
-  const getNotificationsByStatus = async (role, status) => {
-    const payload = {
-      role,
-      status,
-    };
-    const response = await notificationsApis.getAllNotifications(payload);
-    if (response.status === HttpStatusCode.Ok) {
-      setNoti(response.data.result);
-      setUnreadNotiCount(response.data.result.length);
-    }
-  };
-
-  const handleLogout = async () => {
-    const response = await userApis.logout();
-    if (response.status === HttpStatusCode.Ok) {
-      setIsAuthenticated(false);
-      setProfile(null);
-      setNoti(null);
-      toast.success(response.data.message, {
-        position: "top-center",
-      });
-    }
-    navigate(path.home);
+  const handleSlideChange = (slideIndex) => {
+    onSlideChange(slideIndex);
+    setIsAutoPlaying(false);
+    // Resume auto-play after 10 seconds
+    setTimeout(() => setIsAutoPlaying(true), 10000);
   };
 
   return (
-    <Box
-      sx={{
-        backgroundImage:
-          "linear-gradient(0deg, #FEBED0 -17.62%, #091B65 58.6%)",
-        borderBottomLeftRadius: { xs: "20px", sm: "100px", md: "150px" },
-        borderBottomRightRadius: { xs: "20px", sm: "100px", md: "150px" },
-
-        paddingX: { xs: 2, sm: 3, md: 7 },
-        paddingBottom: { xs: 1, sm: 1, md: 1 },
-        paddingTop: { xs: 2, sm: 2, md: 5 },
-      }}
-    >
-      {/* Header top */}
+    <Box sx={{
+      display: 'flex',
+      flexDirection: { xs: 'column', md: 'row' },
+      width: '100%',
+      gap: { xs: 2, md: 0 },
+      pt: { xs: 1, md: 6 },
+      mt: { xs: 1, md: 0 },
+      position: 'relative',
+      overflow: 'hidden'
+    }}>
+      {/* Left: Artist Banner (50% width) - Animated Image */}
       <Box
         sx={{
-          display: "flex",
-          flexDirection: { xs: "column", sm: "row" },
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: { xs: 2, sm: 0 },
+          width: { xs: '100%', md: '50%' },
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          pr: { xs: 0, md: 2 },
+          height: { md: '100%' },
+          minHeight: '550px'
         }}
       >
-        {/* Left */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            gap: 2,
-            alignItems: "center",
+        <AnimatedImage
+          src={heroSlides[currentSlide].leftImage}
+          alt="Artist Banner"
+          slideKey={`slide-${currentSlide}`}
+          delay={0.5}
+          style={{
+            width: '100%',
+            height: '100%',
+            minHeight: '550px',
+            maxHeight: '550px',
+            objectFit: 'cover',
+            objectPosition: 'center',
+            borderRadius: '20px',
+            position: 'relative'
           }}
-        >
-          <img
-            src={logo}
-            onClick={() => <Link to={path.home} />}
-            alt="header-logo"
-            style={{
-              width: "100px",
-              height: "auto",
-              objectFit: "cover",
-            }}
-          />
-          <Link
-            to={path.explore}
-            style={{ textDecoration: "none", color: "inherit" }}
-          >
-            <Typography color="white">Khám phá</Typography>
-          </Link>
-
-          <Link
-            to={path.home}
-            style={{ textDecoration: "none", color: "inherit" }}
-          >
-            <Typography color="white">Cộng đồng</Typography>
-          </Link>
-        </Box>
-
-        {/* Right */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            gap: 2,
-            alignItems: "center",
+          containerSx={{
+            width: '100%',
+            height: '550px',
+            borderRadius: '20px'
           }}
-        >
-          <Button
-            onClick={() => {
-              if (!isAuthenticated) {
-                navigate(path.login);
-                return;
-              }
-
-              if (profile.is_artist) {
-                const nextRole =
-                  role === USER_ROLE.MEMBER
-                    ? USER_ROLE.ARTIST
-                    : USER_ROLE.MEMBER;
-
-                setRole(nextRole);
-                navigate(
-                  nextRole === USER_ROLE.MEMBER
-                    ? path.onboardingArtist
-                    : path.artistPortfolioManagement
-                );
-              } else {
-                navigate(path.onboardingArtist);
-              }
-            }}
-            sx={{ borderRadius: "50px" }}
-          >
-            <Box
-              sx={{
-                backgroundColor: (theme) => theme.palette.darkPink,
-                paddingX: 2,
-                paddingY: 1,
-                borderRadius: 50,
-                ":hover": { opacity: "95%" },
-              }}
-            >
-              <Typography sx={{ color: "white" }}>
-                {!isAuthenticated
-                  ? "Trở thành Makeup Artist"
-                  : role === USER_ROLE.ARTIST
-                    ? "Chuyển sang chế độ User"
-                    : profile.is_artist
-                      ? "Chuyển sang chế độ Makeup Artist"
-                      : "Trở thành Makeup Artist"}
-              </Typography>
-            </Box>
-          </Button>
-          <Notification
-            notifications={noti}
-            getNotificationsByStatus={getNotificationsByStatus}
-          />
-          <IconButton>
-            <Badge badgeContent={unreadChatCount} color="error">
-              <SendIcon
-                sx={{
-                  color: "white",
-                  transform: "rotate(-45deg)",
-                  width: 30,
-                  height: 30,
-                }}
-              />
-            </Badge>
-          </IconButton>
-
-          {!isAuthenticated ? (
-            <>
-              <Link
-                to={path.login}
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <Typography color="white">Đăng nhập</Typography>
-              </Link>
-              <Link
-                to={path.register}
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <Typography color="white">Đăng kí</Typography>
-              </Link>
-            </>
-          ) : (
-            <>
-              <Popover
-                renderPopover={
-                  <Box
-                    sx={{
-                      position: "relative",
-                      borderRadius: 1,
-                      bgcolor: "white",
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        color: "black",
-                      }}
-                    >
-                      <Link to={path.profile}>
-                        <Button
-                          sx={{
-                            py: 1,
-                            px: 1.5,
-                            justifyContent: "flex-start",
-                            color: "black",
-                            textTransform: "none",
-                            "&:hover": {
-                              backgroundColor: (theme) =>
-                                theme.palette.lightGray,
-                            },
-                          }}
-                        >
-                          Thông tin tài khoản
-                        </Button>
-                      </Link>
-
-                      <Button
-                        sx={{
-                          mt: 1,
-                          py: 1,
-                          px: 1.5,
-                          justifyContent: "flex-start",
-                          color: "black",
-                          textTransform: "none",
-                          "&:hover": {
-                            backgroundColor: (theme) => theme.palette.lightGray,
-                          },
-                        }}
-                      >
-                        Yêu cầu của tôi
-                      </Button>
-
-                      <Button
-                        onClick={() => handleLogout()}
-                        sx={{
-                          mt: 1,
-                          py: 1,
-                          px: 1.5,
-                          justifyContent: "flex-start",
-                          color: "black",
-                          textTransform: "none",
-                          "&:hover": {
-                            backgroundColor: (theme) => theme.palette.lightGray,
-                          },
-                        }}
-                      >
-                        Đăng xuất
-                      </Button>
-                    </Box>
-                  </Box>
-                }
-              >
-                <Avatar
-                  src={
-                    profile?.avatar_url ||
-                    "https://mkhub.s3.us-east-1.amazonaws.com/avatar/default_avt.jpg"
-                  }
-                  alt="avatar"
-                  sx={{
-                    width: 40,
-                    height: 40,
-                  }}
-                />
-              </Popover>
-            </>
-          )}
-        </Box>
+        />
       </Box>
 
-      {/* Main Content */}
+      {/* Right: All other content (50% width) */}
       <Box
         sx={{
-          my: { xs: 5, md: 10 },
-          mx: "auto",
-          px: { xs: 2, sm: 4, md: 10 },
+          width: { xs: '100%', md: '50%' },
+          display: 'flex',
+          flexDirection: 'column',
+          pl: { xs: 0, md: 2 },
+          height: '550px', // Match AnimatedImage height
+          justifyContent: 'space-between',
+          overflow: 'visible'
         }}
       >
-        <Box textAlign="center">
-          <TypeAnimation
-            sequence={[
-
-              'Một nền tảng kết nối makeup artist', 2000,
-              'Makeup hub', 1500,
-
-            ]}
-            wrapper="span"
-            cursor={true}
-            repeat={Infinity}
-            style={{
-              color: "white",
-              fontSize: "44px",
-              fontWeight: 600,
-              textTransform: "uppercase",
-              display: "block",
-            }}
-          />
-
-          {/* Search */}
-          <Box
-            display="flex"
-            gap={2}
-            alignItems="center"
-            justifyContent="center"
-          >
-            <TextField
-              placeholder="Tôi đang tìm kiếm dịch vụ..."
-              size="small"
+        {/* Top: TypeAnimation and Search - Animated Text */}
+        <Box
+          sx={{
+            display: { xs: 'none', md: 'block' },
+          }}
+        >
+          <Box>
+            <Box
+              component="span"
               sx={{
-                mt: 3,
-                width: {
-                  xs: "100%",
-                  sm: "80%",
-                  md: "600px",
-                },
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": {
-                    borderColor: "#fff",
-                    borderRadius: "20px",
-                  },
-                  "&:hover fieldset": {
-                    borderColor: "#fff",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#fff",
-                  },
-                },
-                "& .MuiInputLabel-root": {
-                  color: "#fff",
-                },
-                "& .MuiInputLabel-root.Mui-focused": {
-                  color: "#fff",
-                },
-                "& .MuiInputBase-input::placeholder": {
-                  color: "#fff",
-                  opacity: 1,
-                },
+                color: "white",
+                fontSize: "40px",
+                fontWeight: 600,
+                textTransform: "uppercase",
+                display: "block",
+                marginBottom: "16px"
               }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchOutlinedIcon sx={{ color: "white" }} />
-                  </InputAdornment>
-                ),
+            >
+              Makeup Hub
+            </Box>
+            <TypeAnimation
+              sequence={[
+                'Kết nối Makeup Artist', 2000,
+                'Tìm kiếm dịch vụ phù hợp', 2000,
+                'Đặt lịch nhanh chóng', 2000,
+              ]}
+              wrapper="span"
+              cursor={true}
+              repeat={Infinity}
+              style={{
+                color: "#f8bbd0",
+                fontSize: "24px",
+                fontWeight: 500,
+                display: "block",
+                marginBottom: "20px"
               }}
             />
           </Box>
-          {/* hashtag */}
-          <Box
+
+          <TextField
+            placeholder="Tìm kiếm dịch vụ..."
+            size="small"
             sx={{
-              marginTop: { md: 5, sm: 5, xs: 2 },
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: { lg: 4, md: 4, sm: 2, xs: 1 },
+              width: '100%',
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "#fff",
+                  borderRadius: "20px",
+                },
+                "&:hover fieldset": {
+                  borderColor: "#fff",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "#fff",
+                },
+              },
+              "& .MuiInputBase-input::placeholder": {
+                color: "#fff",
+                opacity: 1,
+              },
             }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchOutlinedIcon sx={{ color: "white" }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Box>
+
+        {/* Running Chips - Positioned with enough space */}
+        <Box sx={{
+          flex: '0 0 auto',
+          my: 0 // Add margin for better spacing
+        }}>
+          <RunningChips />
+        </Box>
+
+        {/* Bottom: Animated Content and Images */}
+        <Box sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          gap: 2,
+          width: '100%',
+          height: 'auto',
+          minHeight: '280px',
+          maxHeight: '280px',
+          mt: 'auto',
+          mb: 0
+        }}>
+          {/* Left Content Box - Animated */}
+          <AnimatedContent
+            slideKey={`slide-${currentSlide}`}
+            delay={0.5}
+            style={{ flex: 1 }}
           >
-            {/* Both rows wrapped in a container to ensure synchronized movement */}
             <Box
               sx={{
-                display: "inline-block",
-                width: "100%"
+                height: '100%',
+                backgroundColor: "rgba(255, 255, 255, 0.25)",
+                backdropFilter: "blur(10px)",
+                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                padding: 3,
+                borderRadius: 5,
+                textAlign: "left",
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'flex-start',
+                position: 'relative',
+                paddingBottom: '70px',
               }}
             >
-              {/* row 1: 4 chips with horizontal scrolling animation */}
-              <Box
-                sx={{
-                  width: "100%",
-                  overflow: "hidden",
-                  whiteSpace: "nowrap",
-                  position: "relative",
-                  mb: { lg: 3, md: 3, sm: 2, xs: 1 }
-                }}
-              >
-                <Box
-                  className="scroll-animation"
-                  sx={{
-                    display: "inline-flex",
-                    animation: `${scrollLeft} ${animationSpeeds.medium}s linear infinite`,
-                    animationPlayState: "running",
-                    width: "calc(250px * 16)",
-                    "&:hover": {
-                      animationPlayState: "paused"
-                    }
-                  }}
-                >
-                  {Array(16).fill(0).map((_, cycle) => ( // Increased duplicates
-                    <Box
-                      key={cycle}
-                      sx={{
-                        display: "flex",
-                        gap: { lg: 4, md: 4, sm: 2, xs: 1 },
-                        justifyContent: "center",
-                        px: { lg: 2, md: 1.5, sm: 1, xs: 0.5 }
-                      }}
-                    >
-                      {Array(4).fill(0).map((_, index) => {
-                        const labels = ["#makeup", "#beauty", "#style", "#trends"];
-                        return (
-                          <Chip
-                            key={cycle * 4 + index}
-                            label={labels[index]}
-                            sx={{
-                              backgroundColor: (theme) => theme.palette.ochre.lightGrey,
-                              color: (theme) => theme.palette.ochre.dark,
-                              fontWeight: 500,
-                              borderRadius: "999px",
-                              transition: "transform 0.3s ease, background-color 0.3s ease",
-                              "&:hover": {
-                                transform: "scale(1.05)",
-                                backgroundColor: (theme) => theme.palette.ochre.light,
-                              },
-                            }}
-                            onClick={() => { }}
-                          />
-                        );
-                      })}
-                    </Box>
-                  ))}
-                </Box>
+              <Box>
+                <h2 style={{ margin: '0 0 16px 0', fontSize: '24px' }}>
+                  {heroSlides[currentSlide].title}
+                </h2>
+                <p style={{ margin: '0 0 24px 0', fontSize: '16px', lineHeight: 1.5 }}>
+                  {heroSlides[currentSlide].subtitle}
+                </p>
               </Box>
-
-              {/* row 2: 3 chips with optimized animation */}
               <Box
+                component="button"
                 sx={{
-                  width: "100%",
-                  overflow: "hidden",
-                  whiteSpace: "nowrap",
-                  position: "relative"
+                  position: 'absolute', // Position absolutely
+                  bottom: '20px', // Fixed distance from bottom
+                  left: '50%', // Center horizontally
+                  transform: 'translateX(-50%)', // Center horizontally
+                  width: 'fit-content',
+                  backgroundColor: '#d9d9d9',
+                  color: 'black',
+                  border: 'none',
+                  borderRadius: '20px',
+                  padding: '10px 24px',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                  '&:hover': {
+                    backgroundColor: '#fec9d9',
+                    transform: 'translateX(-50%) translateY(-2px)',
+                    boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+                  },
+                  '&:active': {
+                    transform: 'translateX(-50%) translateY(0)',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                  }
                 }}
+                onClick={() => navigate('/booking')}
               >
-                <Box
-                  className="scroll-animation-2"
-                  sx={{
-                    display: "inline-flex",
-                    animation: `${scrollLeft2} ${animationSpeeds.medium}s linear infinite`,
-                    animationDelay: "0s",
-                    animationPlayState: "running",
-                    width: "calc(220px * 16)", // Adjusted width for row 2 content
-                    "&:hover": {
-                      animationPlayState: "paused"
-                    }
-                  }}
-                >
-                  {Array(16).fill(0).map((_, cycle) => ( // Increased duplicates
-                    <Box
-                      key={cycle}
-                      sx={{
-                        display: "flex",
-                        gap: { lg: 4, md: 4, sm: 2, xs: 1 },
-                        justifyContent: "center",
-                        px: { lg: 1.5, md: 1, sm: 0.75, xs: 0.5 }
-                      }}
-                    >
-                      {Array(3).fill(0).map((_, index) => {
-                        const labels = ["#artist", "#look", "#tutorial"];
-                        return (
-                          <Chip
-                            key={cycle * 3 + index}
-                            label={labels[index]}
-                            sx={{
-                              backgroundColor: (theme) => theme.palette.ochre.lightGrey,
-                              color: (theme) => theme.palette.ochre.dark,
-                              fontWeight: 500,
-                              borderRadius: "999px",
-                              transition: "transform 0.3s ease, background-color 0.3s ease",
-                              "&:hover": {
-                                transform: "scale(1.05)",
-                                backgroundColor: (theme) => theme.palette.ochre.light,
-                              },
-                            }}
-                            onClick={() => { }}
-                          />
-                        );
-                      })}
-                    </Box>
-                  ))}
-                </Box>
+                Đặt lịch ngay
               </Box>
             </Box>
+          </AnimatedContent>
+
+          {/* Right Image Box - Animated */}
+          <Box
+            sx={{
+              flex: 1,
+              borderRadius: 5,
+              position: 'relative',
+              overflow: 'hidden',
+              padding: 0
+            }}
+          >
+            <AnimatedImage
+              src={heroSlides[currentSlide].rightImage}
+              alt="Product Image"
+              slideKey={`slide-${currentSlide}`}
+              delay={0.5}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: 'center'
+              }}
+              containerSx={{
+                width: '100%',
+                height: '100%'
+              }}
+            />
           </Box>
         </Box>
       </Box>
     </Box>
   );
+};
+
+// Add PropTypes validation for MainLayout
+MainLayout.propTypes = {
+  currentSlide: PropTypes.number.isRequired,
+  onSlideChange: PropTypes.func.isRequired,
+  isAutoPlaying: PropTypes.bool.isRequired,
+  setIsAutoPlaying: PropTypes.func.isRequired
+};
+
+export default function Headers({ isScrolled }) {
+  const navigate = useNavigate();
+  const { profile } = useContext(AppContext);
+
+  // Slide state management
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
+  const handleSlideChange = (slideIndex) => {
+    setCurrentSlide(slideIndex);
+    setIsAutoPlaying(false);
+    // Resume auto-play after 10 seconds
+    setTimeout(() => setIsAutoPlaying(true), 10000);
+  };
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ height: "auto", opacity: 1 }}
+        animate={{
+          height: isScrolled ? 0 : "auto",
+          opacity: isScrolled ? 0 : 1,
+        }}
+        transition={{
+          duration: 0.3,
+          ease: "easeInOut"
+        }}
+        style={{
+          overflow: "hidden",
+          zIndex: 998,
+          position: "relative",
+          marginTop: "-100px",
+        }}
+      >
+        <Box
+          sx={{
+            backgroundImage:
+              "linear-gradient(0deg, #FEBED0 -17.62%, #091B65 58.6%)",
+            borderBottomLeftRadius: { xs: "20px", sm: "100px", md: "50px" },
+            borderBottomRightRadius: { xs: "20px", sm: "100px", md: "50px" },
+            paddingBottom: { xs: 1, sm: 1, md: 1 },
+            minHeight: { xs: 'auto', md: '85vh' },
+            display: 'flex',
+            alignItems: 'center',
+            paddingTop: { xs: "80px", sm: "90px", md: "40px" },
+          }}
+        >
+          <Box sx={{
+            py: { xs: 3, md: 5 },
+            px: { xs: 2, sm: 4, md: 8 },
+            width: '100%'
+          }}>
+            <Box sx={{
+              position: 'relative',
+            }}>
+              <MainLayout
+                currentSlide={currentSlide}
+                onSlideChange={setCurrentSlide}
+                isAutoPlaying={isAutoPlaying}
+                setIsAutoPlaying={setIsAutoPlaying}
+              />
+
+              {/* Position SlideIndicators after MainLayout but still in the header area */}
+              <Box sx={{
+                width: '100%',
+                position: 'relative',
+                marginTop: '20px',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}>
+                <SlideIndicators
+                  currentSlide={currentSlide}
+                  totalSlides={heroSlides.length}
+                  onSlideChange={handleSlideChange}
+                  containerSx={{
+                    position: 'relative',
+                    bottom: 'auto',
+                    left: 'auto',
+                    transform: 'none',
+                    padding: '10px 0',
+                  }}
+                />
+              </Box>
+            </Box>
+          </Box>
+
+          {/* Display search field only on small screens */}
+          <Grid item xs={12} sx={{ display: { xs: 'block', md: 'none' }, mt: 3, px: { xs: 2, sm: 5 } }}>
+            <Box textAlign="center">
+              <TypeAnimation
+                sequence={[
+                  'Kết nối makeup artist', 2000,
+                  'Makeup hub', 1500,
+                ]}
+                wrapper="span"
+                cursor={true}
+                repeat={Infinity}
+                style={{
+                  color: "white",
+                  fontSize: "32px",
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  display: "block",
+                }}
+              />
+              <Box
+                display="flex"
+                gap={2}
+                alignItems="center"
+                justifyContent="center"
+              >
+                <TextField
+                  placeholder="Tôi đang tìm kiếm dịch vụ..."
+                  size="small"
+                  sx={{
+                    mt: 3,
+                    width: "100%",
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": {
+                        borderColor: "#fff",
+                        borderRadius: "20px",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "#fff",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#fff",
+                      },
+                    },
+                    "& .MuiInputBase-input::placeholder": {
+                      color: "#fff",
+                      opacity: 1,
+                    },
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchOutlinedIcon sx={{ color: "white" }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Box>
+            </Box>
+          </Grid>
+        </Box>
+      </motion.div>
+    </AnimatePresence>
+  );
 }
+
+Headers.propTypes = {
+  isScrolled: PropTypes.bool
+};
+
+Headers.defaultProps = {
+  isScrolled: false
+};

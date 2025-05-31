@@ -71,6 +71,7 @@ export default function RegisterArtist() {
     resolver: yupResolver(registerArtistSchema),
     defaultValues: {
       name: "",
+      email: "",
       phone_number: "",
       address_type: ARTIST_WORKING_LOCATION_TYPE.HOME,
       province_id: undefined,
@@ -142,6 +143,7 @@ export default function RegisterArtist() {
         "name",
         "phone_number",
         "address_type",
+        "email",
         "location_name",
         "province_id",
         "district_id",
@@ -170,11 +172,16 @@ export default function RegisterArtist() {
   const onSubmit = async () => {
     setIsSubmitting(true);
     // 1. upload avatar
-    const avatarFormData = new FormData();
-    avatarFormData.append("folderName", "avatar");
-    avatarFormData.append("images", getValues("avatar_url"));
-    let response = await mediaApis.uploadImage(avatarFormData);
-    const avatar_url = response.data.result[0];
+    const avatarData = getValues("avatar_url");
+    let avatar_url = avatarData;
+
+    if (avatarData instanceof File) {
+      const avatarFormData = new FormData();
+      avatarFormData.append("folderName", "avatar");
+      avatarFormData.append("images", avatarData);
+      const response = await mediaApis.uploadImage(avatarFormData);
+      avatar_url = response.data.result[0];
+    }
 
     // 2. upload ảnh làm profile
     const files = watch("media_urls") || [];
@@ -185,12 +192,12 @@ export default function RegisterArtist() {
     });
     await mediaApis.uploadImage(profileMediaFormData);
 
-    response = await mediaApis.uploadImage(profileMediaFormData);
+    let response = await mediaApis.uploadImage(profileMediaFormData);
     const profileMedia = response.data.result;
     const payload = {
       name: watch("name"),
       phone_number: watch("phone_number"),
-      avatar_url: avatar_url,
+      ...(avatar_url && { avatar_url }),
       portfolio_url: watch("portfolio_urls"),
       media_url: profileMedia,
       address_type: watch("address_type"),
@@ -199,7 +206,7 @@ export default function RegisterArtist() {
       ward_code: watch("ward_code"),
       district_id: watch("district_id"),
       province_id: watch("province_id"),
-      email: "phm.giamy@gmail.com",
+      email: watch("email"),
     };
 
     response = await artistApis.registerArtist(payload);
@@ -396,11 +403,11 @@ export default function RegisterArtist() {
                       <label style={{ width: "20%" }}>Email</label>
                       <TextField
                         variant="outlined"
-                        disabled
                         margin="normal"
                         fullWidth
-                        value={"phm.giamy@gmail.com"}
-                        onChange={() => {}}
+                        {...register("email")}
+                        error={!!errors.email}
+                        helperText={errors.email?.message || " "}
                       />
                     </Box>
                     {/* input 4: location working type của artist */}

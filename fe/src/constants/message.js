@@ -67,4 +67,9 @@ export const ARTIST_SERVICE_MESSAGES = {
   SERVICE_IMG_TYPE_MUST_BE_IMAGE_OR_VIDEO: "Tệp phải là hình ảnh hoặc video",
   SERVICE_IMG_MUST_BE_AT_LEAST_ONE: "Vui lòng đăng ít nhất 1 tấm ảnh/video",
   SERVICE_IMG_MUST_BE_AT_MOST_FIVE: "Chỉ được đăng tối đa 5 tấm ảnh/video.",
+  CATEGORY_ID_NOT_EMPTY: "Vui lòng chọn chủ đề dịch vụ.",
+};
+
+export const UPDATE_ARTIST_PROFILE_MESSAGES = {
+  EMAIL_IS_INVALID: "Email không hợp lệ.",
 };

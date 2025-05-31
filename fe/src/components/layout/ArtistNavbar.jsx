@@ -4,7 +4,6 @@ import {
   Button,
   InputAdornment,
   TextField,
-  Typography,
 } from "@mui/material";
 import React, { useContext, useEffect, useState } from "react";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -22,6 +21,7 @@ import { USER_ROLE } from "../../constants/enum";
 import userApis from "../../apis/users.apis";
 import toast from "react-hot-toast";
 import Popover from "../Popover";
+import { AnimatedUnderlineLink } from "../animations/AnimatedUnderline";
 
 export default function ArtistNavbar() {
   const { profile, setRole, setIsAuthenticated, setProfile } =
@@ -31,7 +31,7 @@ export default function ArtistNavbar() {
 
   useEffect(() => {
     const getArtistProfile = async () => {
-      const response = await artistApis.getArtistProfile(profile.id);
+      const response = await artistApis.getArtistProfile(profile.artist_id);
       if (response.status === HttpStatusCode.Ok) {
         console.log(response.data.result.avatar_url);
         setArtistProfile(response.data.result);
@@ -90,19 +90,12 @@ export default function ArtistNavbar() {
             }}
           />
         </Link>
-        <Link
+        <AnimatedUnderlineLink
           to={path.explore}
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          <Typography>Khám phá</Typography>
-        </Link>
-
-        <Link
-          to={path.home}
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          <Typography>Cộng đồng</Typography>
-        </Link>
+          label="Khám phá"
+          isScrolled={true}
+        />
+        <AnimatedUnderlineLink to={path.home} label="Cộng đồng" isScrolled={true} />
       </Box>
       {/* search box */}
       <Box
