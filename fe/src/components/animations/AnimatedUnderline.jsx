@@ -19,7 +19,7 @@ export const AnimatedUnderline = ({ children, color = "#F13067", textColor }) =>
                 bottom: 0,
                 left: 0,
                 width: "100%",
-                height: "3px",
+                height: "2px",
                 backgroundColor: color,
                 transform: "scaleX(0)",
                 transformOrigin: "center",
