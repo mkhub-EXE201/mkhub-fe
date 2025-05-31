@@ -21,6 +21,7 @@ import HttpStatusCode from "../../constants/httpStatus";
 import toast from "react-hot-toast";
 import notificationsApis from "../../apis/notifications.apis";
 import { io } from "socket.io-client";
+import AnimatedUnderlineLink from "../common/AnimatedUnderline";
 
 export default function Navbar({
   notifications: externalNotifications,
@@ -184,7 +185,6 @@ export default function Navbar({
         boxShadow: isScrolled ? '0 2px 10px rgba(0,0,0,0.1)' : 'none',
         width: "100%",
         backgroundColor: isScrolled ? "#fec9d9" : "transparent",
-
       }}
     >
       <Box
@@ -217,12 +217,8 @@ export default function Navbar({
               transition: "width 0.3s ease"
             }}
           />
-          <Link to={path.explore} style={{ textDecoration: "none", color: "inherit" }}>
-            <Typography color={isScrolled ? "black" : "white"}>Khám phá</Typography>
-          </Link>
-          <Link to={path.home} style={{ textDecoration: "none", color: "inherit" }}>
-            <Typography color={isScrolled ? "black" : "white"}>Cộng đồng</Typography>
-          </Link>
+          <AnimatedUnderlineLink to={path.explore} label="Khám phá" isScrolled={isScrolled} />
+          <AnimatedUnderlineLink to={path.home} label="Cộng đồng" isScrolled={isScrolled} />
         </Box>
 
         {/* Right */}
@@ -296,12 +292,8 @@ export default function Navbar({
           </IconButton>
           {!isAuthenticated ? (
             <>
-              <Link to={path.login} style={{ textDecoration: "none", color: "inherit" }}>
-                <Typography color={isScrolled ? "black" : "white"}>Đăng nhập</Typography>
-              </Link>
-              <Link to={path.register} style={{ textDecoration: "none", color: "inherit" }}>
-                <Typography color={isScrolled ? "black" : "white"}>Đăng kí</Typography>
-              </Link>
+              <AnimatedUnderlineLink to={path.login} label="Đăng nhập" isScrolled={isScrolled} />
+              <AnimatedUnderlineLink to={path.register} label="Đăng kí" isScrolled={isScrolled} />
             </>
           ) : (
             <Popover

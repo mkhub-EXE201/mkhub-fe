@@ -72,6 +72,7 @@ const RunningChips = () => {
                                                 "&:hover": {
                                                     transform: "scale(1.05)",
                                                     backgroundColor: (theme) => theme.palette.ochre.light,
+                                                    color: "white",
                                                 },
                                             }}
                                             onClick={() => { }}

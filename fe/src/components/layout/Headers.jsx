@@ -105,13 +105,13 @@ const MainLayout = ({ currentSlide, onSlideChange, isAutoPlaying, setIsAutoPlayi
             maxHeight: '550px',
             objectFit: 'cover',
             objectPosition: 'center',
-            borderRadius: '10px',
+            borderRadius: '20px',
             position: 'relative'
           }}
           containerSx={{
             width: '100%',
             height: '550px',
-            borderRadius: '10px'
+            borderRadius: '20px'
           }}
         />
       </Box>
@@ -232,13 +232,13 @@ const MainLayout = ({ currentSlide, onSlideChange, isAutoPlaying, setIsAutoPlayi
                 backdropFilter: "blur(10px)",
                 boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
                 padding: 3,
-                borderRadius: 2,
+                borderRadius: 5,
                 textAlign: "left",
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'flex-start',
-                position: 'relative', // Add position relative
-                paddingBottom: '70px', // Add padding at bottom to make space for button
+                position: 'relative',
+                paddingBottom: '70px',
               }}
             >
               <Box>
@@ -288,8 +288,7 @@ const MainLayout = ({ currentSlide, onSlideChange, isAutoPlaying, setIsAutoPlayi
           <Box
             sx={{
               flex: 1,
-              // backgroundColor: '#E1F5FE',
-              borderRadius: 2,
+              borderRadius: 5,
               position: 'relative',
               overflow: 'hidden',
               padding: 0
