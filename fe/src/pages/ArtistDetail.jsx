@@ -40,6 +40,7 @@ import FullCalendarComponent from "../components/FullCalendar";
 import artistSchedulesApis from "../apis/artistSchedules.apis";
 import artistApis from "../apis/artists.apis";
 import postApis from "../apis/posts.apis";
+import commentApis from "../apis/comment.apis";
 
 const steps = ["Thông tin cơ bản", "Hình ảnh mô tả", "Xác nhận trước khi gửi"];
 
@@ -64,6 +65,7 @@ export default function ArtistDetail() {
   const [videos, setVideos] = useState([]);
   const [posts, setPosts] = useState([]);
   const [comments, setComments] = useState([]);
+  const [comment, setComment] = useState("");
   const [selectedMedia, setSelectedMedia] = useState([]);
   const [selectedPost, setSelectedPost] = useState({});
   const getAllSchedules = async () => {
@@ -163,6 +165,22 @@ export default function ArtistDetail() {
     }
   };
 
+  const handleAddComment = async () => {
+    try {
+      const payload = {
+        post_id: selectedPost.id,
+        content: comment,
+      };
+      console.log(payload);
+      const response = await commentApis.addComment(payload);
+      if (response.status === HttpStatusCode.Ok) {
+        setComment("");
+        getAllComments(selectedPost.id);
+      }
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
   useEffect(() => {
     getArtistProfileDetail();
     getPhotos();
@@ -511,8 +529,8 @@ export default function ArtistDetail() {
                       alt={`photo-${index}`}
                       onClick={() => handleImageClick(item.media_url, item)}
                       style={{
-                        width: 100,
-                        height: 100,
+                        width: 300,
+                        height: 300,
                         borderRadius: 8,
                         objectFit: "cover",
                         cursor: "pointer",
@@ -574,65 +592,79 @@ export default function ArtistDetail() {
                         p: 2,
                         display: "flex",
                         flexDirection: "column",
-                        overflowY: "auto",
                       }}
                     >
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
-                        <Avatar src={profile.avatar_url} />
-                        <Typography variant="h6" gutterBottom>
-                          {profile.name}
+                      <Box sx={{ mb: 2 }}>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
+                          <Avatar src={profile.avatar_url} />
+                          <Typography variant="h6" gutterBottom>
+                            {profile.name}
+                          </Typography>
+                        </Box>
+                        <Typography variant="body2" sx={{ mt: 2, mb: 1 }}>
+                          {selectedPost.content}
                         </Typography>
-                      </Box>
-                      <Typography variant="body2" sx={{ mt: 2, mb: 1 }}>
-                        {selectedPost.content}
-                      </Typography>
-                      <Divider />
-                      <Box sx={{ flexGrow: 1, marginTop: 1 }}>
-                        {comments && comments.length > 0 ? (
-                          <>
-                            {comments.map((item) => (
-                              <Box
-                                key={item.id}
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "flex-start",
-                                  gap: 1,
-                                  mb: 2,
-                                }}
-                              >
-                                <Avatar
-                                  src={item.avatar_url}
-                                  sx={{ width: 36, height: 36 }}
-                                />
-                                <Box
-                                  sx={{
-                                    backgroundColor: "#f0f2f5",
-                                    padding: "8px 12px",
-                                    borderRadius: "18px",
-                                    maxWidth: "100%",
-                                  }}
-                                >
-                                  <Typography
-                                    sx={{ fontWeight: 500, fontSize: 14 }}
-                                  >
-                                    {item.last_name} {item.first_name}
-                                  </Typography>
-                                  <Typography sx={{ fontSize: 14 }}>
-                                    {item.content}
-                                  </Typography>
-                                </Box>
-                              </Box>
-                            ))}
-                          </>
-                        ) : (
-                          <Typography>Không có bình luận nào.</Typography>
-                        )}{" "}
+                        <Divider />
                       </Box>
 
-                      <Box sx={{ mt: "auto" }}>
+                      <Box
+                        sx={{
+                          flexGrow: 1,
+                          overflowY: "auto",
+                          pr: 1,
+                        }}
+                      >
+                        {comments && comments.length > 0 ? (
+                          comments.map((item) => (
+                            <Box
+                              key={item.id}
+                              sx={{
+                                display: "flex",
+                                alignItems: "flex-start",
+                                gap: 1,
+                                mb: 2,
+                              }}
+                            >
+                              <Avatar
+                                src={item.avatar_url}
+                                sx={{ width: 36, height: 36 }}
+                              />
+                              <Box
+                                sx={{
+                                  backgroundColor: "#f0f2f5",
+                                  padding: "8px 12px",
+                                  borderRadius: "18px",
+                                  maxWidth: "100%",
+                                }}
+                              >
+                                <Typography
+                                  sx={{ fontWeight: 500, fontSize: 14 }}
+                                >
+                                  {item.last_name} {item.first_name}
+                                </Typography>
+                                <Typography sx={{ fontSize: 14 }}>
+                                  {item.content}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          ))
+                        ) : (
+                          <Typography>Không có bình luận nào.</Typography>
+                        )}
+                      </Box>
+
+                      <Box sx={{ mt: 2 }}>
                         <TextField
+                          value={comment}
+                          onChange={(e) => setComment(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                              e.preventDefault();
+                              handleAddComment();
+                            }
+                          }}
                           fullWidth
                           placeholder="Comment..."
                           variant="outlined"
