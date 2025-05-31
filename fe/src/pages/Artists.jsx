@@ -13,6 +13,7 @@ import Skeleton from "../components/Skeleton";
 import PlaceIcon from "@mui/icons-material/Place";
 import { Link } from "react-router-dom";
 import path from "../constants/path";
+import Footer from "../components/layout/Footer";
 
 export default function Artists() {
   const [artists, setArtists] = useState();
@@ -39,7 +40,7 @@ export default function Artists() {
       {isLoading ? (
         <Skeleton />
       ) : (
-        <Box sx={{ padding: 5 }}>
+        <Box sx={{ padding: 5, mt: { xs: "80px", sm: "90px", md: "100px" } }}>
           <Typography
             variant="h1"
             sx={{
@@ -155,6 +156,7 @@ export default function Artists() {
           </Box>
         </Box>
       )}
+      <Footer />
     </Box>
   );
 }
