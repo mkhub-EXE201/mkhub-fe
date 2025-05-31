@@ -1,6 +1,5 @@
 import {
   Box,
-  Chip,
   InputAdornment,
   TextField,
   Grid,
@@ -10,8 +9,6 @@ import React, { useContext, useState, useEffect } from "react";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "../../contexts/app.context";
-import path from "../../constants/path";
-import { USER_ROLE } from "../../constants/enum";
 import { TypeAnimation } from 'react-type-animation';
 import { motion, AnimatePresence } from 'framer-motion';
 import RunningChips from "../animations/RunningChips";
@@ -25,48 +22,33 @@ import headerBanner1 from '../../assets/header-banner1.jpg';
 import headerBanner3 from '../../assets/header-banner3.jpg';
 import artistBanner4 from '../../assets/artist-banner4.jpg';
 
-// Define animations
-const scrollLeft = keyframes`
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-`;
-
-// Define animation speeds
-const animationSpeeds = {
-  slow: 60,
-  medium: 40,
-  fast: 20
-};
-
 // Hero slide data
 const heroSlides = [
   {
     id: 1,
     leftImage: headerbanner4,
     rightImage: headerBanner,
-    title: "Beauty with MAKEUP HUB",
-    subtitle: "Đặt Lịch Trang Điểm Dễ Dàng",
-    typeText: ['Kết nối makeup artist', 'Makeup hub']
+    title: "Đẹp Mọi Khoảnh Khắc",
+    subtitle: "Mang đến vẻ đẹp rạng ngời và sự tự tin qua dịch vụ trang điểm chuyên nghiệp.",
   },
   {
     id: 2,
     leftImage: artistBanner,
     rightImage: headerBanner3,
-    title: "Professional Artists",
-    subtitle: "Chuyên Gia Trang Điểm Hàng Đầu",
-    typeText: ['Kết nối makeup artist', 'Makeup hub']
+    title: "Đội Ngũ Chuyên Nghiệp",
+    subtitle: "Makeup Artist dày dạn kinh nghiệm, sẵn sàng biến hoá bạn trong mọi dịp quan trọng.",
   },
   {
     id: 3,
     leftImage: headerBanner1,
     rightImage: artistBanner4,
-    title: "Premium Services",
-    subtitle: "Dịch Vụ Trang Điểm Cao Cấp",
-    typeText: ['Kết nối makeup artist', 'Makeup hub']
+    title: "Dịch Vụ Trang Điểm Cao Cấp",
+    subtitle: "Dịch vụ makeup chuyên nghiệp cho mọi sự kiện, giúp bạn luôn tỏa sáng ở bất cứ nơi đâu.",
   }
 ];
 
-const { AnimatedImage, AnimatedContent, AnimatedText } = AnimatedComponents;
+
+const { AnimatedImage, AnimatedContent } = AnimatedComponents;
 
 // Main layout component with synchronized sliding
 const MainLayout = ({ currentSlide, onSlideChange, isAutoPlaying, setIsAutoPlaying }) => {
@@ -140,8 +122,10 @@ const MainLayout = ({ currentSlide, onSlideChange, isAutoPlaying, setIsAutoPlayi
           width: { xs: '100%', md: '50%' },
           display: 'flex',
           flexDirection: 'column',
-          gap: 4,
-          pl: { xs: 0, md: 2 }
+          pl: { xs: 0, md: 2 },
+          height: '550px', // Match AnimatedImage height
+          justifyContent: 'space-between',
+          overflow: 'visible'
         }}
       >
         {/* Top: TypeAnimation and Search - Animated Text */}
@@ -151,21 +135,34 @@ const MainLayout = ({ currentSlide, onSlideChange, isAutoPlaying, setIsAutoPlayi
           }}
         >
           <Box>
+            <Box
+              component="span"
+              sx={{
+                color: "white",
+                fontSize: "40px",
+                fontWeight: 600,
+                textTransform: "uppercase",
+                display: "block",
+                marginBottom: "16px"
+              }}
+            >
+              Makeup Hub
+            </Box>
             <TypeAnimation
               sequence={[
-                'Kết nối makeup artist', 2000,
-                'Makeup hub', 1500,
+                'Kết nối Makeup Artist', 2000,
+                'Tìm kiếm dịch vụ phù hợp', 2000,
+                'Đặt lịch nhanh chóng', 2000,
               ]}
               wrapper="span"
               cursor={true}
               repeat={Infinity}
               style={{
-                color: "white",
-                fontSize: "32px",
-                fontWeight: 600,
-                textTransform: "uppercase",
+                color: "#f8bbd0",
+                fontSize: "24px",
+                fontWeight: 500,
                 display: "block",
-                marginBottom: "16px"
+                marginBottom: "20px"
               }}
             />
           </Box>
@@ -174,7 +171,7 @@ const MainLayout = ({ currentSlide, onSlideChange, isAutoPlaying, setIsAutoPlayi
             placeholder="Tìm kiếm dịch vụ..."
             size="small"
             sx={{
-              width: '80%',
+              width: '100%',
               "& .MuiOutlinedInput-root": {
                 "& fieldset": {
                   borderColor: "#fff",
@@ -202,16 +199,25 @@ const MainLayout = ({ currentSlide, onSlideChange, isAutoPlaying, setIsAutoPlayi
           />
         </Box>
 
-        {/* Running Chips */}
-        <RunningChips />
+        {/* Running Chips - Positioned with enough space */}
+        <Box sx={{
+          flex: '0 0 auto',
+          my: 0 // Add margin for better spacing
+        }}>
+          <RunningChips />
+        </Box>
 
-        {/* Bottom: Product Section - Animated Content and Images */}
+        {/* Bottom: Animated Content and Images */}
         <Box sx={{
           display: 'flex',
           flexDirection: { xs: 'column', md: 'row' },
           gap: 2,
           width: '100%',
-          height: 280
+          height: 'auto',
+          minHeight: '280px',
+          maxHeight: '280px',
+          mt: 'auto',
+          mb: 0
         }}>
           {/* Left Content Box - Animated */}
           <AnimatedContent
@@ -230,15 +236,51 @@ const MainLayout = ({ currentSlide, onSlideChange, isAutoPlaying, setIsAutoPlayi
                 textAlign: "left",
                 display: 'flex',
                 flexDirection: 'column',
-                justifyContent: 'center',
+                justifyContent: 'flex-start',
+                position: 'relative', // Add position relative
+                paddingBottom: '70px', // Add padding at bottom to make space for button
               }}
             >
-              <h2 style={{ margin: '0 0 16px 0', fontSize: '24px' }}>
-                {heroSlides[currentSlide].title}
-              </h2>
-              <p style={{ margin: 0, fontSize: '16px', lineHeight: 1.5 }}>
-                {heroSlides[currentSlide].subtitle}
-              </p>
+              <Box>
+                <h2 style={{ margin: '0 0 16px 0', fontSize: '24px' }}>
+                  {heroSlides[currentSlide].title}
+                </h2>
+                <p style={{ margin: '0 0 24px 0', fontSize: '16px', lineHeight: 1.5 }}>
+                  {heroSlides[currentSlide].subtitle}
+                </p>
+              </Box>
+              <Box
+                component="button"
+                sx={{
+                  position: 'absolute', // Position absolutely
+                  bottom: '20px', // Fixed distance from bottom
+                  left: '50%', // Center horizontally
+                  transform: 'translateX(-50%)', // Center horizontally
+                  width: 'fit-content',
+                  backgroundColor: '#d9d9d9',
+                  color: 'black',
+                  border: 'none',
+                  borderRadius: '20px',
+                  padding: '10px 24px',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                  '&:hover': {
+                    backgroundColor: '#fec9d9',
+                    transform: 'translateX(-50%) translateY(-2px)',
+                    boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+                  },
+                  '&:active': {
+                    transform: 'translateX(-50%) translateY(0)',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                  }
+                }}
+                onClick={() => navigate('/booking')}
+              >
+                Đặt lịch ngay
+              </Box>
             </Box>
           </AnimatedContent>
 
@@ -313,9 +355,9 @@ export default function Headers({ isScrolled }) {
         }}
         style={{
           overflow: "hidden",
-          zIndex: 998, 
+          zIndex: 998,
           position: "relative",
-          marginTop: "-100px", 
+          marginTop: "-100px",
         }}
       >
         <Box
@@ -328,7 +370,7 @@ export default function Headers({ isScrolled }) {
             minHeight: { xs: 'auto', md: '85vh' },
             display: 'flex',
             alignItems: 'center',
-            paddingTop: { xs: "80px", sm: "90px", md: "40px" }, 
+            paddingTop: { xs: "80px", sm: "90px", md: "40px" },
           }}
         >
           <Box sx={{
