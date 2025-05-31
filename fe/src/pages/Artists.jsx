@@ -12,7 +12,6 @@ import toast from "react-hot-toast";
 import Skeleton from "../components/Skeleton";
 import PlaceIcon from "@mui/icons-material/Place";
 import { Link } from "react-router-dom";
-import path from "../constants/path";
 import Footer from "../components/layout/Footer";
 
 export default function Artists() {
