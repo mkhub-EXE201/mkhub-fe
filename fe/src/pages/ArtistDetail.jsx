@@ -39,6 +39,7 @@ import locationApi from "../apis/locations.apis";
 import FullCalendarComponent from "../components/FullCalendar";
 import artistSchedulesApis from "../apis/artistSchedules.apis";
 import artistApis from "../apis/artists.apis";
+import postApis from "../apis/posts.apis";
 
 const steps = ["Thông tin cơ bản", "Hình ảnh mô tả", "Xác nhận trước khi gửi"];
 
@@ -62,6 +63,7 @@ export default function ArtistDetail() {
   const [photos, setPhotos] = useState([]);
   const [videos, setVideos] = useState([]);
   const [posts, setPosts] = useState([]);
+  const [comments, setComments] = useState([]);
   const [selectedMedia, setSelectedMedia] = useState([]);
   const [selectedPost, setSelectedPost] = useState({});
   const getAllSchedules = async () => {
@@ -101,6 +103,18 @@ export default function ArtistDetail() {
     setSelectedMedia(mediaList);
     setCurrentModal("post");
     setSelectedPost(post);
+    getAllComments(post.id);
+  };
+
+  const getAllComments = async (postId) => {
+    try {
+      const response = await postApis.getAllComments(postId);
+      if (response.status === HttpStatusCode.Ok) {
+        setComments(response.data.result);
+      }
+    } catch (error) {
+      throw new Error(error);
+    }
   };
 
   function a11yProps(index) {
@@ -156,13 +170,16 @@ export default function ArtistDetail() {
   }, []);
 
   return (
-    <Box>
+    <Box sx={{ mt: 10 }}>
       <Navbar />
       <Box>
         {isLoading ? (
-          <>
-            <Skeleton />
-          </>
+          <Box sx={{ padding: 10 }}>
+            <Skeleton variant="text" sx={{ fontSize: "1rem", padding: 10 }} />
+            <Skeleton variant="text" sx={{ fontSize: "1rem" }} />
+
+            <Skeleton variant="rounded" width={210} height={60} />
+          </Box>
         ) : (
           <Box sx={{ padding: 3 }}>
             <Box
@@ -572,7 +589,47 @@ export default function ArtistDetail() {
                         {selectedPost.content}
                       </Typography>
                       <Divider />
-                      <Box sx={{ flexGrow: 1 }}></Box>
+                      <Box sx={{ flexGrow: 1, marginTop: 1 }}>
+                        {comments && comments.length > 0 ? (
+                          <>
+                            {comments.map((item) => (
+                              <Box
+                                key={item.id}
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "flex-start",
+                                  gap: 1,
+                                  mb: 2,
+                                }}
+                              >
+                                <Avatar
+                                  src={item.avatar_url}
+                                  sx={{ width: 36, height: 36 }}
+                                />
+                                <Box
+                                  sx={{
+                                    backgroundColor: "#f0f2f5",
+                                    padding: "8px 12px",
+                                    borderRadius: "18px",
+                                    maxWidth: "100%",
+                                  }}
+                                >
+                                  <Typography
+                                    sx={{ fontWeight: 500, fontSize: 14 }}
+                                  >
+                                    {item.last_name} {item.first_name}
+                                  </Typography>
+                                  <Typography sx={{ fontSize: 14 }}>
+                                    {item.content}
+                                  </Typography>
+                                </Box>
+                              </Box>
+                            ))}
+                          </>
+                        ) : (
+                          <Typography>Không có bình luận nào.</Typography>
+                        )}{" "}
+                      </Box>
 
                       <Box sx={{ mt: "auto" }}>
                         <TextField
