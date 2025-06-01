@@ -37,8 +37,6 @@ import "swiper/css/pagination";
 import Footer from "../components/layout/Footer";
 import LocationPinIcon from "@mui/icons-material/LocationPin";
 import locationApi from "../apis/locations.apis";
-import FullCalendarComponent from "../components/FullCalendar";
-import artistSchedulesApis from "../apis/artistSchedules.apis";
 import artistApis from "../apis/artists.apis";
 import postApis from "../apis/posts.apis";
 import commentApis from "../apis/comment.apis";
@@ -47,8 +45,13 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import reactionApis from "../apis/reactions.apis";
 import { REACTION_REFERENCE_TYPE, REACTION_TYPE } from "../constants/enum";
 import { AppContext } from "../contexts/app.context";
+import BookingCalendar from "../components/BookingCalendar";
 
-const steps = ["Thông tin cơ bản", "Hình ảnh mô tả", "Xác nhận trước khi gửi"];
+const steps = [
+  "Chọn lịch trình",
+  "Thông tin bổ sung",
+  "Xác nhận trước khi gửi",
+];
 
 export default function ArtistDetail() {
   const { id } = useParams();
@@ -67,8 +70,7 @@ export default function ArtistDetail() {
   const closeModal = () => setCurrentModal(null);
 
   const [activeStep, setActiveStep] = useState(0);
-  const [events, setCalendarEvents] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(new Date());
+
   const [photos, setPhotos] = useState([]);
   const [videos, setVideos] = useState([]);
   const [posts, setPosts] = useState([]);
@@ -78,12 +80,7 @@ export default function ArtistDetail() {
   const [selectedPost, setSelectedPost] = useState({});
   const [reactions, setReactions] = useState([]);
   const [myReaction, setMyReaction] = useState(null);
-  const getAllSchedules = async () => {
-    const response = await artistSchedulesApis.getAllArtistWokingSchedule();
-    if (response.status === HttpStatusCode.Ok) {
-      setCalendarEvents(response.data.result);
-    }
-  };
+
   const getPhotos = async () => {
     try {
       const response = await artistApis.getArtistPhotos(id);
@@ -811,7 +808,7 @@ export default function ArtistDetail() {
                 }}
               >
                 <Typography id="modal-title" variant="h6" component="h2">
-                  Thêm gói makeup mới
+                  Đặt lịch hẹn
                 </Typography>
               </Box>
 
@@ -832,25 +829,7 @@ export default function ArtistDetail() {
                 <Box sx={{ mt: 4 }}>
                   {activeStep === 0 && (
                     <>
-                      <FullCalendarComponent
-                        events={events.map((schedule) => ({
-                          id: schedule.id,
-                          title: schedule.is_available
-                            ? "Available"
-                            : "Unavailable",
-                          start: schedule.start_time,
-                          end: schedule.end_time,
-                          backgroundColor: schedule.is_available
-                            ? "#28a745"
-                            : "#dc3545",
-                          extendedProps: {
-                            artistId: schedule.artist_id,
-                            dayOfWeek: schedule.day_of_week,
-                          },
-                        }))}
-                        getAllSchedules={getAllSchedules}
-                        selectedDate={selectedDate}
-                      />
+                      <BookingCalendar />
                     </>
                   )}
                 </Box>

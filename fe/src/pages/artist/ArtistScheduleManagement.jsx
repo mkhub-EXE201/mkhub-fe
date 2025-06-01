@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Box, Skeleton, Tab, Tabs, Typography } from "@mui/material";
 import PropTypes from "prop-types";
 import theme from "../../theme/theme";
@@ -6,8 +6,9 @@ import avatar from "../../assets/artist-banner.jpg";
 import GeneralScheduleTab from "../../components/schedule-tabs/GeneralScheduleTab";
 import PersonalScheduleTab from "../../components/schedule-tabs/PersonalScheduleTab";
 import CanceledScheduleTab from "../../components/schedule-tabs/CanceledScheduleTab";
-import artistSchedulesApis from "../../apis/artistSchedules.apis";
 import HttpStatusCode from "../../constants/httpStatus";
+import { AppContext } from "../../contexts/app.context";
+import artistApis from "../../apis/artists.apis";
 
 // Constants
 const TABS = {
@@ -64,9 +65,11 @@ export default function ArtistScheduleManagement() {
   const [activeTab, setActiveTab] = useState(TABS.GENERAL);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [calendarEvents, setCalendarEvents] = useState([]);
-
+  const { profile } = useContext(AppContext);
   const getAllSchedules = async () => {
-    const response = await artistSchedulesApis.getAllArtistWokingSchedule();
+    const response = await artistApis.getAllArtistWokingSchedule(
+      profile.artist_id
+    );
     if (response.status === HttpStatusCode.Ok) {
       setCalendarEvents(response.data.result);
     }

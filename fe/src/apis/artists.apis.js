@@ -15,5 +15,7 @@ const artistApis = {
   getArtistPhotos: (artist_id) => http.get(`${artistUrl}/${artist_id}/photos`),
   getArtistPosts: (artist_id) => http.get(`${artistUrl}/${artist_id}/posts`),
   getAllArtists: () => http.get(`${artistUrl}/all`),
+  getAllArtistWokingSchedule: (artist_id) =>
+    http.get(`${artistUrl}/${artist_id}/schedules`),
 };
 export default artistApis;
