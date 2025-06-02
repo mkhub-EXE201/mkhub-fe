@@ -1,51 +1,58 @@
+/* eslint-disable react/prop-types */
 import React, { useEffect, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import viLocale from "@fullcalendar/core/locales/vi";
-import { Box, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Modal,
+  Typography,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
+} from "@mui/material";
 import { useParams } from "react-router-dom";
 import artistApis from "../apis/artists.apis";
 
-export default function ArtistSchedule() {
+export default function BookingCalendar({ service }) {
+  const duration = service.duration;
+  console.log(service, duration);
   const { id } = useParams();
   const [workingSchedules, setWorkingSchedules] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [events, setEvents] = useState([]);
-  const dayOfWeekMap = {
-    SUNDAY: 0,
-    MONDAY: 1,
-    TUESDAY: 2,
-    WEDNESDAY: 3,
-    THURSDAY: 4,
-    FRIDAY: 5,
-    SATURDAY: 6,
-  };
-  const mockBookings = [
-    {
-      id: 1,
-      customer_name: "Nguyễn Văn A",
-      start_time: new Date(new Date().setHours(9, 30, 0, 0)).toISOString(),
-      end_time: new Date(new Date().setHours(12, 0, 0, 0)).toISOString(),
-    },
-    {
-      id: 2,
-      customer_name: "Nguyễn Văn B",
-      start_time: new Date(new Date().setHours(15, 0, 0, 0)).toISOString(),
-      end_time: new Date(new Date().setHours(17, 30, 0, 0)).toISOString(),
-    },
-  ];
+  const [selectedSlot, setSelectedSlot] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [timeSlots, setTimeSlots] = useState([]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const workingSchedules =
+        const workingSchedulesRes =
           await artistApis.getAllArtistWokingSchedule(id);
+        const scheduleData = workingSchedulesRes?.data?.result || [];
+        setWorkingSchedules(scheduleData);
 
-        setWorkingSchedules(
-          Array.isArray(workingSchedules.data.result)
-            ? workingSchedules.data.result
-            : []
-        );
+        // Mock bookings
+        const mockBookings = [
+          {
+            id: 1,
+            customer_name: "Nguyễn Văn A",
+            start_time: "2025-06-01T08:30:00.000Z",
+            end_time: "2025-06-01T11:00:00.000Z",
+          },
+          {
+            id: 2,
+            customer_name: "Nguyễn Văn B",
+            start_time: "2025-06-01T14:00:00.000Z",
+            end_time: "2025-06-01T16:30:00.000Z",
+          },
+        ];
         setBookings(mockBookings);
       } catch (error) {
         console.error("Error fetching schedule or bookings", error);
@@ -57,40 +64,16 @@ export default function ArtistSchedule() {
   useEffect(() => {
     if (!workingSchedules.length && !bookings.length) return;
 
-    const now = new Date();
-    const currentDay = now.getDay();
-
-    const eventsFromWorkingSchedule = workingSchedules
-      .map((ws) => {
-        const dayNum = dayOfWeekMap[ws.day_of_week.toUpperCase()];
-        if (dayNum === undefined) return null;
-
-        const startTime = new Date(ws.start_time);
-        const endTime = new Date(ws.end_time);
-
-        const diffToTargetDay = dayNum - currentDay;
-        const eventDate = new Date(now);
-        eventDate.setDate(now.getDate() + diffToTargetDay);
-        eventDate.setHours(0, 0, 0, 0);
-
-        const startDate = new Date(eventDate);
-        startDate.setHours(startTime.getHours(), startTime.getMinutes(), 0, 0);
-
-        const endDate = new Date(eventDate);
-        endDate.setHours(endTime.getHours(), endTime.getMinutes(), 0, 0);
-
-        return {
-          id: ws.id,
-          title: ws.is_available ? "Rảnh" : "Không nhận",
-          start: startDate,
-          end: endDate,
-          allDay: false,
-          backgroundColor: ws.is_available ? "#4caf50" : "#d3d3d3",
-          borderColor: ws.is_available ? "#4caf50" : "#d3d3d3",
-          classNames: ws.is_available ? "available-event" : "blocked-event",
-        };
-      })
-      .filter(Boolean);
+    const eventsFromWorkingSchedule = workingSchedules.map((ws) => ({
+      id: ws.id,
+      title: ws.is_available ? "Rảnh" : "Không nhận",
+      start: new Date(ws.start_time),
+      end: new Date(ws.end_time),
+      allDay: false,
+      backgroundColor: ws.is_available ? "#4caf50" : "#d3d3d3",
+      borderColor: ws.is_available ? "#4caf50" : "#d3d3d3",
+      classNames: ws.is_available ? "available-event" : "blocked-event",
+    }));
 
     const eventsFromBookings = bookings.map((booking) => ({
       id: booking.id,
@@ -102,16 +85,94 @@ export default function ArtistSchedule() {
       borderColor: "#ff9800",
     }));
 
-    console.log("Events from working schedule:", eventsFromWorkingSchedule);
-
     setEvents([...eventsFromWorkingSchedule, ...eventsFromBookings]);
   }, [workingSchedules, bookings]);
+  const formatTime = (time) => {
+    const date = typeof time === "string" ? new Date(time) : time;
+    if (!date || isNaN(date)) return "";
+    return date.toLocaleTimeString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+  };
+
+  const generateValidStartTimes = (slotStart, slotEnd, duration, step = 30) => {
+    const times = [];
+    const start = new Date(slotStart);
+    const end = new Date(slotEnd);
+    const latestStart = new Date(end.getTime() - duration * 60000);
+
+    const current = new Date(start);
+    while (current <= latestStart) {
+      times.push(new Date(current));
+      current.setMinutes(current.getMinutes() + step);
+    }
+
+    return times;
+  };
+
+  const handleEventClick = (clickInfo) => {
+    const event = clickInfo.event;
+    if (event.classNames.includes("available-event")) {
+      const slotStart = event.start;
+      const slotEnd = event.end;
+
+      setSelectedSlot({
+        id: event.id,
+        start: slotStart,
+        end: slotEnd,
+      });
+
+      const validTimes = generateValidStartTimes(slotStart, slotEnd, duration);
+      setTimeSlots(validTimes);
+
+      setStartTime("");
+      setEndTime("");
+      setOpenModal(true);
+    }
+  };
+
+  const getMinMaxTime = () => {
+    if (!selectedSlot) return { min: "", max: "" };
+
+    const startDate = new Date(selectedSlot.start);
+    const endDate = new Date(selectedSlot.end);
+
+    const maxStartDate = new Date(endDate.getTime() - duration * 60000);
+
+    const format = (date) =>
+      date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+
+    return {
+      min: format(startDate),
+      max: format(maxStartDate),
+    };
+  };
+
+  const handleStartTimeChange = (e) => {
+    const selected = e.target.value;
+    setStartTime(selected);
+
+    if (!selectedSlot) {
+      setEndTime("");
+      return;
+    }
+
+    const [hour, minute] = selected.split(":").map(Number);
+    const startDate = new Date(selectedSlot.start);
+    startDate.setHours(hour, minute, 0, 0);
+
+    const endDate = new Date(startDate.getTime() + duration * 60000);
+    setEndTime(formatTime(endDate));
+  };
 
   return (
     <Box sx={{ p: 2 }}>
-      <Typography variant="h5" gutterBottom>
-        Lịch làm việc Artist
-      </Typography>
       <FullCalendar
         plugins={[timeGridPlugin, interactionPlugin]}
         initialView="timeGridWeek"
@@ -134,7 +195,66 @@ export default function ArtistSchedule() {
         height="auto"
         nowIndicator={true}
         selectable={false}
+        eventClick={handleEventClick}
       />
+      <Modal open={openModal} onClose={() => setOpenModal(false)}>
+        <Box
+          sx={{
+            p: 3,
+            backgroundColor: "#fff",
+            width: 400,
+            mx: "auto",
+            mt: 10,
+            borderRadius: 2,
+          }}
+        >
+          <Typography variant="h6" gutterBottom>
+            Chọn giờ bắt đầu trong khoảng:
+          </Typography>
+          <Typography gutterBottom>
+            {`${formatTime(selectedSlot?.start)} - ${formatTime(
+              selectedSlot?.end
+            )}`}
+          </Typography>
+
+          <FormControl fullWidth margin="normal">
+            <InputLabel id="start-time-label">Giờ bắt đầu</InputLabel>
+            <Select
+              labelId="start-time-label"
+              value={startTime}
+              label="Giờ bắt đầu"
+              onChange={handleStartTimeChange}
+            >
+              {timeSlots.map((slot, index) => (
+                <MenuItem key={index} value={formatTime(slot)}>
+                  {formatTime(slot)}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <Typography variant="body1" sx={{ mt: 1 }}>
+            Giờ kết thúc dự kiến: {endTime || "Chưa chọn giờ bắt đầu"}
+          </Typography>
+
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ mt: 2 }}
+            onClick={() => {
+              console.log("Đặt lịch:");
+              console.log("Schedule ID:", selectedSlot?.id);
+              console.log("Từ:", startTime);
+              console.log("Đến:", endTime);
+              setOpenModal(false);
+            }}
+            disabled={!startTime}
+          >
+            Xác nhận đặt lịch
+          </Button>
+        </Box>
+      </Modal>
     </Box>
   );
 }

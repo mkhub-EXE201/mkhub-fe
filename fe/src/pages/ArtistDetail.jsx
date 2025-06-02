@@ -59,6 +59,7 @@ export default function ArtistDetail() {
 
   const [profile, setProfile] = useState();
   const [services, setServices] = useState([]);
+  const [selectedService, setSelectedService] = useState(null);
   const [locations, setLocations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hoveredIndex, setHoveredIndex] = useState(null);
@@ -473,7 +474,10 @@ export default function ArtistDetail() {
                           size="small"
                           variant="contained"
                           // onClick={() => setOpen(item.id)}
-                          onClick={() => setCurrentModal("booking")}
+                          onClick={() => {
+                            setCurrentModal("booking");
+                            setSelectedService(item);
+                          }}
                         >
                           Đặt lịch
                         </Button>
@@ -829,7 +833,7 @@ export default function ArtistDetail() {
                 <Box sx={{ mt: 4 }}>
                   {activeStep === 0 && (
                     <>
-                      <BookingCalendar />
+                      <BookingCalendar service={selectedService} />
                     </>
                   )}
                 </Box>
