@@ -17,17 +17,25 @@ import {
 import { useParams } from "react-router-dom";
 import artistApis from "../apis/artists.apis";
 
-export default function BookingCalendar({ service }) {
+export default function BookingCalendar({
+  register,
+  setValue,
+  trigger,
+  errors,
+  service,
+  bookingSchedule,
+  setBookingSchedule,
+  bookingStartTime,
+  bookingEndTime,
+  setBookingStartTime,
+  setBookingEndTime,
+}) {
   const duration = service.duration;
-  console.log(service, duration);
   const { id } = useParams();
   const [workingSchedules, setWorkingSchedules] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [events, setEvents] = useState([]);
-  const [selectedSlot, setSelectedSlot] = useState(null);
   const [openModal, setOpenModal] = useState(false);
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
   const [timeSlots, setTimeSlots] = useState([]);
 
   useEffect(() => {
@@ -62,11 +70,29 @@ export default function BookingCalendar({ service }) {
   }, [id]);
 
   useEffect(() => {
+    register("bookingSchedule", { required: "Bạn cần chọn lịch" });
+    register("bookingStartTime", { required: "Bạn cần chọn giờ bắt đầu" });
+    register("bookingEndTime", { required: "Bạn cần chọn giờ kết thúc" });
+  }, [register]);
+
+  useEffect(() => {
+    if (bookingSchedule) setValue("bookingSchedule", bookingSchedule);
+  }, [bookingSchedule, setValue]);
+
+  useEffect(() => {
+    if (bookingStartTime) setValue("bookingStartTime", bookingStartTime);
+  }, [bookingStartTime, setValue]);
+
+  useEffect(() => {
+    if (bookingEndTime) setValue("bookingEndTime", bookingEndTime);
+  }, [bookingEndTime, setValue]);
+
+  useEffect(() => {
     if (!workingSchedules.length && !bookings.length) return;
 
     const eventsFromWorkingSchedule = workingSchedules.map((ws) => ({
       id: ws.id,
-      title: ws.is_available ? "Rảnh" : "Không nhận",
+      title: ws.is_available ? "Trống" : "Không nhận",
       start: new Date(ws.start_time),
       end: new Date(ws.end_time),
       allDay: false,
@@ -118,7 +144,7 @@ export default function BookingCalendar({ service }) {
       const slotStart = event.start;
       const slotEnd = event.end;
 
-      setSelectedSlot({
+      setBookingSchedule({
         id: event.id,
         start: slotStart,
         end: slotEnd,
@@ -127,48 +153,27 @@ export default function BookingCalendar({ service }) {
       const validTimes = generateValidStartTimes(slotStart, slotEnd, duration);
       setTimeSlots(validTimes);
 
-      setStartTime("");
-      setEndTime("");
+      setBookingStartTime("");
+      setBookingEndTime("");
       setOpenModal(true);
     }
   };
 
-  const getMinMaxTime = () => {
-    if (!selectedSlot) return { min: "", max: "" };
-
-    const startDate = new Date(selectedSlot.start);
-    const endDate = new Date(selectedSlot.end);
-
-    const maxStartDate = new Date(endDate.getTime() - duration * 60000);
-
-    const format = (date) =>
-      date.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      });
-
-    return {
-      min: format(startDate),
-      max: format(maxStartDate),
-    };
-  };
-
   const handleStartTimeChange = (e) => {
     const selected = e.target.value;
-    setStartTime(selected);
+    setBookingStartTime(selected);
 
-    if (!selectedSlot) {
-      setEndTime("");
+    if (!bookingSchedule) {
+      setBookingEndTime("");
       return;
     }
 
     const [hour, minute] = selected.split(":").map(Number);
-    const startDate = new Date(selectedSlot.start);
+    const startDate = new Date(bookingSchedule.start);
     startDate.setHours(hour, minute, 0, 0);
 
     const endDate = new Date(startDate.getTime() + duration * 60000);
-    setEndTime(formatTime(endDate));
+    setBookingEndTime(formatTime(endDate));
   };
 
   return (
@@ -196,7 +201,12 @@ export default function BookingCalendar({ service }) {
         nowIndicator={true}
         selectable={false}
         eventClick={handleEventClick}
-      />
+      />{" "}
+      {errors.bookingSchedule && (
+        <Typography color="error" variant="body2" sx={{ mb: 1 }}>
+          {errors.bookingSchedule.message}
+        </Typography>
+      )}
       <Modal open={openModal} onClose={() => setOpenModal(false)}>
         <Box
           sx={{
@@ -212,44 +222,51 @@ export default function BookingCalendar({ service }) {
             Chọn giờ bắt đầu trong khoảng:
           </Typography>
           <Typography gutterBottom>
-            {`${formatTime(selectedSlot?.start)} - ${formatTime(
-              selectedSlot?.end
+            {`${formatTime(bookingSchedule?.start)} - ${formatTime(
+              bookingSchedule?.end
             )}`}
           </Typography>
-
-          <FormControl fullWidth margin="normal">
+          <FormControl
+            fullWidth
+            margin="normal"
+            error={!!errors.bookingStartTime}
+          >
             <InputLabel id="start-time-label">Giờ bắt đầu</InputLabel>
             <Select
               labelId="start-time-label"
-              value={startTime}
+              value={bookingStartTime}
               label="Giờ bắt đầu"
               onChange={handleStartTimeChange}
             >
-              {timeSlots.map((slot, index) => (
-                <MenuItem key={index} value={formatTime(slot)}>
+              {timeSlots.map((slot, idx) => (
+                <MenuItem key={idx} value={formatTime(slot)}>
                   {formatTime(slot)}
                 </MenuItem>
               ))}
             </Select>
+            {errors.bookingStartTime && (
+              <Typography variant="caption" color="error">
+                {errors.bookingStartTime.message}
+              </Typography>
+            )}
           </FormControl>
-
           <Typography variant="body1" sx={{ mt: 1 }}>
-            Giờ kết thúc dự kiến: {endTime || "Chưa chọn giờ bắt đầu"}
+            Giờ kết thúc dự kiến: {bookingEndTime || "Chưa chọn giờ bắt đầu"}
           </Typography>
-
           <Button
             variant="contained"
             color="primary"
             fullWidth
             sx={{ mt: 2 }}
-            onClick={() => {
-              console.log("Đặt lịch:");
-              console.log("Schedule ID:", selectedSlot?.id);
-              console.log("Từ:", startTime);
-              console.log("Đến:", endTime);
-              setOpenModal(false);
+            onClick={async () => {
+              const valid = await trigger([
+                "bookingSchedule",
+                "bookingStartTime",
+                "bookingEndTime",
+              ]);
+              if (valid) setOpenModal(false);
             }}
-            disabled={!startTime}
+            disabled={!bookingStartTime}
           >
             Xác nhận đặt lịch
           </Button>

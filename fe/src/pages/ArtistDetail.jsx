@@ -46,6 +46,9 @@ import reactionApis from "../apis/reactions.apis";
 import { REACTION_REFERENCE_TYPE, REACTION_TYPE } from "../constants/enum";
 import { AppContext } from "../contexts/app.context";
 import BookingCalendar from "../components/BookingCalendar";
+import { useForm } from "react-hook-form";
+import artistAddressSchema from "../schemas/addNewBookingSchema";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 const steps = [
   "Chọn lịch trình",
@@ -63,7 +66,7 @@ export default function ArtistDetail() {
   const [locations, setLocations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hoveredIndex, setHoveredIndex] = useState(null);
-  const [value, setValue] = useState(0);
+  const [tabValue, setTabValue] = useState(0);
   const [currentModal, setCurrentModal] = useState(null);
 
   const openImageModal = () => setCurrentModal("post");
@@ -82,6 +85,28 @@ export default function ArtistDetail() {
   const [reactions, setReactions] = useState([]);
   const [myReaction, setMyReaction] = useState(null);
 
+  // state các step booking
+  const [bookingSchedule, setBookingSchedule] = useState(null);
+  const [bookingStartTime, setBookingStartTime] = useState(null);
+  const [bookingEndTime, setBookingEndTime] = useState(null);
+
+  const {
+    register,
+    setError,
+    handleSubmit,
+    trigger,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm({
+    mode: "onChange",
+    resolver: yupResolver(artistAddressSchema),
+    defaultValues: {
+      bookingSchedule: null,
+      bookingStartTime: null,
+      bookingEndTime: null,
+    },
+  });
   const getPhotos = async () => {
     try {
       const response = await artistApis.getArtistPhotos(id);
@@ -118,11 +143,22 @@ export default function ArtistDetail() {
       console.log(error);
     }
   };
-  const handleSubmit = () => {};
-  const handleNext = () => {};
+  const handleSubmitBooking = () => {};
+  const handleNext = async () => {
+    let stepFields = [];
+    if (activeStep === 0) {
+      stepFields = ["bookingSchedule", "bookingStartTime", "bookingEndTime"];
+    }
+    if (stepFields.length > 0) {
+      const isStepValid = await trigger(stepFields);
+      if (!isStepValid) return;
+    }
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  };
+
   const handleBack = () => {};
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
+  const handleChangeTab = (event, newValue) => {
+    setTabValue(newValue);
   };
 
   const handleImageClick = (mediaList, post) => {
@@ -431,7 +467,7 @@ export default function ArtistDetail() {
                       <CardMedia
                         component="img"
                         height="150"
-                        image={profile.avatar_url}
+                        image={item.thumbnail}
                         alt={item.service_name}
                         sx={{ objectFit: "cover" }}
                       />
@@ -458,14 +494,18 @@ export default function ArtistDetail() {
                           {item.description}
                         </Typography>
                         <Typography
-                          sx={{ mt: 2, fontWeight: "600", fontSize: 14 }}
+                          sx={{ mt: 1, fontWeight: "600", fontSize: 14 }}
                         >
                           Từ {formatCurrency(item.min_price)} -{" "}
                           {formatCurrency(item.max_price)} VND
                         </Typography>
                       </CardContent>
                       <CardActions
-                        sx={{ justifyContent: "space-between", px: 2, pb: 2 }}
+                        sx={{
+                          justifyContent: "space-between",
+                          px: 2,
+                          pb: 2,
+                        }}
                       >
                         <Button size="small" variant="outlined">
                           Liên hệ
@@ -501,8 +541,8 @@ export default function ArtistDetail() {
             <Box sx={{ marginX: 10, padding: 2 }}>
               <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
                 <Tabs
-                  value={value}
-                  onChange={handleChange}
+                  value={tabValue}
+                  onChange={handleChangeTab}
                   aria-label="basic tabs example"
                 >
                   <Tab label="Hình ảnh" {...a11yProps(0)} />
@@ -510,7 +550,7 @@ export default function ArtistDetail() {
                   <Tab label="Bài Đăng" {...a11yProps(2)} />
                 </Tabs>
               </Box>
-              <CustomTabPanel value={value} index={0}>
+              <CustomTabPanel value={tabValue} index={0}>
                 <Box
                   sx={{
                     display: "flex",
@@ -536,11 +576,11 @@ export default function ArtistDetail() {
                 </Box>
               </CustomTabPanel>
 
-              <CustomTabPanel value={value} index={1}>
+              <CustomTabPanel value={tabValue} index={1}>
                 Video
               </CustomTabPanel>
 
-              <CustomTabPanel value={value} index={2}>
+              <CustomTabPanel value={tabValue} index={2}>
                 <Box
                   sx={{
                     display: "flex",
@@ -787,7 +827,7 @@ export default function ArtistDetail() {
           BackdropComponent={Backdrop}
           BackdropProps={{ timeout: 500 }}
         >
-          <Fade in={open}>
+          <Fade in={currentModal === "booking"}>
             <Box
               sx={{
                 position: "absolute",
@@ -812,6 +852,7 @@ export default function ArtistDetail() {
                 }}
               >
                 <Typography id="modal-title" variant="h6" component="h2">
+                  {/* Đặt lịch hẹn {selectedService.service_name} */}
                   Đặt lịch hẹn
                 </Typography>
               </Box>
@@ -833,7 +874,34 @@ export default function ArtistDetail() {
                 <Box sx={{ mt: 4 }}>
                   {activeStep === 0 && (
                     <>
-                      <BookingCalendar service={selectedService} />
+                      <BookingCalendar
+                        register={register}
+                        watch={watch}
+                        setError={setError}
+                        setValue={setValue}
+                        errors={errors}
+                        trigger={trigger}
+                        service={selectedService}
+                        bookingSchedule={bookingSchedule}
+                        setBookingSchedule={setBookingSchedule}
+                        bookingStartTime={bookingStartTime}
+                        bookingEndTime={bookingEndTime}
+                        setBookingStartTime={setBookingStartTime}
+                        setBookingEndTime={setBookingEndTime}
+                      />
+
+                      {bookingEndTime && (
+                        <>
+                          <Typography>
+                            Thời gian bắt đầu: {bookingStartTime}{" "}
+                            {bookingSchedule.start.toLocaleDateString("vi-VN")}
+                          </Typography>
+                          <Typography>
+                            Dự kiến kết thúc: {bookingEndTime}{" "}
+                            {bookingSchedule.end.toLocaleDateString("vi-VN")}
+                          </Typography>
+                        </>
+                      )}
                     </>
                   )}
                 </Box>
@@ -843,7 +911,9 @@ export default function ArtistDetail() {
                   <Button
                     variant="contained"
                     onClick={
-                      activeStep === steps.length ? handleSubmit : handleNext
+                      activeStep === steps.length
+                        ? handleSubmitBooking
+                        : handleNext
                     }
                     sx={{ mr: 1 }}
                   >
