@@ -7,8 +7,6 @@ import artistApis from "../../apis/artists.apis";
 import HttpStatusCode from "../../constants/httpStatus";
 import TruncatedText from "../TruncatedText";
 import path from "../../constants/path";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 export default function Sidebar() {
   const navigate = useNavigate();
@@ -18,31 +16,6 @@ export default function Sidebar() {
   const [artistProfile, setArtistProfile] = useState({});
   const { profile } = useContext(AppContext);
   const [selectedItem, setSelectedItem] = useState("");
-  const sidebarRef = useRef(null);
-
-  useEffect(() => {
-    // Register ScrollTrigger 
-    if (!gsap.plugins.ScrollTrigger) {
-      gsap.registerPlugin(ScrollTrigger);
-    }
-
-    // Make the sidebar sticky with GSAP
-    if (sidebarRef.current) {
-      ScrollTrigger.create({
-        trigger: sidebarRef.current,
-        start: "top 16px",
-        endTrigger: "html",
-        end: "bottom bottom",
-        pin: true,
-        pinSpacing: false,
-      });
-    }
-
-    return () => {
-      // Clean up ScrollTrigger when component unmounts
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
-    };
-  }, [isLoading]);
 
   useEffect(() => {
     const pathToItemMap = {
@@ -58,17 +31,33 @@ export default function Sidebar() {
     setSelectedItem(pathToItemMap[location.pathname] || "");
   }, [location.pathname]);
 
+  // Add error handling for artist profile fetching
   useEffect(() => {
     const getArtistProfile = async () => {
-      const response = await artistApis.getArtistProfile(profile.artist_id);
-      if (response.status === HttpStatusCode.Ok) {
-        setPortfolioUrl(response.data.result.portfolio_url);
-        setArtistProfile(response.data.result);
+      try {
+        const response = await artistApis.getArtistProfile(profile.artist_id);
+        if (response.status === HttpStatusCode.Ok) {
+          setPortfolioUrl(response.data.result.portfolio_url || []);
+          setArtistProfile(response.data.result);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error("Error fetching artist profile:", error);
         setIsLoading(false);
       }
     };
-    getArtistProfile();
-  }, []);
+
+    if (profile?.artist_id) {
+      getArtistProfile();
+    } else {
+      setIsLoading(false);
+    }
+
+    // Add cleanup function to prevent unmounting issues
+    return () => {
+      // Cancel any pending state updates
+    };
+  }, [profile]);
 
   const handleItemClick = (path) => {
     navigate(path);
@@ -76,12 +65,17 @@ export default function Sidebar() {
 
   return (
     <Box
-      ref={sidebarRef}
+      key={`sidebar-${location.pathname}`}
       sx={{
-        maxHeight: "calc(100vh - 32px)",
-        overflowY: "auto",
-        pb: 2,
+        height: "calc(100vh - 32px)", 
         width: "100%",
+        position: "sticky",
+        top: "16px", 
+        overflowY: "hidden", 
+        pb: 2,
+        display: "flex",
+        flexDirection: "column",
+        alignSelf: "flex-start", // Ensures the element can stick properly
       }}
     >
       {isLoading ? (
