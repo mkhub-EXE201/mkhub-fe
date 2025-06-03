@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useRef } from "react";
+import React, { useContext, useState, useEffect} from "react";
 import Box from "@mui/material/Box";
 import { AppContext } from "../../contexts/app.context";
 import { useLocation, useNavigate } from "react-router-dom";
