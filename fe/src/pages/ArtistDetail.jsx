@@ -20,6 +20,8 @@ import {
   Avatar,
   Divider,
   IconButton,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import React, { useContext, useEffect } from "react";
 import Navbar from "../components/layout/Navbar";
@@ -43,7 +45,11 @@ import commentApis from "../apis/comment.apis";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import reactionApis from "../apis/reactions.apis";
-import { REACTION_REFERENCE_TYPE, REACTION_TYPE } from "../constants/enum";
+import {
+  BOOKING_ADDRESS_TYPE,
+  REACTION_REFERENCE_TYPE,
+  REACTION_TYPE,
+} from "../constants/enum";
 import { AppContext } from "../contexts/app.context";
 import BookingCalendar from "../components/BookingCalendar";
 import { useForm } from "react-hook-form";
@@ -105,6 +111,9 @@ export default function ArtistDetail() {
       bookingSchedule: null,
       bookingStartTime: null,
       bookingEndTime: null,
+      client_name: "",
+      client_phone: "",
+      address_type: "",
     },
   });
   const getPhotos = async () => {
@@ -903,6 +912,65 @@ export default function ArtistDetail() {
                         </>
                       )}
                     </>
+                  )}
+                  {activeStep === 1 && (
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 4,
+                        padding: 2,
+                      }}
+                    >
+                      <TextField
+                        fullWidth
+                        value={selectedService.service_name}
+                        disabled
+                      />
+                      <TextField
+                        fullWidth
+                        placeholder="Tên người đặt"
+                        value={watch("client_name")}
+                        disabled
+                      />
+                      <TextField
+                        fullWidth
+                        placeholder="Số điện thoại người đặt"
+                        value={watch("client_phone")}
+                        disabled
+                      />
+                      <Select
+                        value={watch("address_type")}
+                        {...register("address_type")}
+                      >
+                        <MenuItem value={BOOKING_ADDRESS_TYPE.ARTIST_ADDRESS}>
+                          Địa chỉ của artist
+                        </MenuItem>
+                        <MenuItem value={BOOKING_ADDRESS_TYPE.CLIENT_ADDRESS}>
+                          Địa chỉ của khách hàng
+                        </MenuItem>
+                      </Select>
+                      <TextField
+                        fullWidth
+                        placeholder="Địa chỉ đặt makeup"
+                        value={
+                          "168 Đặng Văn Ngữ, phường 13, quận Phú Nhuận, Tp.hcm"
+                        }
+                      />
+                      <TextField
+                        fullWidth
+                        label="Ghi chú của khách hàng dành cho artist (nếu có)"
+                        placeholder={"Da mình treatment có bong tróc"}
+                        value={""}
+                      />
+                      <TextField
+                        fullWidth
+                        variant="outlined"
+                        label="Tổng chi phí makeup"
+                        value={selectedService?.max_price}
+                        InputLabelProps={{ shrink: true }}
+                      />
+                    </Box>
                   )}
                 </Box>
 
