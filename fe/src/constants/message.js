@@ -73,3 +73,18 @@ export const ARTIST_SERVICE_MESSAGES = {
 export const UPDATE_ARTIST_PROFILE_MESSAGES = {
   EMAIL_IS_INVALID: "Email không hợp lệ.",
 };
+
+export const BOOKING_REQUEST_MESSAGES = {
+  BOOKING_SCHEDULE_IS_REQUIRED: "Vui lòng chọn lịch hẹn.",
+  BOOKING_START_TIME_IS_REQUIRED: "Vui lòng chọn giờ bắt đầu.",
+  BOOKING_END_TIME_IS_REQUIRED: "Chưa có giờ kết thúc dự kiến.",
+  ADDRESS_TYPE_IS_REQUIRED: "Vui lòng chọn loại địa chỉ đặt hẹn.",
+  ADDRESS_TYPE_IS_INVALID: "Loại địa chỉ không hợp lệ.",
+  GROUP_SIZE_IS_REQUIRED: "Vui lòng nhập số lượng khách đặt hẹn.",
+  GROUP_SIZE_MIN_IS_ONE: "Tối thiểu là 1 khách.",
+  PROVINCE_IS_REQUIRED: "Vui lòng chọn Tỉnh/Thành phố.",
+  DISTRICT_IS_REQUIRED: "Vui lòng chọn Quận/Huyện.",
+  WARD_IS_REQUIRED: "Vui lòng chọn Phường/Xã.",
+  STREET_NAME_IS_REQUIRED: "Vui lòng nhập tên đường.",
+  STREET_NAME_MUST_BE_STRING: "Tên đường phải là một chuỗi ký tự.",
+};
