@@ -6,6 +6,6 @@ export const artistAddressSchema = Yup.object().shape({
   bookingEndTime: Yup.string().required("chưa chọn giờ kết thúc."),
   client_name: Yup.string(),
   client_phone: Yup.string(),
-  address_typpe: Yup.string(),
+  address_type: Yup.string(),
 });
 export default artistAddressSchema;

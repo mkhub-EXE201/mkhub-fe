@@ -15,13 +15,12 @@ import {
   Stepper,
   Step,
   StepLabel,
-  Modal as ModalMui,
   TextField,
-  Avatar,
-  Divider,
-  IconButton,
   Select,
   MenuItem,
+  FormControl,
+  InputLabel,
+  FormHelperText,
 } from "@mui/material";
 import React, { useContext, useEffect } from "react";
 import Navbar from "../components/layout/Navbar";
@@ -41,20 +40,15 @@ import LocationPinIcon from "@mui/icons-material/LocationPin";
 import locationApi from "../apis/locations.apis";
 import artistApis from "../apis/artists.apis";
 import postApis from "../apis/posts.apis";
-import commentApis from "../apis/comment.apis";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import reactionApis from "../apis/reactions.apis";
-import {
-  BOOKING_ADDRESS_TYPE,
-  REACTION_REFERENCE_TYPE,
-  REACTION_TYPE,
-} from "../constants/enum";
+import { BOOKING_ADDRESS_TYPE } from "../constants/enum";
 import { AppContext } from "../contexts/app.context";
 import BookingCalendar from "../components/BookingCalendar";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import artistAddressSchema from "../schemas/addNewBookingSchema";
 import { yupResolver } from "@hookform/resolvers/yup";
+import artistLocationApis from "../apis/artistLocations.apis";
+import PostModal from "../components/PostModal";
+import { ADDRESS_MESSAGE } from "../constants/message";
 
 const steps = [
   "Chọn lịch trình",
@@ -75,9 +69,10 @@ export default function ArtistDetail() {
   const [tabValue, setTabValue] = useState(0);
   const [currentModal, setCurrentModal] = useState(null);
 
-  const openImageModal = () => setCurrentModal("post");
-  const openConfirmModal = () => setCurrentModal("booking");
-  const closeModal = () => setCurrentModal(null);
+  const closeModal = () => {
+    setCurrentModal(null);
+    reset();
+  };
 
   const [activeStep, setActiveStep] = useState(0);
 
@@ -85,7 +80,6 @@ export default function ArtistDetail() {
   const [videos, setVideos] = useState([]);
   const [posts, setPosts] = useState([]);
   const [comments, setComments] = useState([]);
-  const [comment, setComment] = useState("");
   const [selectedMedia, setSelectedMedia] = useState([]);
   const [selectedPost, setSelectedPost] = useState({});
   const [reactions, setReactions] = useState([]);
@@ -95,14 +89,20 @@ export default function ArtistDetail() {
   const [bookingSchedule, setBookingSchedule] = useState(null);
   const [bookingStartTime, setBookingStartTime] = useState(null);
   const [bookingEndTime, setBookingEndTime] = useState(null);
+  const [artistAddresses, setArtistAddresses] = useState([]);
+  const [provinces, setProvinces] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [wards, setWards] = useState([]);
 
   const {
     register,
     setError,
     handleSubmit,
     trigger,
+    control,
     setValue,
     watch,
+    reset,
     formState: { errors },
   } = useForm({
     mode: "onChange",
@@ -111,11 +111,27 @@ export default function ArtistDetail() {
       bookingSchedule: null,
       bookingStartTime: null,
       bookingEndTime: null,
-      client_name: "",
       client_phone: "",
       address_type: "",
+      address: "",
+      street_name: "",
+      ward_code: "",
+      district_id: "",
+      province_id: "",
     },
   });
+  // Lắng nghe thay đổi province_id từ React Hook Form
+  const addressType = watch("address_type");
+  const selectedProvince = watch("province_id");
+  const selectedDistrict = watch("district_id");
+
+  useEffect(() => {
+    if (addressType === BOOKING_ADDRESS_TYPE.CLIENT_ADDRESS) {
+      // reset address về "" để switch từ artist address -> client address
+      setValue("address", "");
+    }
+  }, [addressType, setValue]);
+
   const getPhotos = async () => {
     try {
       const response = await artistApis.getArtistPhotos(id);
@@ -142,7 +158,6 @@ export default function ArtistDetail() {
       if (response.status === HttpStatusCode.Ok) {
         setReactions(response.data.result);
         response.data.result.map((item) => {
-          console.log(item.user_id, profile.id);
           if (item.user_id === userProfileFromContext.id) {
             setMyReaction(item);
           }
@@ -179,15 +194,98 @@ export default function ArtistDetail() {
   };
 
   const getAllComments = async (postId) => {
-    try {
-      const response = await postApis.getAllComments(postId);
-      if (response.status === HttpStatusCode.Ok) {
-        setComments(response.data.result);
-      }
-    } catch (error) {
-      throw new Error(error);
+    const response = await postApis.getAllComments(postId);
+    if (response.status === HttpStatusCode.Ok) {
+      setComments(response.data.result);
     }
   };
+
+  const getWardNameByCode = async (wardCode, district_id) => {
+    return await locationApi.getWardNameByCode(wardCode, district_id);
+  };
+
+  const getDistrictNameByCode = async (districtId, province_id) => {
+    return await locationApi.getDistrictNameByCode(districtId, province_id);
+  };
+
+  const getProvinceNameByCode = async (provinceId) => {
+    return await locationApi.getProvinceNameByCode(provinceId);
+  };
+
+  const getArtistAddresses = async () => {
+    const response = await artistLocationApis.getArtistWorkingLocations(id);
+    if (response.status === HttpStatusCode.Ok) {
+      const locations = await Promise.all(
+        response.data.result.map(async (location) => {
+          const ward = await getWardNameByCode(
+            location.ward_code,
+            location.district_id
+          );
+          const district = await getDistrictNameByCode(
+            location.district_id,
+            location.province_id
+          );
+          const province = await getProvinceNameByCode(location.province_id);
+          return {
+            ...location,
+            ward_name: ward.data.result,
+            district_name: district.data.result,
+            province_name: province.data.result,
+          };
+        })
+      );
+      console.log(locations);
+      setArtistAddresses(locations);
+    }
+  };
+  useEffect(() => {
+    const getProvinces = async () => {
+      const response = await locationApi.getProvinces();
+      if (response.status === HttpStatusCode.Ok) {
+        const data = response.data.result;
+        setProvinces(data);
+        setValue("district_id", undefined);
+        setValue("ward_code", undefined);
+        setWards([]);
+      } else {
+        toast.error(ADDRESS_MESSAGE.CANNOT_GET_LIST_OF_PROVINCES);
+      }
+    };
+    getProvinces();
+  }, []);
+
+  useEffect(() => {
+    const getDistricts = async () => {
+      if (!selectedProvince) return;
+
+      const response = await locationApi.getDistricts(Number(selectedProvince));
+      if (response.status === HttpStatusCode.Ok) {
+        const data = response.data.result;
+        setDistricts(data);
+        setValue("district_id", undefined);
+        setValue("ward_code", undefined);
+        setWards([]);
+      } else {
+        toast.error(ADDRESS_MESSAGE.CANNOT_GET_LIST_OF_DISTRICTS);
+      }
+    };
+    getDistricts();
+  }, [selectedProvince]);
+
+  useEffect(() => {
+    const getWards = async () => {
+      if (!selectedDistrict) return;
+      const response = await locationApi.getWards(Number(selectedDistrict));
+      if (response.status === HttpStatusCode.Ok) {
+        const data = response.data.result;
+        setWards(data);
+        setValue("ward_code", undefined);
+      } else {
+        toast.error(ADDRESS_MESSAGE.CANNOT_GET_LIST_OF_WARDS);
+      }
+    };
+    getWards();
+  }, [selectedDistrict]);
 
   function a11yProps(index) {
     return {
@@ -235,26 +333,11 @@ export default function ArtistDetail() {
     }
   };
 
-  const handleAddComment = async () => {
-    try {
-      const payload = {
-        post_id: selectedPost.id,
-        content: comment,
-      };
-      const response = await commentApis.addComment(payload);
-      if (response.status === HttpStatusCode.Ok) {
-        setComment("");
-        getAllComments(selectedPost.id);
-      }
-    } catch (error) {
-      throw new Error(error);
-    }
-  };
-
   useEffect(() => {
     getArtistProfileDetail();
     getPhotos();
     getPosts();
+    getArtistAddresses();
   }, []);
 
   return (
@@ -615,216 +698,18 @@ export default function ArtistDetail() {
                     />
                   ))}
                 </Box>
-                <ModalMui
-                  open={currentModal === "post"}
-                  onClose={closeModal}
-                  post={selectedPost}
-                >
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      top: "50%",
-                      left: "50%",
-                      transform: "translate(-50%, -50%)",
-                      width: "90%",
-                      maxWidth: 1000,
-                      height: 500,
-                      bgcolor: "background.paper",
-                      boxShadow: 24,
-                      outline: "none",
-                      borderRadius: 2,
-                      display: "flex",
-                      overflow: "hidden",
-                    }}
-                  >
-                    {/* Left: Swiper */}
-                    <Box sx={{ width: "50%", height: "100%", bgcolor: "#000" }}>
-                      <Swiper
-                        spaceBetween={10}
-                        style={{ width: "100%", height: "100%" }}
-                        slidesPerView={1}
-                      >
-                        {selectedMedia.map((url, idx) => (
-                          <SwiperSlide key={idx}>
-                            <img
-                              src={url}
-                              alt={`slide-${idx}`}
-                              style={{
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "contain",
-                                backgroundColor: "#000",
-                              }}
-                            />
-                          </SwiperSlide>
-                        ))}
-                      </Swiper>
-                    </Box>
-
-                    {/* Right: Content */}
-                    <Box
-                      sx={{
-                        width: "50%",
-                        height: "100%",
-                        p: 2,
-                        display: "flex",
-                        flexDirection: "column",
-                      }}
-                    >
-                      <Box sx={{ mb: 2 }}>
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                        >
-                          <Avatar src={profile.avatar_url} />
-                          <Typography variant="h6" gutterBottom>
-                            {profile.name}
-                          </Typography>
-                        </Box>
-                        <Typography variant="body2" sx={{ mt: 2, mb: 1 }}>
-                          {selectedPost.content}
-                        </Typography>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 1,
-                            my: 1,
-                          }}
-                        >
-                          {!myReaction ? (
-                            <IconButton
-                              onClick={async () => {
-                                const payload = {
-                                  reference_id: selectedPost.id,
-                                  reference_type: REACTION_REFERENCE_TYPE.POST,
-                                  reaction_type: REACTION_TYPE.LOVE,
-                                };
-                                await reactionApis.addReaction(payload);
-                                await postApis.getAllReactions(selectedPost.id);
-                              }}
-                            >
-                              <FavoriteBorderIcon
-                                sx={{
-                                  fontSize: 26,
-                                }}
-                              />
-                            </IconButton>
-                          ) : (
-                            <IconButton
-                              onClick={async () => {
-                                await reactionApis.deleteReaction(
-                                  myReaction.id
-                                );
-                                setMyReaction(null);
-                                await postApis.getAllReactions(selectedPost.id);
-                              }}
-                            >
-                              <FavoriteIcon
-                                sx={{
-                                  color: "red",
-                                  fontSize: 26,
-                                }}
-                              />
-                            </IconButton>
-                          )}
-                          <Typography variant="body2">
-                            {reactions.length || 0} lượt thích
-                          </Typography>
-                        </Box>
-                        <Divider />
-                      </Box>
-
-                      <Box
-                        sx={{
-                          flexGrow: 1,
-                          overflowY: "auto",
-                          pr: 1,
-                        }}
-                      >
-                        {comments && comments.length > 0 ? (
-                          comments.map((item) => (
-                            <Box
-                              key={item.id}
-                              sx={{
-                                display: "flex",
-                                alignItems: "flex-start",
-                                gap: 1,
-                                mb: 2,
-                              }}
-                            >
-                              <Avatar
-                                src={item.avatar_url}
-                                sx={{ width: 36, height: 36 }}
-                              />
-                              <Box
-                                sx={{
-                                  backgroundColor: "#f0f2f5",
-                                  padding: "8px 12px",
-                                  borderRadius: "18px",
-                                  maxWidth: "100%",
-                                }}
-                              >
-                                <Typography
-                                  sx={{ fontWeight: 500, fontSize: 14 }}
-                                >
-                                  {item.last_name} {item.first_name}
-                                </Typography>
-                                <Typography sx={{ fontSize: 14 }}>
-                                  {item.content}
-                                </Typography>
-                              </Box>
-                            </Box>
-                          ))
-                        ) : (
-                          <Typography>Không có bình luận nào.</Typography>
-                        )}
-                      </Box>
-
-                      <Box sx={{ mt: 2 }}>
-                        <TextField
-                          value={comment}
-                          onChange={(e) => setComment(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter" && !e.shiftKey) {
-                              e.preventDefault();
-                              handleAddComment();
-                            }
-                          }}
-                          fullWidth
-                          placeholder="Comment..."
-                          variant="outlined"
-                          size="small"
-                          InputProps={{
-                            sx: {
-                              borderRadius: "20px",
-                              paddingY: "6px",
-                              paddingX: "12px",
-                            },
-                          }}
-                          sx={{
-                            "& .MuiOutlinedInput-root": {
-                              borderRadius: "20px",
-                              backgroundColor: "#f9f9f9",
-                              "& fieldset": {
-                                borderColor: "#ccc",
-                              },
-                              "&:hover fieldset": {
-                                borderColor: "#aaa",
-                              },
-                              "&.Mui-focused fieldset": {
-                                borderColor: "#555",
-                              },
-                            },
-                            "& .MuiInputBase-input::placeholder": {
-                              color: "#888",
-                              opacity: 1,
-                            },
-                          }}
-                        />
-                      </Box>
-                    </Box>
-                  </Box>
-                </ModalMui>
+                <PostModal
+                  selectedPost={selectedPost}
+                  getAllComments={getAllComments}
+                  currentModal={currentModal}
+                  closeModal={closeModal}
+                  selectedMedia={selectedMedia}
+                  profile={profile}
+                  myReaction={myReaction}
+                  setMyReaction={setMyReaction}
+                  reactions={reactions}
+                  comments={comments}
+                />
               </CustomTabPanel>
             </Box>
           </Box>
@@ -924,39 +809,245 @@ export default function ArtistDetail() {
                     >
                       <TextField
                         fullWidth
+                        label={"Tên gói makeup"}
                         value={selectedService.service_name}
                         disabled
                       />
-                      <TextField
-                        fullWidth
-                        placeholder="Tên người đặt"
-                        value={watch("client_name")}
-                        disabled
-                      />
-                      <TextField
-                        fullWidth
-                        placeholder="Số điện thoại người đặt"
-                        value={watch("client_phone")}
-                        disabled
-                      />
-                      <Select
-                        value={watch("address_type")}
-                        {...register("address_type")}
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "row",
+                          gap: 2,
+                          alignItems: "center",
+                        }}
                       >
-                        <MenuItem value={BOOKING_ADDRESS_TYPE.ARTIST_ADDRESS}>
-                          Địa chỉ của artist
-                        </MenuItem>
-                        <MenuItem value={BOOKING_ADDRESS_TYPE.CLIENT_ADDRESS}>
-                          Địa chỉ của khách hàng
-                        </MenuItem>
-                      </Select>
-                      <TextField
-                        fullWidth
-                        placeholder="Địa chỉ đặt makeup"
-                        value={
-                          "168 Đặng Văn Ngữ, phường 13, quận Phú Nhuận, Tp.hcm"
-                        }
-                      />
+                        <TextField
+                          fullWidth
+                          label={"Tên Artist"}
+                          value={profile.name}
+                          disabled
+                        />
+                        <TextField
+                          fullWidth
+                          label={"Số điện thoại Artist"}
+                          value={profile.phone_number}
+                          disabled
+                        />
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "row",
+                          gap: 2,
+                          alignItems: "center",
+                        }}
+                      >
+                        <TextField
+                          fullWidth
+                          label={"Tên người đặt"}
+                          value={`${userProfileFromContext.last_name} ${userProfileFromContext.first_name}`}
+                          disabled
+                        />
+                        <TextField
+                          fullWidth
+                          label={"Số điện thoại người đặt"}
+                          placeholder="Số điện thoại người đặt"
+                          value={`${userProfileFromContext.phone_number}`}
+                          disabled
+                        />
+                      </Box>
+                      <FormControl fullWidth>
+                        <InputLabel id="address-type-label">
+                          Loại địa chỉ đặt hẹn
+                        </InputLabel>
+                        <Select
+                          labelId="address-type-label"
+                          id="address-type"
+                          label="Loại địa chỉ đặt hẹn"
+                          value={watch("address_type")}
+                          {...register("address_type")}
+                        >
+                          <MenuItem value={BOOKING_ADDRESS_TYPE.ARTIST_ADDRESS}>
+                            Địa chỉ của artist
+                          </MenuItem>
+                          <MenuItem value={BOOKING_ADDRESS_TYPE.CLIENT_ADDRESS}>
+                            Địa chỉ của khách hàng
+                          </MenuItem>
+                        </Select>
+                      </FormControl>
+                      {watch("address_type") ===
+                      BOOKING_ADDRESS_TYPE.ARTIST_ADDRESS ? (
+                        <FormControl fullWidth>
+                          <InputLabel id="artist-address-label">
+                            Chọn địa chỉ artist
+                          </InputLabel>
+                          <Select
+                            labelId="artist-address-label"
+                            {...register("address")}
+                            defaultValue=""
+                          >
+                            {artistAddresses.map((item) => (
+                              <MenuItem key={item} value={item}>
+                                {item.street_name}
+                                {", "}
+                                {item.ward_name}
+                                {", "}
+                                {item.district_name}
+                                {", "}
+                                {item.province_name}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      ) : (
+                        <>
+                          {/* client address: province & district & ward */}
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexDirection: "row",
+                              alignItems: "center",
+                              width: "100%",
+                              gap: 2,
+                            }}
+                          >
+                            {/* Province */}
+                            <Controller
+                              name="province_id"
+                              control={control}
+                              render={({ field }) => (
+                                <FormControl
+                                  fullWidth
+                                  error={!!errors.province_id}
+                                >
+                                  <InputLabel id="province-label">
+                                    Tỉnh/Thành phố
+                                  </InputLabel>
+                                  <Select
+                                    labelId="province-label"
+                                    id="province"
+                                    label="Tỉnh/Thành phố"
+                                    {...field}
+                                    value={field.value ?? ""}
+                                    onChange={(e) =>
+                                      field.onChange(Number(e.target.value))
+                                    }
+                                  >
+                                    <MenuItem value="">
+                                      <em>Chọn Tỉnh/Thành phố</em>
+                                    </MenuItem>
+                                    {provinces?.map((p) => (
+                                      <MenuItem
+                                        key={p.ProvinceID}
+                                        value={p.ProvinceID}
+                                      >
+                                        {p.ProvinceName}
+                                      </MenuItem>
+                                    ))}
+                                  </Select>
+                                  <FormHelperText>
+                                    {errors.province_id?.message}
+                                  </FormHelperText>
+                                </FormControl>
+                              )}
+                            />
+
+                            {/* District */}
+                            <Controller
+                              name="district_id"
+                              control={control}
+                              render={({ field }) => (
+                                <FormControl
+                                  fullWidth
+                                  error={!!errors.district_id}
+                                >
+                                  <InputLabel id="district-label">
+                                    Quận/Huyện
+                                  </InputLabel>
+                                  <Select
+                                    labelId="district-label"
+                                    id="district"
+                                    label="Quận/Huyện"
+                                    {...field}
+                                    value={field.value ?? ""}
+                                    onChange={(e) =>
+                                      field.onChange(Number(e.target.value))
+                                    }
+                                  >
+                                    <MenuItem value="">
+                                      <em>Chọn Quận/Huyện</em>
+                                    </MenuItem>
+                                    {districts.map((d) => (
+                                      <MenuItem
+                                        key={d.DistrictID}
+                                        value={d.DistrictID}
+                                      >
+                                        {d.DistrictName}
+                                      </MenuItem>
+                                    ))}
+                                  </Select>
+                                  <FormHelperText>
+                                    {errors.district_id?.message}
+                                  </FormHelperText>
+                                </FormControl>
+                              )}
+                            />
+
+                            {/* Ward */}
+                            <Controller
+                              name="ward_code"
+                              control={control}
+                              render={({ field }) => (
+                                <FormControl
+                                  fullWidth
+                                  error={!!errors.ward_code}
+                                >
+                                  <InputLabel id="ward-label">
+                                    Phường/Xã
+                                  </InputLabel>
+                                  <Select
+                                    labelId="ward-label"
+                                    id="ward"
+                                    label="Phường/Xã"
+                                    {...field}
+                                    value={field.value ?? ""}
+                                    onChange={(e) =>
+                                      field.onChange(e.target.value)
+                                    }
+                                  >
+                                    <MenuItem value="">
+                                      <em>Chọn Phường/Xã</em>
+                                    </MenuItem>
+                                    {wards.map((w) => (
+                                      <MenuItem
+                                        key={w.WardCode}
+                                        value={w.WardCode}
+                                      >
+                                        {w.WardName}
+                                      </MenuItem>
+                                    ))}
+                                  </Select>
+                                  <FormHelperText>
+                                    {errors.ward_code?.message}
+                                  </FormHelperText>
+                                </FormControl>
+                              )}
+                            />
+                          </Box>
+                          {/* client address: street name */}
+
+                          <TextField
+                            label="Số & Tên đường"
+                            variant="outlined"
+                            margin="normal"
+                            fullWidth
+                            {...register("street_name")}
+                            error={!!errors.street_name}
+                            helperText={errors.street_name?.message || " "}
+                          />
+                        </>
+                      )}
+
                       <TextField
                         fullWidth
                         label="Ghi chú của khách hàng dành cho artist (nếu có)"
@@ -965,10 +1056,8 @@ export default function ArtistDetail() {
                       />
                       <TextField
                         fullWidth
-                        variant="outlined"
                         label="Tổng chi phí makeup"
-                        value={selectedService?.max_price}
-                        InputLabelProps={{ shrink: true }}
+                        value={`${formatCurrency(selectedService.max_price)} VNĐ`}
                       />
                     </Box>
                   )}
