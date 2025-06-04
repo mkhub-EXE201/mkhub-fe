@@ -108,16 +108,24 @@ export default function ArtistDetail() {
     mode: "onChange",
     resolver: yupResolver(artistAddressSchema),
     defaultValues: {
+      service: selectedService,
       bookingSchedule: null,
       bookingStartTime: null,
       bookingEndTime: null,
-      client_phone: "",
       address_type: "",
-      address: "",
-      street_name: "",
-      ward_code: "",
-      district_id: "",
-      province_id: "",
+      street_name: null,
+      ward_code: null,
+      district_id: null,
+      province_id: null,
+      address_id: null,
+      artist_phone: null,
+      artist_id: id,
+      client_id: userProfileFromContext.id,
+      client_phone: userProfileFromContext.phone_number,
+      client_note: null,
+      group_size: 1,
+      service_id: null,
+      total_price: null,
     },
   });
   // Lắng nghe thay đổi province_id từ React Hook Form
@@ -172,6 +180,23 @@ export default function ArtistDetail() {
     let stepFields = [];
     if (activeStep === 0) {
       stepFields = ["bookingSchedule", "bookingStartTime", "bookingEndTime"];
+    } else if (activeStep === 1) {
+      stepFields = [
+        "artist_id",
+        "artist_phone",
+        "client_id",
+        "client_phone",
+        "address_type",
+        "address_id",
+        "client_note",
+        "street_name",
+        "ward_code",
+        "district_id",
+        "province_id",
+        "service_id",
+        "group_size",
+        "total_price",
+      ];
     }
     if (stepFields.length > 0) {
       const isStepValid = await trigger(stepFields);
@@ -180,7 +205,10 @@ export default function ArtistDetail() {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
-  const handleBack = () => {};
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
   const handleChangeTab = (event, newValue) => {
     setTabValue(newValue);
   };
@@ -1057,7 +1085,26 @@ export default function ArtistDetail() {
                       <TextField
                         fullWidth
                         label="Tổng chi phí makeup"
+                        sx={{ cursor: "not-allowed" }}
                         value={`${formatCurrency(selectedService.max_price)} VNĐ`}
+                      />
+                      <Controller
+                        name="group_size"
+                        control={control}
+                        render={({ field }) => (
+                          <TextField
+                            {...field}
+                            type="number"
+                            label="Số lượng khách"
+                            fullWidth
+                            inputProps={{
+                              min: 1,
+                              max: selectedService?.group_size ?? 1,
+                            }}
+                            error={!!errors.group_size}
+                            helperText={errors.group_size?.message}
+                          />
+                        )}
                       />
                     </Box>
                   )}
