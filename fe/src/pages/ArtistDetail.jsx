@@ -113,11 +113,11 @@ export default function ArtistDetail() {
       bookingStartTime: null,
       bookingEndTime: null,
       address_type: "",
-      street_name: null,
+      street_name: BOOKING_ADDRESS_TYPE.ARTIST_ADDRESS,
       ward_code: null,
       district_id: null,
       province_id: null,
-      address_id: null,
+      address_id: "",
       artist_phone: null,
       artist_id: id,
       client_id: userProfileFromContext.id,
@@ -175,12 +175,24 @@ export default function ArtistDetail() {
       console.log(error);
     }
   };
+
   const handleSubmitBooking = () => {};
   const handleNext = async () => {
     let stepFields = [];
     if (activeStep === 0) {
       stepFields = ["bookingSchedule", "bookingStartTime", "bookingEndTime"];
     } else if (activeStep === 1) {
+      setValue("artist_phone", profile.phone_number);
+      setValue("artist_id", profile.id);
+      setValue("service_id", selectedService.id);
+      setValue("total_price", selectedService.max_price);
+      if (watch("address_id")) {
+        setValue("street_name", watch("address_id").street_name);
+        setValue("ward_code", watch("address_id").ward_code);
+        setValue("district_id", watch("address_id").district_id);
+        setValue("province_id", watch("address_id").province_id);
+        setValue("address_id", watch("address_id").id);
+      }
       stepFields = [
         "artist_id",
         "artist_phone",
@@ -202,6 +214,7 @@ export default function ArtistDetail() {
       const isStepValid = await trigger(stepFields);
       if (!isStepValid) return;
     }
+    console.log("errors", errors);
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
@@ -911,8 +924,7 @@ export default function ArtistDetail() {
                           </InputLabel>
                           <Select
                             labelId="artist-address-label"
-                            {...register("address")}
-                            defaultValue=""
+                            {...register("address_id")}
                           >
                             {artistAddresses.map((item) => (
                               <MenuItem key={item} value={item}>
@@ -1079,9 +1091,12 @@ export default function ArtistDetail() {
                       <TextField
                         fullWidth
                         label="Ghi chú của khách hàng dành cho artist (nếu có)"
-                        placeholder={"Da mình treatment có bong tróc"}
-                        value={""}
+                        placeholder="Da mình treatment có bong tróc"
+                        {...register("client_note")}
+                        error={!!errors.client_note}
+                        helperText={errors.client_note?.message || " "}
                       />
+
                       <TextField
                         fullWidth
                         label="Tổng chi phí makeup"
@@ -1106,6 +1121,31 @@ export default function ArtistDetail() {
                           />
                         )}
                       />
+                    </Box>
+                  )}
+                  {activeStep === 2 && (
+                    <Box>
+                      <Typography variant="h6">
+                        Xác nhận thông tin đặt lịch:
+                      </Typography>
+                      <ul>
+                        <li>Ngày: {watch("bookingSchedule").id}</li>
+                        <li>Giờ bắt đầu: {watch("bookingStartTime")}</li>
+                        <li>Giờ kết thúc: {watch("bookingEndTime")}</li>
+                        <li>Loại địa chỉ: {watch("address_type")}</li>
+                        <li>Địa chỉ: {watch("street_name")}</li>
+                        <li>Phường: {watch("ward_code")}</li>
+                        <li>Quận: {watch("district_id")}</li>
+                        <li>Tỉnh/Thành: {watch("province_id")}</li>
+                        <li>Artist Phone: {watch("artist_phone")}</li>
+                        <li>Client Phone: {watch("client_phone")}</li>
+                        <li>Ghi chú: {watch("client_note") || "Không có"}</li>
+                        <li>Số người: {watch("group_size")}</li>
+                        <li>
+                          Tổng chi phí: {formatCurrency(watch("total_price"))}{" "}
+                          VNĐ
+                        </li>
+                      </ul>
                     </Box>
                   )}
                 </Box>

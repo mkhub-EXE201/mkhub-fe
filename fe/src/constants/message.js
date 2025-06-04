@@ -80,6 +80,7 @@ export const BOOKING_REQUEST_MESSAGES = {
   BOOKING_END_TIME_IS_REQUIRED: "Chưa có giờ kết thúc dự kiến.",
   ADDRESS_TYPE_IS_REQUIRED: "Vui lòng chọn loại địa chỉ đặt hẹn.",
   ADDRESS_TYPE_IS_INVALID: "Loại địa chỉ không hợp lệ.",
+  ADDRESS_ID_IS_REQUIRED: "Vui lòng chọn địa chỉ của Artist để đặt hẹn.",
   GROUP_SIZE_IS_REQUIRED: "Vui lòng nhập số lượng khách đặt hẹn.",
   GROUP_SIZE_MIN_IS_ONE: "Tối thiểu là 1 khách.",
   PROVINCE_IS_REQUIRED: "Vui lòng chọn Tỉnh/Thành phố.",
