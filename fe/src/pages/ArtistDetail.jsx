@@ -49,6 +49,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import artistLocationApis from "../apis/artistLocations.apis";
 import PostModal from "../components/PostModal";
 import { ADDRESS_MESSAGE } from "../constants/message";
+import bookingApis from "../apis/bookings.apis";
 
 const steps = [
   "Chọn lịch trình",
@@ -93,12 +94,16 @@ export default function ArtistDetail() {
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [wards, setWards] = useState([]);
+  const [wardName, setWardName] = useState(null);
+  const [districtName, setDistrictName] = useState(null);
+  const [provinceName, setProvinceName] = useState(null);
 
   const {
     register,
     setError,
     handleSubmit,
     trigger,
+    getValues,
     control,
     setValue,
     watch,
@@ -108,12 +113,11 @@ export default function ArtistDetail() {
     mode: "onChange",
     resolver: yupResolver(artistAddressSchema),
     defaultValues: {
-      service: selectedService,
       bookingSchedule: null,
       bookingStartTime: null,
       bookingEndTime: null,
       address_type: "",
-      street_name: BOOKING_ADDRESS_TYPE.ARTIST_ADDRESS,
+      street_name: null,
       ward_code: null,
       district_id: null,
       province_id: null,
@@ -176,7 +180,41 @@ export default function ArtistDetail() {
     }
   };
 
-  const handleSubmitBooking = () => {};
+  const handleSubmitBooking = async () => {
+    try {
+      console.log(getValues("ward_code"));
+      const response = await bookingApis.addBookingRequest({
+        client_id: watch("client_id"),
+        client_phone: watch("client_phone"),
+        artist_id: watch("artist_id"),
+        artist_phone: watch("artist_phone"),
+        service_id: watch("service_id"),
+        address_type: watch("address_type"),
+        province_id: Number(watch("province_id")),
+        district_id: Number(watch("district_id")),
+        ward_code: Number(watch("ward_code")),
+        street_name: watch("street_name"),
+        client_note: watch("client_note"),
+        address_id: watch("address_id"),
+        group_size: watch("group_size"),
+        total_price: watch("total_price"),
+        booking_date: new Date(watch("bookingSchedule").start)
+          .toISOString()
+          .split("T")[0],
+        start_time: `${watch("bookingSchedule")?.start.toISOString().split("T")[0]}T${watch("bookingStartTime")}:00`,
+        end_time: `${watch("bookingSchedule")?.start.toISOString().split("T")[0]}T${watch("bookingEndTime")}:00`,
+      });
+
+      if (response?.status === HttpStatusCode.Ok) {
+        toast.success("Đặt lịch thành công!");
+      } else {
+        toast.error("Đặt lịch thất bại!");
+      }
+    } catch (error) {
+      console.error("Lỗi đặt lịch:", error);
+    }
+  };
+
   const handleNext = async () => {
     let stepFields = [];
     if (activeStep === 0) {
@@ -187,12 +225,19 @@ export default function ArtistDetail() {
       setValue("service_id", selectedService.id);
       setValue("total_price", selectedService.max_price);
       if (watch("address_id")) {
-        setValue("street_name", watch("address_id").street_name);
-        setValue("ward_code", watch("address_id").ward_code);
-        setValue("district_id", watch("address_id").district_id);
-        setValue("province_id", watch("address_id").province_id);
-        setValue("address_id", watch("address_id").id);
+        artistAddresses.map((item) => {
+          if (item.id === watch("address_id")) {
+            setValue("street_name", item.street_name);
+            setValue("ward_code", Number(item.ward_code));
+            setValue("district_id", Number(item.district_id));
+            setValue("province_id", Number(item.province_id));
+            setWardName(item.ward_name);
+            setDistrictName(item.district_name);
+            setProvinceName(item.province_name);
+          }
+        });
       }
+
       stepFields = [
         "artist_id",
         "artist_phone",
@@ -214,7 +259,6 @@ export default function ArtistDetail() {
       const isStepValid = await trigger(stepFields);
       if (!isStepValid) return;
     }
-    console.log("errors", errors);
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
@@ -275,7 +319,6 @@ export default function ArtistDetail() {
           };
         })
       );
-      console.log(locations);
       setArtistAddresses(locations);
     }
   };
@@ -927,7 +970,7 @@ export default function ArtistDetail() {
                             {...register("address_id")}
                           >
                             {artistAddresses.map((item) => (
-                              <MenuItem key={item} value={item}>
+                              <MenuItem key={item} value={item.id}>
                                 {item.street_name}
                                 {", "}
                                 {item.ward_name}
@@ -1125,27 +1168,120 @@ export default function ArtistDetail() {
                   )}
                   {activeStep === 2 && (
                     <Box>
-                      <Typography variant="h6">
-                        Xác nhận thông tin đặt lịch:
+                      <Typography variant="h5" gutterBottom>
+                        Thông tin buổi Makeup
                       </Typography>
-                      <ul>
-                        <li>Ngày: {watch("bookingSchedule").id}</li>
-                        <li>Giờ bắt đầu: {watch("bookingStartTime")}</li>
-                        <li>Giờ kết thúc: {watch("bookingEndTime")}</li>
-                        <li>Loại địa chỉ: {watch("address_type")}</li>
-                        <li>Địa chỉ: {watch("street_name")}</li>
-                        <li>Phường: {watch("ward_code")}</li>
-                        <li>Quận: {watch("district_id")}</li>
-                        <li>Tỉnh/Thành: {watch("province_id")}</li>
-                        <li>Artist Phone: {watch("artist_phone")}</li>
-                        <li>Client Phone: {watch("client_phone")}</li>
-                        <li>Ghi chú: {watch("client_note") || "Không có"}</li>
-                        <li>Số người: {watch("group_size")}</li>
-                        <li>
-                          Tổng chi phí: {formatCurrency(watch("total_price"))}{" "}
-                          VNĐ
-                        </li>
-                      </ul>
+                      <Box
+                        sx={{
+                          mt: 2,
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 2,
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            mt: 2,
+                            display: "flex",
+                            gap: 2,
+                          }}
+                        >
+                          <TextField
+                            fullWidth
+                            label="Ngày đặt hẹn"
+                            value={bookingSchedule.start.toLocaleDateString(
+                              "vi-VN"
+                            )}
+                          />
+
+                          <TextField
+                            fullWidth
+                            label="Giờ bắt đầu:"
+                            value={watch("bookingStartTime")}
+                          />
+                          <TextField
+                            fullWidth
+                            label="Giờ kết thúc dự kiến"
+                            value={watch("bookingEndTime")}
+                          />
+                        </Box>
+                        <TextField
+                          fullWidth
+                          label="Ghi chú của khách hàng"
+                          value={watch("client_note") || "Không có"}
+                        />
+                        <Box
+                          sx={{
+                            mt: 2,
+                            display: "flex",
+                            gap: 2,
+                          }}
+                        >
+                          <TextField
+                            fullWidth
+                            label="Số lượng người đặt makeup"
+                            value={watch("group_size")}
+                          />
+                          <TextField
+                            fullWidth
+                            label="Tổng chi phí"
+                            value={`${formatCurrency(watch("total_price"))} VNĐ`}
+                          />
+                        </Box>
+                        <TextField
+                          fullWidth
+                          label="Đặt lịch hẹn makeup tại"
+                          value={
+                            watch("address_type") ===
+                            BOOKING_ADDRESS_TYPE.ARTIST_ADDRESS
+                              ? "Studio của Artist"
+                              : "Địa chỉ của khách hàng"
+                          }
+                        />
+                        <TextField
+                          fullWidth
+                          label="Địa chỉ cụ thể"
+                          value={`${watch("street_name")}, ${wardName}, ${districtName}, ${provinceName}`}
+                        />
+                        <Typography variant="h5" gutterBottom sx={{ mt: 2 }}>
+                          Thông tin người đặt & Artist
+                        </Typography>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            gap: 2,
+                          }}
+                        >
+                          <TextField
+                            fullWidth
+                            label="Tên Arist"
+                            value={profile.name}
+                          />
+                          <TextField
+                            fullWidth
+                            label="Số điện thoại Artist"
+                            value={watch("artist_phone")}
+                          />
+                        </Box>
+                        <Box
+                          sx={{
+                            mt: 2,
+                            display: "flex",
+                            gap: 2,
+                          }}
+                        >
+                          <TextField
+                            fullWidth
+                            label="Tên Khách hàng"
+                            value={`${userProfileFromContext.last_name} ${userProfileFromContext.first_name}`}
+                          />
+                          <TextField
+                            fullWidth
+                            label="Số điện thoại khánh hàng"
+                            value={watch("client_phone")}
+                          />
+                        </Box>
+                      </Box>
                     </Box>
                   )}
                 </Box>
@@ -1155,13 +1291,13 @@ export default function ArtistDetail() {
                   <Button
                     variant="contained"
                     onClick={
-                      activeStep === steps.length
+                      activeStep === steps.length - 1
                         ? handleSubmitBooking
                         : handleNext
                     }
                     sx={{ mr: 1 }}
                   >
-                    {activeStep === steps.length ? "Gửi" : "Tiếp theo"}
+                    {activeStep === steps.length - 1 ? "Gửi" : "Tiếp theo"}
                   </Button>
                   <Button onClick={handleBack} disabled={activeStep === 0}>
                     Quay lại
