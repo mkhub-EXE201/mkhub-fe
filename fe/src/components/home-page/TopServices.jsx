@@ -7,14 +7,26 @@ import {
   Typography,
 } from "@mui/material";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
 import Card from "@mui/material/Card";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import { Link } from "react-router-dom";
+import categoryApis from "../../apis/categories.apis";
+import HttpStatusCode from "../../constants/httpStatus";
 
 export default function TopServices() {
+  const [categories, setCategories] = useState([]);
+  useEffect(() => {
+    const getAllCategories = async () => {
+      const response = await categoryApis.getAllCategories();
+      if (response.status === HttpStatusCode.Ok) {
+        setCategories(response.data.result);
+      }
+    };
+    getAllCategories();
+  }, []);
   return (
     <Box
       sx={{
@@ -100,57 +112,55 @@ export default function TopServices() {
             900: { slidesPerView: 4 },
           }}
         >
-          {Array(4)
-            .fill(0)
-            .map((_, index) => (
-              <SwiperSlide key={index}>
-                <Link
-                  to={"/"}
-                  style={{ textDecoration: "none", color: "inherit" }}
-                >
-                  <Card sx={{ width: "100%", boxShadow: "none" }}>
-                    <CardActionArea
+          {categories.map((item, index) => (
+            <SwiperSlide key={index}>
+              <Link
+                to={"/"}
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <Card sx={{ width: "100%", boxShadow: "none" }}>
+                  <CardActionArea
+                    sx={{
+                      backgroundColor: (theme) => theme.palette.lightGray,
+                      borderRadius: "30px",
+                    }}
+                  >
+                    <CardMedia
+                      component="img"
+                      height="250px"
+                      width="250px"
                       sx={{
-                        backgroundColor: (theme) => theme.palette.lightGray,
                         borderRadius: "30px",
+                        objectFit: "cover",
+                      }}
+                      image={item.thumbnail}
+                    />
+                    <CardContent
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                       }}
                     >
-                      <CardMedia
-                        component="img"
-                        height="250px"
-                        width="250px"
+                      <Typography
+                        gutterBottom
                         sx={{
-                          borderRadius: "30px",
-                          objectFit: "cover",
+                          fontSize: {
+                            xs: 12,
+                            sm: 20,
+                            md: 20,
+                          },
                         }}
-                        image="/src/assets/artist-baner6.png"
-                      />
-                      <CardContent
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
+                        fontWeight={600}
                       >
-                        <Typography
-                          gutterBottom
-                          sx={{
-                            fontSize: {
-                              xs: 12,
-                              sm: 20,
-                              md: 20,
-                            },
-                          }}
-                          fontWeight={600}
-                        >
-                          Makeup kỉ yếu
-                        </Typography>
-                      </CardContent>
-                    </CardActionArea>
-                  </Card>
-                </Link>
-              </SwiperSlide>
-            ))}
+                        {item.name}
+                      </Typography>
+                    </CardContent>
+                  </CardActionArea>
+                </Card>
+              </Link>
+            </SwiperSlide>
+          ))}
         </Swiper>
       </Box>
     </Box>
