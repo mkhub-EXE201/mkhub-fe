@@ -124,8 +124,8 @@ export default function ArtistDetail() {
       address_id: "",
       artist_phone: null,
       artist_id: id,
-      client_id: userProfileFromContext.id,
-      client_phone: userProfileFromContext.phone_number,
+      client_id: userProfileFromContext?.id ?? null,
+      client_phone: userProfileFromContext?.phone_number ?? null,
       client_note: null,
       group_size: 1,
       service_id: null,
@@ -380,8 +380,10 @@ export default function ArtistDetail() {
 
   const getArtistProfileDetail = async () => {
     try {
+      console.log(id);
       const response = await userApis.getArtistDetail(id);
       if (response.status === HttpStatusCode.Ok) {
+        console.log(response.data.result);
         setProfile(response.data.result);
         setServices(response.data.result.services);
 
