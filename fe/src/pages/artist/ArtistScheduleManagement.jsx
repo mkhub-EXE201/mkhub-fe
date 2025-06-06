@@ -9,13 +9,10 @@ import CanceledScheduleTab from "../../components/schedule-tabs/CanceledSchedule
 import HttpStatusCode from "../../constants/httpStatus";
 import { AppContext } from "../../contexts/app.context";
 import artistApis from "../../apis/artists.apis";
+import bookingApis from "../../apis/bookings.apis";
 
 // Constants
-const TABS = {
-  GENERAL: 0,
-  PERSONAL: 1,
-  CANCELED: 2,
-};
+const TABS = { GENERAL: 0, PERSONAL: 1, CANCELED: 2 };
 
 // Extracted styles for better maintenance
 const styles = {
@@ -66,6 +63,19 @@ export default function ArtistScheduleManagement() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [calendarEvents, setCalendarEvents] = useState([]);
   const { profile } = useContext(AppContext);
+  const [bookings, setBookings] = useState([]);
+
+  const getBookingRequests = async () => {
+    const response = await bookingApis.getBookingRequests();
+    if (response.status === HttpStatusCode.Ok) {
+      setBookings(response.data.result);
+    }
+  };
+
+  useEffect(() => {
+    getBookingRequests();
+  }, []);
+
   const getAllSchedules = async () => {
     const response = await artistApis.getAllArtistWokingSchedule(
       profile.artist_id
@@ -77,53 +87,7 @@ export default function ArtistScheduleManagement() {
 
   useEffect(() => {
     getAllSchedules();
-  }, []);
-  // Sample schedule data focused on May 15, 2025
-  const scheduleData = [
-    {
-      id: 1,
-      time: "9:00 AM",
-      date: "T5, 15/05/2025",
-      service: "Makeup hàng ngày concept nhẹ nhàng",
-      fullDate: new Date(2025, 4, 15), // May 15, 2025
-      avatar: avatar,
-      location: "Bình Thạnh, Hồ Chí Minh",
-    },
-    {
-      id: 2,
-      time: "11:30 AM",
-      date: "T5, 15/05/2025",
-      service: "Makeup chụp ảnh quảng cáo",
-      fullDate: new Date(2025, 4, 15), // May 15, 2025
-      avatar: avatar,
-      location: "Bình Thạnh, Hồ Chí Minh",
-    },
-    {
-      id: 3,
-      time: "2:00 PM",
-      date: "T5, 15/05/2025",
-      service: "Makeup sự kiện ra mắt sản phẩm",
-      fullDate: new Date(2025, 4, 15), // May 15, 2025
-      avatar: avatar,
-      location: "Bình Thạnh, Hồ Chí Minh",
-    },
-    {
-      id: 4,
-      time: "5:30 PM",
-      date: "T5, 15/05/2025",
-      service: "Makeup dự tiệc cưới cao cấp",
-      fullDate: new Date(2025, 4, 15), // May 15, 2025
-      avatar: avatar,
-      location: "Bình Thạnh, Hồ Chí Minh",
-    },
-  ];
-
-  useEffect(() => {
-    // Simulate API call
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
+    setLoading(false);
   }, []);
 
   // Handle tab change
@@ -133,6 +97,7 @@ export default function ArtistScheduleManagement() {
 
   // Handle date change
   const handleDateChange = (newDate) => {
+    getBookingRequests();
     setSelectedDate(newDate);
   };
 
@@ -179,7 +144,7 @@ export default function ArtistScheduleManagement() {
           <GeneralScheduleTab
             selectedDate={selectedDate}
             handleDateChange={handleDateChange}
-            scheduleData={scheduleData}
+            scheduleData={bookings}
             calendarEvents={calendarEvents}
             getAllSchedules={getAllSchedules}
             onAddEvent={handleAddEvent}

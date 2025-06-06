@@ -1,11 +1,108 @@
-import React from "react";
+/* eslint-disable react/prop-types */
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { Box, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Chip,
+  FormControl,
+  FormHelperText,
+  InputLabel,
+  MenuItem,
+  Modal,
+  Select,
+  TextField,
+  Typography,
+} from "@mui/material";
 import PlaceIcon from "@mui/icons-material/Place";
+import userApis from "../apis/users.apis";
+import HttpStatusCode from "../constants/httpStatus";
+import { BOOKING_ADDRESS_TYPE, BOOKING_STATUS } from "../constants/enum";
+import { formatCurrency, formatTime, getStatusColor } from "../utils/utils";
+import locationApi from "../apis/locations.apis";
+import { formatDate } from "date-fns";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
+import { verifyBookingSchema } from "../schemas/verifyBookingSchema";
+import bookingApis from "../apis/bookings.apis";
+import { reach } from "yup";
+import toast from "react-hot-toast";
 
 // Common styles extracted for better maintenance
 const styles = {
-    card: {
+  avatar: {
+    borderRadius: "50%",
+    width: 50,
+    height: 50,
+    objectFit: "cover",
+  },
+  service: {
+    fontSize: 14,
+  },
+  dateTime: {
+    fontSize: 12,
+    color: "#666",
+  },
+};
+
+const ScheduleCard = ({ appointment }) => {
+  const [client, setClient] = useState({});
+  const [location, setLocation] = useState("");
+  const [openModal, setOpenModal] = useState(false);
+  const {
+    register,
+    watch,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(verifyBookingSchema),
+    defaultValues: {
+      verify_status: "",
+      reason: "",
+    },
+  });
+  useEffect(() => {
+    const getClientInfo = async () => {
+      const response = await userApis.getUser(appointment.client_id);
+      if (response.status === HttpStatusCode.Ok) {
+        setClient(response.data.result);
+      }
+    };
+    getClientInfo();
+  }, [appointment.client_id]);
+
+  const handleSubmit = async () => {
+    const response = await bookingApis.verifyBookingRequest(appointment.id, {
+      status: watch("verify_status"),
+      reason: watch("reason"),
+    });
+    if (response.status === HttpStatusCode.Ok) {
+      toast.success(response.data.message);
+      setOpenModal(false);
+    }
+  };
+  const handleClick = async () => {
+    if (appointment.status === BOOKING_STATUS.PENDING) {
+      const [ward, district, province] = await Promise.all([
+        locationApi.getWardNameByCode(
+          appointment.ward_code,
+          appointment.district_id
+        ),
+        locationApi.getDistrictNameByCode(
+          appointment.district_id,
+          appointment.province_id
+        ),
+        locationApi.getProvinceNameByCode(appointment.province_id),
+      ]);
+      setLocation(
+        `${appointment.street_name}, ${ward.data.result}, ${district.data.result}, ${province.data.result}`
+      );
+      setOpenModal(true);
+    }
+  };
+
+  return (
+    <Box
+      sx={{
         border: "1px solid #ccc",
         borderRadius: 2,
         padding: 2,
@@ -14,80 +111,246 @@ const styles = {
         gap: 2,
         boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.15)",
         backgroundColor: "#fff",
-    },
-    profileContainer: {
-        display: "flex",
-        alignItems: "center",
-        gap: 2,
-    },
-    avatar: {
-        borderRadius: "50%",
-        width: 50,
-        height: 50,
-        objectFit: "cover",
-    },
-    locationContainer: {
-        display: "flex",
-        gap: "5px",
-    },
-    service: {
-        fontSize: 14
-    },
-    dateTime: {
-        fontSize: 12,
-        color: "#666"
-    }
-};
-
-const ScheduleCard = ({ appointment }) => {
-    const {
-        id,
-        avatar,
-        artistName,
-        location,
-        service,
-        time,
-        date
-    } = appointment;
-
-    return (
-        <Box sx={styles.card}>
-            <Box sx={styles.profileContainer}>
-                <img
-                    src={avatar}
-                    alt={`Khach Hang ${id}`}
-                    style={styles.avatar}
-                />
-                <Box>
-                    <Typography fontWeight={500}>
-                        {artistName || `Khach ${id}`}
-                    </Typography>
-                    <Box sx={styles.locationContainer}>
-                        <PlaceIcon sx={{ fontSize: 16 }} />
-                        <Typography sx={{ fontSize: 13 }}>
-                            {location || "Bình Thạnh, Hồ Chí Minh"}
-                        </Typography>
-                    </Box>
-                </Box>
-            </Box>
-            <Typography sx={styles.service}>{service}</Typography>
-            <Typography sx={styles.dateTime}>
-                {time} - {date}
+        ":hover": {
+          cursor: "pointer",
+        },
+      }}
+      onClick={() => {
+        handleClick();
+      }}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 2,
+        }}
+      >
+        <img
+          src={client.avatar_url}
+          alt={`Khach Hang ${client.last_name} ${client.first_name}`}
+          style={styles.avatar}
+        />
+        <Box>
+          <Typography
+            fontWeight={500}
+          >{`Khách hàng ${client.last_name} ${client.first_name}`}</Typography>
+          <Box
+            sx={{
+              display: "flex",
+              gap: "5px",
+            }}
+          >
+            <PlaceIcon sx={{ fontSize: 16 }} />
+            <Typography sx={{ fontSize: 13 }}>
+              {appointment.address_type === BOOKING_ADDRESS_TYPE.ARTIST_ADDRESS
+                ? "Tại studio của tôi"
+                : "Tại địa chỉ của khách hàng"}
             </Typography>
+          </Box>
         </Box>
-    );
-};
+      </Box>
+      <Box
+        sx={{
+          display: "flex",
+          gap: 2,
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <Box>
+          <Typography sx={styles.service}>
+            {appointment.service_name}
+          </Typography>
+          <Typography sx={styles.dateTime}>
+            {formatTime(appointment.start_time)} -{" "}
+            {formatTime(appointment.end_time)}
+          </Typography>
+        </Box>
+        <Chip
+          sx={{
+            backgroundColor: getStatusColor(appointment.status),
+            padding: "2px 8px",
+            borderRadius: "12px",
+            fontSize: 12,
+            fontWeight: 500,
+            textTransform: "capitalize",
+            width: "fit-content",
+          }}
+          label={
+            appointment.status === BOOKING_STATUS.APPROVED
+              ? "Đã duyệt"
+              : appointment.status === BOOKING_STATUS.PENDING
+                ? "Chờ duyệt"
+                : "Đã từ chối"
+          }
+        />
+      </Box>
+      <Modal
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        BackdropProps={{ style: { backgroundColor: "rgba(0,0,0,0.5)" } }}
+      >
+        <Box
+          sx={{
+            p: 3,
+            backgroundColor: "#fff",
+            width: 800,
+            maxHeight: "80vh",
+            overflowY: "auto",
+            mx: "auto",
+            mt: 10,
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+            borderRadius: 2,
+          }}
+        >
+          <Typography variant="h5" gutterBottom>
+            Thông tin buổi Makeup
+          </Typography>
+          <TextField
+            fullWidth
+            id="outlined-basic"
+            label="Tên khách hàng"
+            variant="outlined"
+            value={`${client.last_name} ${client.first_name}`}
+            disabled
+            InputLabelProps={{ shrink: true }}
+          />
+          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+            <TextField
+              fullWidth
+              label="Ngày đặt"
+              variant="outlined"
+              value={formatDate(
+                new Date(appointment.booking_date),
+                "dd-MM-yyyy"
+              )}
+              disabled
+              InputLabelProps={{ shrink: true }}
+            />
 
-ScheduleCard.propTypes = {
-    appointment: PropTypes.shape({
-        id: PropTypes.number.isRequired,
-        time: PropTypes.string.isRequired,
-        date: PropTypes.string.isRequired,
-        service: PropTypes.string.isRequired,
-        avatar: PropTypes.string,
-        artistName: PropTypes.string,
-        location: PropTypes.string,
-    }).isRequired,
+            <TextField
+              fullWidth
+              id="outlined-basic"
+              label="Thời gian bắt đầu - dự kiến kết thúc"
+              variant="outlined"
+              value={`${formatTime(appointment.start_time)} - ${formatTime(appointment.end_time)}`}
+              disabled
+              InputLabelProps={{ shrink: true }}
+            />
+          </Box>
+          <Typography sx={styles.dateTime}></Typography>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 2,
+            }}
+          >
+            <TextField
+              fullWidth
+              id="outlined-basic"
+              label="Gói makeup"
+              variant="outlined"
+              value={`${appointment.service_name}`}
+              disabled
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              fullWidth
+              id="outlined-basic"
+              label="Số lượng người đặt makeup"
+              variant="outlined"
+              value={`${appointment.group_size}`}
+              disabled
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              fullWidth
+              id="outlined-basic"
+              label="Tổng giá tiền"
+              variant="outlined"
+              value={`${formatCurrency(appointment.total_price)} VNĐ`}
+              disabled
+              InputLabelProps={{ shrink: true }}
+            />
+          </Box>
+          <TextField
+            fullWidth
+            id="outlined-basic"
+            label="Ghi chú của khách hàng"
+            variant="outlined"
+            value={appointment.client_note || "Không có"}
+            disabled
+            InputLabelProps={{ shrink: true }}
+          />
+          <TextField
+            fullWidth
+            id="outlined-basic"
+            label="Địa chỉ makeup"
+            variant="outlined"
+            value={
+              appointment.address_type === BOOKING_ADDRESS_TYPE.ARTIST_ADDRESS
+                ? "Studio của tôi"
+                : "Địa chỉ của khách hàng"
+            }
+            disabled
+            InputLabelProps={{ shrink: true }}
+          />
+          <TextField
+            fullWidth
+            id="outlined-basic"
+            label="Địa chỉ cụ thể"
+            variant="outlined"
+            value={location}
+            disabled
+            InputLabelProps={{ shrink: true }}
+          />
+
+          <FormControl fullWidth error={!!errors.verify_status}>
+            <InputLabel id="verify-status-label">
+              Trạng thái phê duyệt
+            </InputLabel>
+            <Select
+              labelId="verify-status-label"
+              id="verify-status"
+              value={watch("verify_status")}
+              label="Trạng thái phê duyệt"
+              {...register("verify_status")}
+            >
+              <MenuItem value={BOOKING_STATUS.REJECTED}>Từ chối</MenuItem>
+              <MenuItem value={BOOKING_STATUS.APPROVED}>Duyệt</MenuItem>
+            </Select>
+            {errors.verify_status && (
+              <FormHelperText>{errors.verify_status.message}</FormHelperText>
+            )}
+          </FormControl>
+
+          <TextField
+            fullWidth
+            id="reason"
+            label="Lý do"
+            value={watch("reason")}
+            error={!!errors.reason}
+            helperText={errors.reason?.message}
+            {...register("reason")}
+          />
+          <Button
+            onClick={handleSubmit}
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ mt: 2 }}
+          >
+            Lưu
+          </Button>
+        </Box>
+      </Modal>
+    </Box>
+  );
 };
 
 export default ScheduleCard;

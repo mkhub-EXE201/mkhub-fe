@@ -65,7 +65,7 @@ function GeneralScheduleTab({
 
   // Filter schedule data based on selected date
   const filteredSchedule = scheduleData.filter((item) =>
-    dateUtils.isSameDay(item.fullDate, selectedDate)
+    dateUtils.isSameDay(new Date(item.booking_date), selectedDate)
   );
 
   return (
