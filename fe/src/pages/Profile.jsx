@@ -25,13 +25,19 @@ import toast from "react-hot-toast";
 import appointmentApis from "../apis/appointments.apis";
 import { APPOINTMENT_STATUS_DISPLAY, DUAL_MODE } from "../constants/enum";
 import { formatDate, formatTime } from "../utils/utils";
+import CheckoutModal from "../components/CheckoutModal";
+import paymentApi from "../apis/payments.apis";
 
 export default function Profile() {
   const [isLoading, setIsLoading] = useState(true);
   const [profile, setProfile] = useState();
-  const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [value, setValue] = useState(0);
   const [appointments, setAppointments] = useState([]);
+  const [openCheckoutModal, setOpenCheckoutModal] = useState(false);
+  const [selectedAppointmentDetail, setSelectedAppointmentDetail] =
+    useState(null);
+  const [selectedAppointmentCheckout, setSelectedAppointmentCheckout] =
+    useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -162,7 +168,9 @@ export default function Profile() {
                   {appointments && appointments.length > 0 ? (
                     appointments.map((appointment, index) => (
                       <Card
-                        onClick={() => setSelectedAppointment(appointment)}
+                        onClick={() =>
+                          setSelectedAppointmentDetail(appointment)
+                        }
                         key={index}
                         sx={{
                           mb: 2,
@@ -236,7 +244,15 @@ export default function Profile() {
                               color="primary"
                               variant="outlined"
                             />
-                            <Button variant="contained" size="small">
+                            <Button
+                              variant="contained"
+                              size="small"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedAppointmentCheckout(appointment);
+                                setOpenCheckoutModal(true);
+                              }}
+                            >
                               Thanh toán
                             </Button>
                           </Box>
@@ -251,42 +267,66 @@ export default function Profile() {
                 </>
               </CustomTabPanel>
             </Box>
+            <CheckoutModal
+              open={openCheckoutModal}
+              onClose={() => setOpenCheckoutModal(false)}
+              appointment={selectedAppointmentCheckout}
+              onConfirm={async (paymentMethod) => {
+                setOpenCheckoutModal(false);
+
+                if (paymentMethod === "stripe") {
+                  try {
+                    const response = await paymentApi.createPaymentSession({
+                      appointment_id: selectedAppointmentCheckout.id,
+                    });
+                    if (response.status === HttpStatusCode.Ok) {
+                      window.location.href = response.data.result;
+                    } else {
+                      toast.error("Đã xảy ra lỗi khi tạo phiên thanh toán.");
+                    }
+                  } catch (error) {
+                    console.error("Lỗi khi tạo phiên Stripe:", error);
+                  }
+                }
+              }}
+            />
+
             <Dialog
-              open={!!selectedAppointment}
-              onClose={() => setSelectedAppointment(null)}
+              open={!!selectedAppointmentDetail}
+              onClose={() => setSelectedAppointmentDetail(null)}
               maxWidth="sm"
               fullWidth
             >
               <DialogTitle>Chi tiết lịch hẹn</DialogTitle>
               <DialogContent dividers>
                 <Typography variant="subtitle1" fontWeight="bold">
-                  {selectedAppointment?.artist?.name}
+                  {selectedAppointmentDetail?.artist?.name}
                 </Typography>
                 <Typography variant="body2">
-                  Dịch vụ: {selectedAppointment?.service?.service_name}
+                  Dịch vụ: {selectedAppointmentDetail?.service?.service_name}
                 </Typography>
                 <Typography variant="body2">
-                  Địa điểm: {selectedAppointment?.district_name},{" "}
-                  {selectedAppointment?.province_name}
+                  Địa điểm: {selectedAppointmentDetail?.district_name},{" "}
+                  {selectedAppointmentDetail?.province_name}
                 </Typography>
                 <Typography variant="body2">
-                  Thời gian: {formatTime(selectedAppointment?.start_time)} -{" "}
-                  {formatTime(selectedAppointment?.end_time)}
+                  Thời gian: {formatTime(selectedAppointmentDetail?.start_time)}{" "}
+                  - {formatTime(selectedAppointmentDetail?.end_time)}
                 </Typography>
                 <Typography variant="body2">
-                  Ngày: {formatDate(selectedAppointment?.booking_date)}
+                  Ngày: {formatDate(selectedAppointmentDetail?.booking_date)}
                 </Typography>
                 <Typography variant="body2">
                   Trạng thái:{" "}
                   {
                     APPOINTMENT_STATUS_DISPLAY[
-                      selectedAppointment?.appointmentStatusLog[0]
+                      selectedAppointmentDetail?.appointmentStatusLog[0]
                     ]
                   }
                 </Typography>
               </DialogContent>
               <DialogActions>
-                <Button onClick={() => setSelectedAppointment(null)}>
+                <Button onClick={() => setSelectedAppointmentDetail(null)}>
                   Đóng
                 </Button>
               </DialogActions>
