@@ -15,7 +15,7 @@ import Popover from "../Popover";
 import path from "../../constants/path";
 import Notification from "../Notification";
 import { USER_ROLE } from "../../constants/enum";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 import userApis from "../../apis/users.apis";
 import HttpStatusCode from "../../constants/httpStatus";
 import toast from "react-hot-toast";
@@ -32,13 +32,24 @@ export default function Navbar({
   alwaysScrolled = false,
 }) {
   const navigate = useNavigate();
-  const { isAuthenticated, profile, role, setRole, setIsAuthenticated, setProfile } = useContext(AppContext);
+  const {
+    isAuthenticated,
+    profile,
+    role,
+    setRole,
+    setIsAuthenticated,
+    setProfile,
+  } = useContext(AppContext);
   const location = useLocation();
 
   // Notifications state
   const [noti, setNoti] = useState(externalNotifications || []);
-  const [unreadNotiCount, setUnreadNotiCount] = useState(externalUnreadNotiCount || 0);
-  const [unreadChatCount, setUnreadChatCount] = useState(externalUnreadChatCount || 0);
+  const [unreadNotiCount, setUnreadNotiCount] = useState(
+    externalUnreadNotiCount || 0
+  );
+  const [unreadChatCount, setUnreadChatCount] = useState(
+    externalUnreadChatCount || 0
+  );
 
   const handleLogout = async () => {
     try {
@@ -66,7 +77,7 @@ export default function Navbar({
     try {
       const payload = {
         role: roleValue,
-        is_read: isRead
+        is_read: isRead,
       };
 
       const response = await notificationsApis.getAllNotifications(payload);
@@ -91,11 +102,10 @@ export default function Navbar({
   // Set up socket connection for real-time notifications
   useEffect(() => {
     if (!isAuthenticated || !profile?.id) return;
-
+    console.log(import.meta.env.REACT_APP_API_BASE_URL);
     let socket;
     try {
-      // Use the production URL or a fallback for development
-      const socketUrl = process.env.REACT_APP_SOCKET_URL || "https://api.mkhub.space";
+      const socketUrl = import.meta.env.VITE_API_BASE_URL;
 
       socket = io(socketUrl, {
         transports: ["websocket"],
@@ -124,7 +134,7 @@ export default function Navbar({
 
         // Refresh unread notifications
         getNotifications(role.toLowerCase(), false);
-        setUnreadNotiCount(prev => prev + 1);
+        setUnreadNotiCount((prev) => prev + 1);
       });
 
       // Initial fetch of notifications
@@ -163,8 +173,8 @@ export default function Navbar({
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [alwaysScrolled, isScrolled, location.pathname]);
 
   return (
@@ -175,14 +185,22 @@ export default function Navbar({
         left: 0,
         right: 0,
         zIndex: 1000,
-        backgroundImage: isScrolled ? "#linear-gradient(0deg, #FEBED0 -17.62%, #091B65 58.6%)" : "none",
-        borderBottomLeftRadius: isScrolled ? { xs: "20px", sm: "100px", md: "50px" } : 0,
-        borderBottomRightRadius: isScrolled ? { xs: "20px", sm: "100px", md: "50px" } : 0,
+        backgroundImage: isScrolled
+          ? "#linear-gradient(0deg, #FEBED0 -17.62%, #091B65 58.6%)"
+          : "none",
+        borderBottomLeftRadius: isScrolled
+          ? { xs: "20px", sm: "100px", md: "50px" }
+          : 0,
+        borderBottomRightRadius: isScrolled
+          ? { xs: "20px", sm: "100px", md: "50px" }
+          : 0,
         paddingX: { xs: 2, sm: 3, md: 7 },
         paddingBottom: { xs: 1, sm: 1, md: 1 },
-        paddingTop: isScrolled ? { xs: 1, sm: 1.5, md: 2 } : { xs: 2, sm: 2, md: 5 },
-        transition: 'all 0.3s ease',
-        boxShadow: isScrolled ? '0 2px 10px rgba(0,0,0,0.1)' : 'none',
+        paddingTop: isScrolled
+          ? { xs: 1, sm: 1.5, md: 2 }
+          : { xs: 2, sm: 2, md: 5 },
+        transition: "all 0.3s ease",
+        boxShadow: isScrolled ? "0 2px 10px rgba(0,0,0,0.1)" : "none",
         width: "100%",
         backgroundColor: isScrolled ? "#fec9d9" : "transparent",
       }}
@@ -214,11 +232,19 @@ export default function Navbar({
               height: "auto",
               objectFit: "cover",
               cursor: "pointer",
-              transition: "width 0.3s ease"
+              transition: "width 0.3s ease",
             }}
           />
-          <AnimatedUnderlineLink to={path.explore} label="Khám phá" isScrolled={isScrolled} />
-          <AnimatedUnderlineLink to={path.home} label="Cộng đồng" isScrolled={isScrolled} />
+          <AnimatedUnderlineLink
+            to={path.explore}
+            label="Khám phá"
+            isScrolled={isScrolled}
+          />
+          <AnimatedUnderlineLink
+            to={path.home}
+            label="Cộng đồng"
+            isScrolled={isScrolled}
+          />
         </Box>
 
         {/* Right */}
@@ -238,7 +264,9 @@ export default function Navbar({
               }
               if (profile.is_artist) {
                 const nextRole =
-                  role === USER_ROLE.MEMBER ? USER_ROLE.ARTIST : USER_ROLE.MEMBER;
+                  role === USER_ROLE.MEMBER
+                    ? USER_ROLE.ARTIST
+                    : USER_ROLE.MEMBER;
                 setRole(nextRole);
                 navigate(
                   nextRole === USER_ROLE.MEMBER
@@ -252,7 +280,7 @@ export default function Navbar({
             sx={{
               borderRadius: "50px",
               transform: isScrolled ? "scale(0.9)" : "scale(1)",
-              transition: "transform 0.3s ease"
+              transition: "transform 0.3s ease",
             }}
           >
             <Box
@@ -282,24 +310,46 @@ export default function Navbar({
           />
           <IconButton>
             <Badge badgeContent={unreadChatCount} color="error">
-              <TelegramIcon sx={{
-                width: isScrolled ? 25 : 30,
-                height: isScrolled ? 25 : 30,
-                color: isScrolled ? "black" : "white",
-                transition: "width 0.3s ease, height 0.3s ease"
-              }} />
+              <TelegramIcon
+                sx={{
+                  width: isScrolled ? 25 : 30,
+                  height: isScrolled ? 25 : 30,
+                  color: isScrolled ? "black" : "white",
+                  transition: "width 0.3s ease, height 0.3s ease",
+                }}
+              />
             </Badge>
           </IconButton>
           {!isAuthenticated ? (
             <>
-              <AnimatedUnderlineLink to={path.login} label="Đăng nhập" isScrolled={isScrolled} />
-              <AnimatedUnderlineLink to={path.register} label="Đăng kí" isScrolled={isScrolled} />
+              <AnimatedUnderlineLink
+                to={path.login}
+                label="Đăng nhập"
+                isScrolled={isScrolled}
+              />
+              <AnimatedUnderlineLink
+                to={path.register}
+                label="Đăng kí"
+                isScrolled={isScrolled}
+              />
             </>
           ) : (
             <Popover
               renderPopover={
-                <Box sx={{ position: "relative", borderRadius: 1, bgcolor: "white" }}>
-                  <Box sx={{ display: "flex", flexDirection: "column", color: "black" }}>
+                <Box
+                  sx={{
+                    position: "relative",
+                    borderRadius: 1,
+                    bgcolor: "white",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      color: "black",
+                    }}
+                  >
                     <Link to={path.profile}>
                       <Button
                         sx={{
@@ -360,7 +410,7 @@ export default function Navbar({
                 sx={{
                   width: isScrolled ? 25 : 30,
                   height: isScrolled ? 25 : 30,
-                  transition: "width 0.3s ease, height 0.3s ease"
+                  transition: "width 0.3s ease, height 0.3s ease",
                 }}
               />
             </Popover>
@@ -386,7 +436,7 @@ Navbar.defaultProps = {
   notifications: [],
   unreadNotiCount: 0,
   unreadChatCount: 0,
-  getNotificationsByStatus: () => { },
-  handleLogout: () => { },
+  getNotificationsByStatus: () => {},
+  handleLogout: () => {},
   alwaysScrolled: false,
 };

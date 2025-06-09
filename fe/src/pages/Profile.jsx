@@ -1,17 +1,62 @@
-import { Box, Divider, Tab, Tabs, Typography } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  Tab,
+  Tabs,
+  Typography,
+} from "@mui/material";
 import React, { useEffect } from "react";
 import Navbar from "../components/layout/Navbar";
 import { useState } from "react";
 import Skeleton from "../components/Skeleton";
 import userApis from "../apis/users.apis";
+import PlaceIcon from "@mui/icons-material/PlaceOutlined";
 import HttpStatusCode from "../constants/httpStatus";
 import toast from "react-hot-toast";
+import appointmentApis from "../apis/appointments.apis";
+import { APPOINTMENT_STATUS_DISPLAY, DUAL_MODE } from "../constants/enum";
+import { formatDate, formatTime } from "../utils/utils";
 
 export default function Profile() {
   const [isLoading, setIsLoading] = useState(true);
   const [profile, setProfile] = useState();
-  const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [value, setValue] = useState(0);
+  const [appointments, setAppointments] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [profileRes, appointmentRes] = await Promise.all([
+          userApis.getMe(),
+          appointmentApis.getAllAppointments(DUAL_MODE.CLIENT),
+        ]);
+
+        if (profileRes.status === HttpStatusCode.Ok) {
+          setProfile(profileRes.data.result);
+        }
+
+        if (appointmentRes.status === HttpStatusCode.Ok) {
+          setAppointments(appointmentRes.data.result);
+        }
+      } catch (error) {
+        toast.error(error.message || error.response?.data?.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -23,23 +68,6 @@ export default function Profile() {
       "aria-controls": `simple-tabpanel-${index}`,
     };
   }
-
-  useEffect(() => {
-    try {
-      const getOwnProfile = async () => {
-        const response = await userApis.getMe();
-        if (response.status === HttpStatusCode.Ok) {
-          setProfile(response.data.result);
-          console.log(response.data.result);
-        }
-      };
-      getOwnProfile();
-    } catch (error) {
-      toast.error(error.message || error.response.data.message);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
 
   return (
     <Box>
@@ -129,12 +157,140 @@ export default function Profile() {
                   <Tab label="Ưu đãi của tôi" {...a11yProps(2)} />
                 </Tabs>
               </Box>
-              {value === 0 && (
+              <CustomTabPanel value={value} index={0}>
                 <>
-                  <Typography>Ahihi</Typography>
+                  {appointments && appointments.length > 0 ? (
+                    appointments.map((appointment, index) => (
+                      <Card
+                        onClick={() => setSelectedAppointment(appointment)}
+                        key={index}
+                        sx={{
+                          mb: 2,
+                          boxShadow: 2,
+                          borderRadius: 2,
+                        }}
+                      >
+                        <CardContent>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 2,
+                              mb: 1,
+                            }}
+                          >
+                            <Avatar src={appointment.artist.avatar_url} />
+                            <Box>
+                              <Typography variant="subtitle1" fontWeight="bold">
+                                {appointment.artist.name}
+                              </Typography>
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
+                                {appointment.service.service_name}
+                              </Typography>
+                            </Box>
+                          </Box>
+
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                              mb: 1,
+                            }}
+                          >
+                            <PlaceIcon
+                              sx={{ fontSize: 18, color: "text.secondary" }}
+                            />
+                            <Typography variant="body2" color="text.secondary">
+                              {appointment.district_name},{" "}
+                              {appointment.province_name}
+                            </Typography>
+                          </Box>
+
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            mb={1}
+                          >
+                            {`${formatTime(appointment.start_time)} - ${formatTime(
+                              appointment.end_time
+                            )} | ${formatDate(appointment.booking_date)}`}
+                          </Typography>
+
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                            }}
+                          >
+                            <Chip
+                              label={
+                                APPOINTMENT_STATUS_DISPLAY[
+                                  appointment.appointmentStatusLog[0]
+                                ]
+                              }
+                              color="primary"
+                              variant="outlined"
+                            />
+                            <Button variant="contained" size="small">
+                              Thanh toán
+                            </Button>
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    ))
+                  ) : (
+                    <Typography variant="body2" color="text.secondary">
+                      Không có lịch hẹn nào.
+                    </Typography>
+                  )}
                 </>
-              )}
+              </CustomTabPanel>
             </Box>
+            <Dialog
+              open={!!selectedAppointment}
+              onClose={() => setSelectedAppointment(null)}
+              maxWidth="sm"
+              fullWidth
+            >
+              <DialogTitle>Chi tiết lịch hẹn</DialogTitle>
+              <DialogContent dividers>
+                <Typography variant="subtitle1" fontWeight="bold">
+                  {selectedAppointment?.artist?.name}
+                </Typography>
+                <Typography variant="body2">
+                  Dịch vụ: {selectedAppointment?.service?.service_name}
+                </Typography>
+                <Typography variant="body2">
+                  Địa điểm: {selectedAppointment?.district_name},{" "}
+                  {selectedAppointment?.province_name}
+                </Typography>
+                <Typography variant="body2">
+                  Thời gian: {formatTime(selectedAppointment?.start_time)} -{" "}
+                  {formatTime(selectedAppointment?.end_time)}
+                </Typography>
+                <Typography variant="body2">
+                  Ngày: {formatDate(selectedAppointment?.booking_date)}
+                </Typography>
+                <Typography variant="body2">
+                  Trạng thái:{" "}
+                  {
+                    APPOINTMENT_STATUS_DISPLAY[
+                      selectedAppointment?.appointmentStatusLog[0]
+                    ]
+                  }
+                </Typography>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setSelectedAppointment(null)}>
+                  Đóng
+                </Button>
+              </DialogActions>
+            </Dialog>
           </Box>
         )}
       </Box>
