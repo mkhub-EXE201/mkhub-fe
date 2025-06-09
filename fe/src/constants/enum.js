@@ -56,3 +56,12 @@ export const BOOKING_STATUS = {
   APPROVED: "APPROVED",
   REJECTED: "REJECTED",
 };
+
+export const DUAL_MODE = {
+  CLIENT: "CLIENT",
+  ARTIST: "ARTIST",
+};
+
+export const APPOINTMENT_STATUS_DISPLAY = {
+  CONFIRMED: "Đã lên lịch",
+};
