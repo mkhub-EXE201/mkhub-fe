@@ -65,3 +65,8 @@ export const DUAL_MODE = {
 export const APPOINTMENT_STATUS_DISPLAY = {
   CONFIRMED: "Đã lên lịch",
 };
+
+export const USER_ROLE_DISPLAY = {
+  ADMIN: "Quản trị viên",
+  MEMBER: "Khách hàng",
+};
