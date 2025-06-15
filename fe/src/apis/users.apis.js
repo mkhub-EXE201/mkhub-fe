@@ -26,5 +26,6 @@ const userApis = {
   getArtistDetail: (artist_id) => http.get(`${userRoute}/artists/${artist_id}`),
   getMe: () => http.get(`${userRoute}/me`),
   getUser: (user_id) => http.get(`${userRoute}/${user_id}`),
+  getUsers: () => http.get(`${userRoute}`),
 };
 export default userApis;
