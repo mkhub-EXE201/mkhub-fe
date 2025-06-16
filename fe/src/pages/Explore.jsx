@@ -81,6 +81,20 @@ export default function Explore() {
     getDistricts();
   }, [selectedProvince]);
 
+  const handleFilter = async (value) => {
+    const params = {};
+    if (value && value !== "all") {
+      params.category_id = value;
+      console.log(params);
+    }
+    const response = await artistServiceApis.getAllServices(params);
+    if (response.status === HttpStatusCode.Ok) {
+      setLayouts(response.data.result);
+    } else {
+      toast.error("Không thể lọc layout");
+    }
+  };
+
   const handleGetLocation = () => {
     if (!navigator.geolocation) {
       toast.error("Trình duyệt không hỗ trợ định vị");
@@ -150,7 +164,10 @@ export default function Explore() {
                       <RadioGroup
                         aria-labelledby="makeup-layout-label"
                         value={selectedValue ?? ""}
-                        onChange={(e) => setSelectedValue(e.target.value)}
+                        onChange={(e) => {
+                          setSelectedValue(e.target.value);
+                          handleFilter(e.target.value);
+                        }}
                         name="radio-buttons-group"
                       >
                         {/* Tất cả */}
@@ -177,7 +194,7 @@ export default function Explore() {
                           categories.map((type) => (
                             <FormControlLabel
                               key={type.id}
-                              value={type.name}
+                              value={type.id}
                               control={<Radio />}
                               label={type.name}
                             />
