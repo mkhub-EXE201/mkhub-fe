@@ -4,5 +4,6 @@ export const categoriesUrl = "categories";
 
 const categoryApis = {
   getAllCategories: () => http.get(`${categoriesUrl}/`),
+  addCategory: (payload) => http.post(`${categoriesUrl}/create`, payload),
 };
 export default categoryApis;

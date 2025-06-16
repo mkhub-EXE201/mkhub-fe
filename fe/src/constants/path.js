@@ -18,6 +18,7 @@ const path = {
   artistChatManagement: "/artist/inbox",
   artistNotificationManagement: "/artist/notifications",
   artistManagement: "/admin/artists/management",
+  categoryManagement: "/admin/categories/management",
   artists: "/artists",
   artistDetail: `/artists/:id/profile`,
 };
