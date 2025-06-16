@@ -4,6 +4,7 @@ import React, { useContext, useEffect, useState } from "react";
 import artistApis from "../../apis/artists.apis";
 import { AppContext } from "../../contexts/app.context";
 import EditIcon from "@mui/icons-material/Edit";
+import HttpStatusCode from "../../constants/httpStatus";
 
 function a11yProps(index) {
   return {
@@ -20,8 +21,7 @@ export default function ArtistMedia() {
   useEffect(() => {
     const getArtistProfile = async () => {
       const response = await artistApis.getArtistPhotos(profile.artist_id);
-      if (response.status === 200) {
-        console.log(response.data.result);
+      if (response.status === HttpStatusCode.Ok) {
         setArtistPhotos(response.data.result);
       }
     };
