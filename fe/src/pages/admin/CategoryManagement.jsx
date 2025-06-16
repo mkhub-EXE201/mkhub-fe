@@ -1,4 +1,5 @@
 import {
+  Alert,
   Avatar,
   Box,
   Button,
@@ -6,6 +7,11 @@ import {
   CardActionArea,
   CardContent,
   CardMedia,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
   Modal,
   TextField,
   Typography,
@@ -20,17 +26,19 @@ import { addNewCategorySchema } from "../../schemas/addNewCategorySchema";
 import { isAxiosUnprocessableEntityError } from "../../utils/errors.type";
 import toast from "react-hot-toast";
 import mediaApis from "../../apis/media.apis";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Link } from "react-router-dom";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 export default function CategoryManagement() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
+  const [openAlert, setOpenAlert] = useState(false);
   const fileInputRef = useRef(null);
   const [previewUrl, setPreviewUrl] = useState(
     "https://mkhub.s3.us-east-1.amazonaws.com/avatar/default_avt.jpg"
   );
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
+
   const {
     reset,
     register,
@@ -99,6 +107,28 @@ export default function CategoryManagement() {
     }
   };
 
+  const handleClose = () => {
+    setOpenAlert(false);
+  };
+
+  const handleRequestDelete = (category_id) => {
+    setDeleteTargetId(category_id);
+    setOpenAlert(true);
+  };
+
+  const handleDeleteConfirmed = async () => {
+    if (!deleteTargetId) return;
+    setOpenAlert(true);
+    const response = await categoryApis.deleteCategory(deleteTargetId);
+    if (response.status === HttpStatusCode.Ok) {
+      toast.success(response.data.message, {
+        position: "top-center",
+      });
+      getAllCates();
+    }
+    setOpenAlert(true);
+    setDeleteTargetId(null);
+  };
   return (
     <Box>
       <Box
@@ -123,7 +153,7 @@ export default function CategoryManagement() {
         </Typography>
         <Button
           onClick={() => {
-            setOpen(true);
+            setOpenModal(true);
           }}
           sx={{
             paddingY: 1,
@@ -143,79 +173,71 @@ export default function CategoryManagement() {
       {loading ? (
         <Skeleton />
       ) : (
-        <Box>
-          {" "}
-          <Box
-            sx={{
-              width: "100%",
-              maxWidth: "1200px",
-              margin: "0 auto",
-              paddingY: { xs: 2, sm: 3 },
-            }}
-          >
-            <Swiper
-              spaceBetween={16}
-              slidesPerView={4}
-              breakpoints={{
-                0: { slidesPerView: 1 },
-                600: { slidesPerView: 2 },
-                900: { slidesPerView: 4 },
-              }}
-            >
-              {categories.map((item, index) => (
-                <SwiperSlide key={index}>
-                  <Link
-                    to={"/"}
-                    style={{ textDecoration: "none", color: "inherit" }}
+        <Box
+          sx={{
+            width: "100%",
+            maxWidth: "1200px",
+            margin: "0 auto",
+            paddingY: { xs: 2, sm: 3 },
+          }}
+        >
+          <Grid gridSize={{ xs: 12, sm: 6, md: 6 }} container spacing={2}>
+            {categories.map((item) => (
+              <Card key={item.id} sx={{ boxShadow: "none" }}>
+                <CardActionArea
+                  sx={{
+                    position: "relative",
+                    backgroundColor: (theme) => theme.palette.lightGray,
+                    borderRadius: "30px",
+                  }}
+                >
+                  <CardMedia
+                    component="img"
+                    height="250px"
+                    width="250px"
+                    sx={{
+                      borderRadius: "30px",
+                      objectFit: "cover",
+                    }}
+                    image={item.thumbnail}
+                  />
+                  <CardContent
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
                   >
-                    <Card sx={{ width: "100%", boxShadow: "none" }}>
-                      <CardActionArea
-                        sx={{
-                          backgroundColor: (theme) => theme.palette.lightGray,
-                          borderRadius: "30px",
-                        }}
-                      >
-                        <CardMedia
-                          component="img"
-                          height="250px"
-                          width="250px"
-                          sx={{
-                            borderRadius: "30px",
-                            objectFit: "cover",
-                          }}
-                          image={item.thumbnail}
-                        />
-                        <CardContent
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <Typography
-                            gutterBottom
-                            sx={{
-                              fontSize: {
-                                xs: 12,
-                                sm: 20,
-                                md: 20,
-                              },
-                            }}
-                            fontWeight={600}
-                          >
-                            {item.name}
-                          </Typography>
-                        </CardContent>
-                      </CardActionArea>
-                    </Card>
-                  </Link>
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          </Box>
+                    <Typography
+                      gutterBottom
+                      sx={{
+                        fontSize: {
+                          xs: 12,
+                          sm: 20,
+                          md: 20,
+                        },
+                      }}
+                      fontWeight={600}
+                    >
+                      {item.name}
+                    </Typography>
+                  </CardContent>
+                  <CancelIcon
+                    onClick={() => handleRequestDelete(item.id)}
+                    sx={{
+                      color: "white",
+                      position: "absolute",
+                      top: 5,
+                      right: 5,
+                    }}
+                  />
+                </CardActionArea>
+              </Card>
+            ))}
+          </Grid>
         </Box>
       )}
-      <Modal open={open} onClose={() => setOpen(false)}>
+      <Modal open={openModal} onClose={() => setOpenModal(false)}>
         <Box
           sx={{
             p: 3,
@@ -298,6 +320,27 @@ export default function CategoryManagement() {
           </form>
         </Box>
       </Modal>
+      <Dialog
+        open={openAlert}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Xác nhận trước khi xóa"}
+        </DialogTitle>
+        <DialogContent>
+          <p>Bạn có chắc chắn muốn xóa chủ đề makeup này?</p>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleDeleteConfirmed} color="primary" autoFocus>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
