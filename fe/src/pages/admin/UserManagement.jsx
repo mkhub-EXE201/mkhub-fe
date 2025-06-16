@@ -49,7 +49,7 @@ export default function UserManagement() {
   return (
     <Box sx={{ width: "100%" }}>
       <Typography variant="h4" color="primary" marginBottom={3}>
-        Danh sách đăng kí MKUB Artist
+        Danh sách tài khoản người dùng
       </Typography>
 
       {loading ? (
@@ -62,6 +62,7 @@ export default function UserManagement() {
                 <StyledTableCell>STT</StyledTableCell>
                 <StyledTableCell>Tên</StyledTableCell>
                 <StyledTableCell>Email</StyledTableCell>
+                <StyledTableCell>Số điện thoại</StyledTableCell>
                 <StyledTableCell>Ngày đăng kí</StyledTableCell>
                 <StyledTableCell>Chế độ kép</StyledTableCell>
                 <StyledTableCell>Quyền hạn</StyledTableCell>
@@ -75,6 +76,7 @@ export default function UserManagement() {
                     {row.last_name} {row.first_name}
                   </TableCell>
                   <TableCell>{row.email}</TableCell>
+                  <TableCell>{row.phone_number}</TableCell>
                   <TableCell>{formatDateTime(row.created_at)}</TableCell>
                   <TableCell>{row.is_artist.toString()}</TableCell>
                   <TableCell>{USER_ROLE_DISPLAY[row.role]}</TableCell>

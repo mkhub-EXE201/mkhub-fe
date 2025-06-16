@@ -25,7 +25,7 @@ import logo from "../assets/logo.png";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import { Avatar, Button, InputAdornment, TextField } from "@mui/material";
-
+import DashboardIcon from "@mui/icons-material/Dashboard";
 import DashboardCustomizeOutlined from "@mui/icons-material/DashboardCustomizeOutlined";
 import { Link, useNavigate } from "react-router-dom";
 import { AppContext } from "../contexts/app.context";
@@ -36,22 +36,27 @@ import HttpStatusCode from "../constants/httpStatus";
 import toast from "react-hot-toast";
 const drawerWidth = 300;
 const adminMenus = [
-  { label: "Dashboard", icon: <DashboardCustomizeOutlined />, to: "/admin" },
+  { label: "Dashboard", icon: <DashboardIcon />, to: path.adminDashboard },
 
   {
     label: "Tài khoản",
     icon: <AccountCircleOutlined />,
-    to: "/admin/users/overview",
+    to: path.userManagement,
   },
   {
     label: "Lịch hẹn",
     icon: <CalendarMonthOutlined />,
-    to: "/admin/users/overview",
+    to: path.adminDashboard,
   },
   {
     label: "Kiểm duyệt Makeup Artist",
     icon: <VerifiedUserIcon />,
-    to: "/admin/artists/management",
+    to: path.artistManagement,
+  },
+  {
+    label: "Chủ đề makeup",
+    icon: <DashboardCustomizeOutlined />,
+    to: path.categoryManagement,
   },
 ];
 

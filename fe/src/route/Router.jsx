@@ -27,6 +27,7 @@ import ArtistServiceManagement from "../pages/artist/ArtistServiceManagement";
 import ArtistScheduleManagement from "../pages/artist/ArtistScheduleManagement";
 import Navbar from "../components/layout/Navbar";
 import { Box } from "@mui/material";
+import CategoryManagement from "../pages/admin/CategoryManagement";
 
 export const ProtectedRoute = ({ isAdmin, isArtist }) => {
   const { isAuthenticated, role } = useContext(AppContext);
@@ -89,11 +90,13 @@ const Layout = ({ children }) => {
   return (
     <Box sx={{ position: "relative" }}>
       <Navbar alwaysScrolled={!isHomepage} />
-      <Box sx={{
-        mt: { xs: "80px", sm: "90px", md: "100px" },
-        position: "relative",
-        zIndex: 1
-      }}>
+      <Box
+        sx={{
+          mt: { xs: "80px", sm: "90px", md: "100px" },
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
         {children}
       </Box>
     </Box>
@@ -104,15 +107,19 @@ const AppRouter = () => {
   const routeElements = useRoutes([
     {
       path: path.home,
-      element: checkHomeAccess() ||
+      element: checkHomeAccess() || (
         <Layout>
           <Homepage />
         </Layout>
-
+      ),
     },
     {
       path: path.explore,
-      element: <Layout><Explore /></Layout>,
+      element: (
+        <Layout>
+          <Explore />
+        </Layout>
+      ),
     },
     {
       path: path.forgotPassword,
@@ -142,6 +149,10 @@ const AppRouter = () => {
         {
           path: path.artistManagement,
           element: <AdminLayout>{<ArtistManagement />}</AdminLayout>,
+        },
+        {
+          path: path.categoryManagement,
+          element: <AdminLayout>{<CategoryManagement />}</AdminLayout>,
         },
       ],
     },

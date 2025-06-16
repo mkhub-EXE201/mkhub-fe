@@ -89,3 +89,8 @@ export const BOOKING_REQUEST_MESSAGES = {
   STREET_NAME_IS_REQUIRED: "Vui lòng nhập tên đường.",
   STREET_NAME_MUST_BE_STRING: "Tên đường phải là một chuỗi ký tự.",
 };
+
+export const CATEGORY_MESSAGES = {
+  NAME_IS_REQUIRED: "Vui lòng nhập tên của chủ đề makeup.",
+  THUMBNAIL_IS_REQUIRED: "Vui lòng chọn ảnh của chủ đề makeup.",
+};
