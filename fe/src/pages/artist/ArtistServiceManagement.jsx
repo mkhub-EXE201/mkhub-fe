@@ -57,6 +57,7 @@ export default function ArtistServiceManagement() {
   }, []);
 
   const {
+    reset,
     register,
     watch,
     control,
@@ -171,6 +172,7 @@ export default function ArtistServiceManagement() {
       response = await artistServiceApis.addNewService(payload);
       if (response.status === HttpStatusCode.Ok) {
         toast.success(response.data.result.message);
+        reset();
         handleClose();
         getOneServices();
       }

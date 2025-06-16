@@ -120,6 +120,7 @@ export default function Modal({ open, onClose, selectedApplication }) {
       );
       if (response.status === HttpStatusCode.Ok) {
         toast.success(response.data.message);
+        onClose();
       }
       await adminApis.getArtistApplicationsByStatus("");
     } catch (error) {
