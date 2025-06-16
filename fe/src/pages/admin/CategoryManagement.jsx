@@ -92,6 +92,7 @@ export default function CategoryManagement() {
         setPreviewUrl(
           "https://mkhub.s3.us-east-1.amazonaws.com/avatar/default_avt.jpg"
         );
+        setOpenModal(false);
         getAllCates();
       }
     } catch (error) {
@@ -126,17 +127,15 @@ export default function CategoryManagement() {
       });
       getAllCates();
     }
-    setOpenAlert(true);
+    setOpenAlert(false);
     setDeleteTargetId(null);
   };
   return (
-    <Box>
+    <Box sx={{ width: "100%" }}>
       <Box
         sx={{
           display: "flex",
-          marginTop: 4,
-          marginBottom: 8,
-          paddingX: 3,
+          marginBottom: 2,
           alignItems: "center",
           gap: 2,
           justifyContent: "space-between",
@@ -181,58 +180,66 @@ export default function CategoryManagement() {
             paddingY: { xs: 2, sm: 3 },
           }}
         >
-          <Grid gridSize={{ xs: 12, sm: 6, md: 6 }} container spacing={2}>
+          <Grid container spacing={2}>
             {categories.map((item) => (
-              <Card key={item.id} sx={{ boxShadow: "none" }}>
-                <CardActionArea
-                  sx={{
-                    position: "relative",
-                    backgroundColor: (theme) => theme.palette.lightGray,
-                    borderRadius: "30px",
-                  }}
-                >
-                  <CardMedia
-                    component="img"
-                    height="250px"
-                    width="250px"
+              <Grid item xs={12} sm={6} md={6} key={item.id}>
+                <Card sx={{ boxShadow: "none", borderRadius: "30px" }}>
+                  <CardActionArea
                     sx={{
+                      position: "relative",
+                      backgroundColor: (theme) => theme.palette.lightGray,
                       borderRadius: "30px",
-                      objectFit: "cover",
-                    }}
-                    image={item.thumbnail}
-                  />
-                  <CardContent
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
+                      overflow: "hidden",
                     }}
                   >
-                    <Typography
-                      gutterBottom
+                    <CardMedia
+                      component="img"
                       sx={{
-                        fontSize: {
-                          xs: 12,
-                          sm: 20,
-                          md: 20,
-                        },
+                        width: 250,
+                        height: 300,
+                        objectFit: "cover",
                       }}
-                      fontWeight={600}
+                      image={item.thumbnail}
+                    />
+                    <CardContent
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        paddingY: 2,
+                      }}
                     >
-                      {item.name}
-                    </Typography>
-                  </CardContent>
-                  <CancelIcon
-                    onClick={() => handleRequestDelete(item.id)}
-                    sx={{
-                      color: "white",
-                      position: "absolute",
-                      top: 5,
-                      right: 5,
-                    }}
-                  />
-                </CardActionArea>
-              </Card>
+                      <Typography
+                        gutterBottom
+                        sx={{
+                          fontSize: {
+                            xs: 14,
+                            sm: 18,
+                            md: 20,
+                          },
+                        }}
+                        fontWeight={600}
+                        textAlign="center"
+                      >
+                        {item.name}
+                      </Typography>
+                    </CardContent>
+                    <CancelIcon
+                      onClick={() => handleRequestDelete(item.id)}
+                      sx={{
+                        color: "white",
+                        position: "absolute",
+                        top: 8,
+                        right: 8,
+                        backgroundColor: "rgba(0,0,0,0.4)",
+                        borderRadius: "50%",
+                        padding: 0.5,
+                        cursor: "pointer",
+                      }}
+                    />
+                  </CardActionArea>
+                </Card>
+              </Grid>
             ))}
           </Grid>
         </Box>
@@ -272,9 +279,6 @@ export default function CategoryManagement() {
               error={!!errors.name}
               helperText={errors.name?.message || " "}
               sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "20px",
-                },
                 "& .MuiFormHelperText-root": {
                   fontSize: "12px",
                   my: "2px",

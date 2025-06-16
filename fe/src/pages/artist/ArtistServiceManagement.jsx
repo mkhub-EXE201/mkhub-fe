@@ -46,14 +46,13 @@ export default function ArtistServiceManagement() {
   const [activeStep, setActiveStep] = useState(0);
   const [categories, setCategories] = useState([]);
   const { profile } = useContext(AppContext);
-
+  const getAllCategories = async () => {
+    const response = await categoryApis.getAllCategories();
+    if (response.status === HttpStatusCode.Ok) {
+      setCategories(response.data.result);
+    }
+  };
   useEffect(() => {
-    const getAllCategories = async () => {
-      const response = await categoryApis.getAllCategories();
-      if (response.status === HttpStatusCode.Ok) {
-        setCategories(response.data.result);
-      }
-    };
     getAllCategories();
   }, []);
 
@@ -173,6 +172,7 @@ export default function ArtistServiceManagement() {
       if (response.status === HttpStatusCode.Ok) {
         toast.success(response.data.result.message);
         handleClose();
+        getOneServices();
       }
     } catch (error) {
       toast.error(error.message || error.response.data.message);
