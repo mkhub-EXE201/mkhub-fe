@@ -279,9 +279,6 @@ export default function CategoryManagement() {
               error={!!errors.name}
               helperText={errors.name?.message || " "}
               sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "20px",
-                },
                 "& .MuiFormHelperText-root": {
                   fontSize: "12px",
                   my: "2px",
