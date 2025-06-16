@@ -6,5 +6,6 @@ const artistServiceApis = {
   addNewService: (payload) => http.post(`${artistServiceUrl}/create`, payload),
   getOneAllServices: (user_id) =>
     http.get(`${artistServiceUrl}/${user_id}/all`),
+  getAllServices: () => http.get(`${artistServiceUrl}`),
 };
 export default artistServiceApis;
