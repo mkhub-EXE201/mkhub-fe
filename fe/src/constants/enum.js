@@ -70,3 +70,8 @@ export const USER_ROLE_DISPLAY = {
   ADMIN: "Quản trị viên",
   MEMBER: "Khách hàng",
 };
+
+export const MESSAGE_SENDER_TYPE = {
+  ARTIST: "ARTIST",
+  CLIENT: "CLIENT",
+};
