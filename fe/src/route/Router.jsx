@@ -29,6 +29,7 @@ import Navbar from "../components/layout/Navbar";
 import { Box } from "@mui/material";
 import CategoryManagement from "../pages/admin/CategoryManagement";
 import ArtistChatManagement from "../pages/artist/ArtistChatManagement";
+import Search from "../pages/Search";
 
 export const ProtectedRoute = ({ isAdmin, isArtist }) => {
   const { isAuthenticated, role } = useContext(AppContext);
@@ -133,6 +134,14 @@ const AppRouter = () => {
     {
       path: path.artistDetail,
       element: <ArtistDetail />,
+    },
+    {
+      path: path.search,
+      element: (
+        <Layout>
+          <Search />
+        </Layout>
+      ),
     },
     // protect route - admin
     {

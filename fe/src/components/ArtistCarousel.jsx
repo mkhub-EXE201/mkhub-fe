@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 
@@ -8,17 +8,28 @@ import artistBanner2 from "../assets/artist-banner2.jpg";
 import artistBanner3 from "../assets/artist-banner3.jpg";
 import artistBanner4 from "../assets/artist-banner4.jpg";
 import artistBanner5 from "../assets/artist-banner5.jpg";
+import artistApis from "../apis/artists.apis";
+import { HttpStatusCode } from "axios";
 
 export default function ArtistCarousel() {
   const [hoveredIndex, setHoveredIndex] = useState(null);
-
-  const images = [
-    artistBanner1,
-    artistBanner2,
-    artistBanner3,
-    artistBanner4,
-    artistBanner5,
-  ];
+  const [images, setImages] = useState([]);
+  useEffect(() => {
+    const getArtists = async () => {
+      const response = await artistApis.getAllArtists();
+      if (response.status === HttpStatusCode.Ok) {
+        setImages(response.data.result);
+      }
+    };
+    getArtists();
+  }, []);
+  // const images = [
+  //   artistBanner1,
+  //   artistBanner2,
+  //   artistBanner3,
+  //   artistBanner4,
+  //   artistBanner5,
+  // ];
 
   return (
     <Box
@@ -58,7 +69,7 @@ export default function ArtistCarousel() {
             onMouseLeave={() => setHoveredIndex(null)}
           >
             <img
-              src={item}
+              src={item.avatar_url}
               alt={`Artist ${index}`}
               style={{
                 width: "100%",

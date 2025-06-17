@@ -21,6 +21,7 @@ const path = {
   categoryManagement: "/admin/categories/management",
   artists: "/artists",
   artistDetail: `/artists/:id/profile`,
+  search: "/search",
 };
 
 export default path;
