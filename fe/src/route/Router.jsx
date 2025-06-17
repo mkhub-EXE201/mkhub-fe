@@ -28,6 +28,7 @@ import ArtistScheduleManagement from "../pages/artist/ArtistScheduleManagement";
 import Navbar from "../components/layout/Navbar";
 import { Box } from "@mui/material";
 import CategoryManagement from "../pages/admin/CategoryManagement";
+import ArtistChatManagement from "../pages/artist/ArtistChatManagement";
 
 export const ProtectedRoute = ({ isAdmin, isArtist }) => {
   const { isAuthenticated, role } = useContext(AppContext);
@@ -180,6 +181,10 @@ const AppRouter = () => {
         {
           path: path.artistScheduleManagement,
           element: <ArtistLayout>{<ArtistScheduleManagement />}</ArtistLayout>,
+        },
+        {
+          path: path.artistChatManagement,
+          element: <ArtistLayout>{<ArtistChatManagement />}</ArtistLayout>,
         },
       ],
     },
