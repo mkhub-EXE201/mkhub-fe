@@ -24,6 +24,7 @@ import Footer from "../components/layout/Footer";
 import artistServiceApis from "../apis/artistServices.apis";
 import Skeleton from "../components/Skeleton";
 import categoryApis from "../apis/categories.apis";
+import { useNavigate } from "react-router-dom";
 
 export default function Explore() {
   const [provinces, setProvinces] = useState([]);
@@ -35,7 +36,7 @@ export default function Explore() {
   const [layouts, setLayouts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
-
+  const navigate = useNavigate();
   const getProvinces = async () => {
     const response = await locationApi.getProvinces();
     if (response.status === HttpStatusCode.Ok) {
@@ -351,6 +352,9 @@ export default function Explore() {
                   <>
                     {layouts.map((item, index) => (
                       <Box
+                        onClick={() =>
+                          navigate(`/artists/${item.artist.id}/profile`)
+                        }
                         key={item.id}
                         sx={{
                           border: "1px solid #ccc",
@@ -381,7 +385,7 @@ export default function Explore() {
                             }}
                           />
                           <Box>
-                            <Typography fontWeight={500}>
+                            <Typography fontSize={14} fontWeight={500}>
                               Artist {item.artist.name}
                             </Typography>
                             <Box

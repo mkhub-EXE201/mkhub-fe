@@ -50,6 +50,7 @@ import artistLocationApis from "../apis/artistLocations.apis";
 import PostModal from "../components/PostModal";
 import { ADDRESS_MESSAGE } from "../constants/message";
 import bookingApis from "../apis/bookings.apis";
+import ChatBox from "../components/Chatbox";
 
 const steps = [
   "Chọn lịch trình",
@@ -97,7 +98,7 @@ export default function ArtistDetail() {
   const [wardName, setWardName] = useState(null);
   const [districtName, setDistrictName] = useState(null);
   const [provinceName, setProvinceName] = useState(null);
-
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const {
     register,
     setError,
@@ -563,7 +564,8 @@ export default function ArtistDetail() {
                 </Box>
 
                 {/* Nút Liên hệ ngay */}
-                <Box
+                <Button
+                  onClick={() => setIsChatOpen(true)}
                   sx={{
                     bgcolor: (theme) => theme.palette.darkBlue,
                     color: "white",
@@ -579,7 +581,14 @@ export default function ArtistDetail() {
                   }}
                 >
                   Liên hệ ngay
-                </Box>
+                </Button>
+                {isChatOpen && (
+                  <ChatBox
+                    artist={profile}
+                    client={userProfileFromContext}
+                    onClose={() => setIsChatOpen(false)}
+                  />
+                )}
               </Box>
             </Box>
             <Typography
