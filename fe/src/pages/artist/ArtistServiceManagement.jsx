@@ -173,6 +173,10 @@ export default function ArtistServiceManagement() {
       if (response.status === HttpStatusCode.Ok) {
         toast.success(response.data.result.message);
         reset();
+        setActiveStep(0);
+        setPreviewUrl(
+          "https://mkhub.s3.us-east-1.amazonaws.com/avatar/default_avt.jpg"
+        );
         handleClose();
         getOneServices();
       }
