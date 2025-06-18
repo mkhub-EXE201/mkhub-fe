@@ -1,20 +1,85 @@
 /* eslint-disable react/prop-types */
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Button, Link, TextField, Typography } from "@mui/material";
 import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { updateArtistProfileSchema } from "../schemas/updateArtistProfileSchema";
+import artistApis from "../apis/artists.apis";
+import { HttpStatusCode } from "axios";
+import toast from "react-hot-toast";
+import { isAxiosUnprocessableEntityError } from "../utils/errors.type";
 
 export default function ArtistProfile({ portfolio }) {
+  const [editableIndex, setEditableIndex] = useState(null);
+  const [urls, setUrls] = useState([...portfolio.portfolio_url]);
+  const [originalUrls] = useState([...portfolio.portfolio_url]);
+
+  const handleEditClick = (index) => {
+    if (editableIndex === index) {
+      const revertedUrls = [...urls];
+      revertedUrls[index] = originalUrls[index];
+      setUrls(revertedUrls);
+      setEditableIndex(null);
+    } else {
+      setEditableIndex(index);
+    }
+  };
+  const handleUrlChange = (e, index) => {
+    const newUrls = [...urls];
+    newUrls[index] = e.target.value;
+    setUrls(newUrls);
+  };
   const {
     register,
     setError,
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(updateArtistProfileSchema),
+  });
+  useEffect(() => {
+    if (portfolio) {
+      reset({
+        name: portfolio.name || "",
+        bio: portfolio.bio || "",
+        email: portfolio.email || "",
+        phone_number: portfolio.phone_number || "",
+        portfolio_urls: portfolio.portfolio_url || [],
+      });
+    }
+  }, [portfolio, reset]);
+  const handleUpdate = handleSubmit(async () => {
+    const payload = {
+      name: watch("name"),
+      bio: watch("bio"),
+      email: watch("email"),
+      phone_number: watch("phone_number"),
+      portfolio_url: watch("portfolio_urls"),
+    };
+    try {
+      const response = await artistApis.updateArtistProfile(
+        portfolio.id,
+        payload
+      );
+      if (response.status === HttpStatusCode.Ok) {
+        toast.success(response.data.message, {
+          position: "top-center",
+        });
+      }
+    } catch (error) {
+      if (isAxiosUnprocessableEntityError(error)) {
+        const formError = error.response.data.errors;
+        Object.keys(formError).forEach((key) => {
+          setError(key, {
+            type: "Server",
+            message: formError[key],
+          });
+        });
+      }
+    }
   });
   return (
     <>
@@ -36,37 +101,25 @@ export default function ArtistProfile({ portfolio }) {
           }}
         >
           <Box>
-            <Typography
-              sx={{
-                fontSize: 20,
-                fontWeight: "500",
-                marginBottom: 1,
-              }}
-            >
-              Họ tên:
-            </Typography>
             <TextField
               required
-              {...register("phone_number")}
+              label="Họ tên:"
+              {...register("name")}
               size="small"
               fullWidth
+              error={!!errors.name}
+              helperText={errors.name?.message || " "}
             />
           </Box>
           <Box>
-            <Typography
-              sx={{
-                fontSize: 20,
-                fontWeight: "500",
-                marginBottom: 1,
-              }}
-            >
-              Số điện thoại:
-            </Typography>
             <TextField
-              required
-              value={portfolio.phone_number}
-              size="small"
+              variant="outlined"
+              margin="normal"
               fullWidth
+              label="Số điện thoại: "
+              {...register("phone_number")}
+              error={!!errors.phone_number}
+              helperText={errors.phone_number?.message || " "}
             />
           </Box>
           <Box>
@@ -80,14 +133,28 @@ export default function ArtistProfile({ portfolio }) {
               Giới thiệu:
             </Typography>
             <TextField
-              required
-              value={portfolio.bio}
-              size="small"
+              variant="outlined"
+              margin="normal"
+              label="Giới thiệu: "
               fullWidth
               multiline
-              minRows={5}
+              minRows={3}
+              {...register("bio")}
+              error={!!errors.bio}
+              helperText={errors.bio?.message || " "}
             />
           </Box>
+          <TextField
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            label="email"
+            {...register("email")}
+            disabled
+            sx={{ cursor: "not-allowed" }}
+            error={!!errors.email}
+            helperText={errors.email?.message || " "}
+          />
           <Box>
             <Typography sx={{ fontSize: 20, fontWeight: 500, mb: 2 }}>
               Liên kết khác:
@@ -100,27 +167,23 @@ export default function ArtistProfile({ portfolio }) {
                 gap: 2,
               }}
             >
-              {portfolio.portfolio_url.map((item, index) => (
+              {urls.map((item, index) => (
                 <TextField
                   key={index}
                   value={item}
                   size="small"
                   fullWidth
+                  onChange={(e) => handleUrlChange(e, index)}
                   InputProps={{
-                    readOnly: true,
+                    readOnly: editableIndex !== index,
                     endAdornment: (
                       <Link
-                        to={item}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          textDecoration: "none",
-                          marginLeft: 8,
-                        }}
+                        onClick={() => handleEditClick(index)}
+                        component="button"
+                        variant="body2"
+                        sx={{ marginLeft: 1 }}
                       >
-                        <Typography variant="body2" color="primary">
-                          Sửa
-                        </Typography>
+                        {editableIndex === index ? "Hủy" : "Sửa"}
                       </Link>
                     ),
                   }}
@@ -181,6 +244,8 @@ export default function ArtistProfile({ portfolio }) {
             paddingY: 1,
             alignSelf: "center",
           }}
+          onClick={handleUpdate}
+          type="submit"
         >
           <Typography>Chỉnh sửa hồ sơ</Typography>
         </Button>
