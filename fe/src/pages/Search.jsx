@@ -17,6 +17,10 @@ import {
 import { useNavigate, useSearchParams } from "react-router-dom";
 import searchApis from "../apis/search.apis";
 import { HttpStatusCode } from "axios";
+import ClearIcon from "@mui/icons-material/Clear";
+import InputAdornment from "@mui/material/InputAdornment";
+import IconButton from "@mui/material/IconButton";
+import SearchIcon from "@mui/icons-material/Search";
 
 export default function Search() {
   const [searchParams] = useSearchParams();
@@ -72,6 +76,20 @@ export default function Search() {
           "& .MuiOutlinedInput-root": {
             borderRadius: "50px",
           },
+        }}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon />
+            </InputAdornment>
+          ),
+          endAdornment: localQuery && (
+            <InputAdornment position="end">
+              <IconButton onClick={() => setLocalQuery("")}>
+                <ClearIcon />
+              </IconButton>
+            </InputAdornment>
+          ),
         }}
       />
 
@@ -135,6 +153,7 @@ export default function Search() {
                     backgroundColor: "pink",
                     textTransform: "none",
                   }}
+                  onClick={() => navigate(`/artists/${user.id}/profile`)}
                 >
                   Xem thêm
                 </Button>
