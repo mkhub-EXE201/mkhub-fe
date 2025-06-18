@@ -10,8 +10,10 @@ import artistBanner4 from "../assets/artist-banner4.jpg";
 import artistBanner5 from "../assets/artist-banner5.jpg";
 import artistApis from "../apis/artists.apis";
 import { HttpStatusCode } from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function ArtistCarousel() {
+  const navigate = useNavigate();
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [images, setImages] = useState([]);
   useEffect(() => {
@@ -47,6 +49,7 @@ export default function ArtistCarousel() {
         {images.map((item, index) => (
           <SwiperSlide
             key={index}
+            onClick={() => navigate(`/artists/${item.id}/profile`)}
             style={{
               width: "250px",
               height: "300px",
