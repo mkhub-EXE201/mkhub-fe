@@ -21,6 +21,8 @@ import {
   FormControl,
   InputLabel,
   FormHelperText,
+  ImageList,
+  ImageListItem,
 } from "@mui/material";
 import React, { useContext, useEffect } from "react";
 import Navbar from "../components/layout/Navbar";
@@ -747,19 +749,17 @@ export default function ArtistDetail() {
                     flexWrap: "wrap",
                   }}
                 >
-                  {photos.map((item, index) => (
-                    <img
-                      key={index}
-                      src={item}
-                      alt={`photo-${index}`}
-                      style={{
-                        width: 100,
-                        height: 100,
-                        borderRadius: 8,
-                        objectFit: "cover",
-                      }}
-                    />
-                  ))}
+                  <ImageList variant="woven" cols={5} gap={8}>
+                    {photos.map((item) => (
+                      <ImageListItem key={item.img}>
+                        <img
+                          srcSet={`${item}?w=161&fit=crop&auto=format&dpr=2 2x`}
+                          src={`${item}?w=161&fit=crop&auto=format`}
+                          loading="lazy"
+                        />
+                      </ImageListItem>
+                    ))}
+                  </ImageList>
                 </Box>
               </CustomTabPanel>
 

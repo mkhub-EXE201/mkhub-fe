@@ -2,7 +2,7 @@ import { CircularProgress, Typography, Paper } from "@mui/material";
 import React, { lazy, Suspense, useEffect } from "react";
 import StatCard from "../components/home-page/StatCard";
 import VideoCarousel from "../components/home-page/VideoCarousel"; // Eager import
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 import Headers from "../components/layout/Headers";
 
 // Lazy load other components
@@ -10,7 +10,7 @@ const TopServices = lazy(() => import("../components/home-page/TopServices"));
 const Offers = lazy(() => import("../components/Offers"));
 const ArtistBanner = lazy(() => import("../components/home-page/ArtistBanner"));
 const Footer = lazy(() => import("../components/layout/Footer"));
-
+const Gallery = lazy(() => import("../components/Gallery"));
 // Styled fallback component
 const StyledFallback = ({ height, text = "Chờ xíu nha..." }) => (
   <Paper
@@ -44,16 +44,13 @@ const StyledFallback = ({ height, text = "Chờ xíu nha..." }) => (
 );
 
 StyledFallback.propTypes = {
-  height: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.string
-  ]),
-  text: PropTypes.string
+  height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  text: PropTypes.string,
 };
 
 StyledFallback.defaultProps = {
   height: 200,
-  text: "Chờ xíu nha..."
+  text: "Chờ xíu nha...",
 };
 
 // Only one default export for the module
@@ -61,17 +58,17 @@ export default function Homepage() {
   // Use effect to handle initial scroll state
   useEffect(() => {
     // Force a scroll event to update navbar state
-    window.dispatchEvent(new Event('scroll'));
+    window.dispatchEvent(new Event("scroll"));
 
     // Setup a mutation observer to watch for content changes that might affect scroll
     const observer = new MutationObserver(() => {
-      window.dispatchEvent(new Event('scroll'));
+      window.dispatchEvent(new Event("scroll"));
     });
 
     // Start observing the document body for DOM changes
     observer.observe(document.body, {
       childList: true,
-      subtree: true
+      subtree: true,
     });
 
     return () => observer.disconnect();
@@ -92,6 +89,9 @@ export default function Homepage() {
       </Suspense>
       <Suspense fallback={<StyledFallback />}>
         <ArtistBanner />
+      </Suspense>
+      <Suspense fallback={<StyledFallback height={100} />}>
+        <Gallery />
       </Suspense>
       <Suspense fallback={<StyledFallback height={100} />}>
         <Footer />
