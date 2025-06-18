@@ -75,7 +75,8 @@ const MainLayout = ({
   };
 
   const handleSearch = async () => {
-    navigate(path.search);
+    if (!search.trim()) return;
+    navigate(`/search?query=${encodeURIComponent(search)}`);
   };
   return (
     <Box
