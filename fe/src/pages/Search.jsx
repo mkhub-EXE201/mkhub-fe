@@ -9,6 +9,10 @@ import {
   Tab,
   Avatar,
   Button,
+  ImageList,
+  ImageListItem,
+  ImageListItemBar,
+  ListSubheader,
 } from "@mui/material";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import searchApis from "../apis/search.apis";
@@ -19,7 +23,7 @@ export default function Search() {
   const query = searchParams.get("query") || "";
 
   const navigate = useNavigate();
-  const [localQuery, setLocalQuery] = useState(query); // 👈 input field riêng
+  const [localQuery, setLocalQuery] = useState(query);
   const [results, setResults] = useState({
     users: [],
     posts: [],
@@ -52,7 +56,7 @@ export default function Search() {
   };
 
   return (
-    <Box sx={{ maxWidth: 800, margin: "0 auto", padding: 4 }}>
+    <Box sx={{ width: "100%", margin: "0 auto", padding: 4 }}>
       <TextField
         fullWidth
         variant="outlined"
@@ -62,20 +66,23 @@ export default function Search() {
         onKeyDown={handleKeyDown}
         sx={{
           mb: 4,
+          width: "60%",
+          margin: "0 auto",
+          display: "block",
           "& .MuiOutlinedInput-root": {
             borderRadius: "50px",
           },
         }}
       />
 
-      <Tabs value={tab} onChange={handleTabChange} centered>
+      <Tabs sx={{ mt: 6 }} value={tab} onChange={handleTabChange} centered>
         <Tab label={`Tài khoản (${results.users.length})`} />
         <Tab label={`Bài đăng (${results.posts.length})`} />
         <Tab label={`Chủ đề makeup (${results.categories.length})`} />
         <Tab label={`Gói makeup (${results.services.length})`} />
       </Tabs>
 
-      <Box sx={{ mt: 2 }}>
+      <Box sx={{ mt: 2, paddingX: 30 }}>
         {tab === 0 && (
           <List>
             {results.users.length === 0 && (
@@ -148,28 +155,96 @@ export default function Search() {
           </List>
         )}
         {tab === 2 && (
-          <List>
-            {results.categories.length === 0 && (
+          <Box sx={{ mt: 2 }}>
+            {results.categories.length === 0 ? (
               <Typography>Không tìm thấy chủ đề makeup nào.</Typography>
+            ) : (
+              <ImageList
+                sx={{ width: "100%", maxWidth: 1000, mx: "auto" }}
+                cols={3}
+                gap={16}
+              >
+                <ImageListItem key="Subheader" cols={3} sx={{ height: "auto" }}>
+                  <ListSubheader
+                    component="div"
+                    sx={{ fontSize: "1.2rem", fontWeight: 600 }}
+                  >
+                    Danh sách chủ đề makeup
+                  </ListSubheader>
+                </ImageListItem>
+
+                {results.categories.map((item) => (
+                  <ImageListItem
+                    key={item.id}
+                    onClick={() => navigate(`/category/${item.id}`)}
+                    sx={{ cursor: "pointer" }}
+                  >
+                    <img
+                      src={`${item.thumbnail}?w=248&fit=crop&auto=format`}
+                      srcSet={`${item.thumbnail}?w=248&fit=crop&auto=format&dpr=2 2x`}
+                      alt={item.name}
+                      loading="lazy"
+                      style={{
+                        height: 270,
+                        width: "100%",
+                        objectFit: "cover",
+                        borderRadius: 8,
+                      }}
+                    />
+                    <ImageListItemBar
+                      title={item.name}
+                      position="below"
+                      sx={{
+                        mt: 1,
+                        textAlign: "center",
+                        ".MuiImageListItemBar-title": {
+                          fontWeight: 600,
+                          fontSize: "1rem",
+                        },
+                      }}
+                    />
+                  </ImageListItem>
+                ))}
+              </ImageList>
             )}
-            {results.categories.map((cate) => (
-              <ListItem key={cate.id}>
-                <Typography>{cate.name}</Typography>
-              </ListItem>
-            ))}
-          </List>
+          </Box>
         )}
+
         {tab === 3 && (
-          <List>
-            {results.services.length === 0 && (
+          <Box sx={{ mt: 2 }}>
+            {results.services.length === 0 ? (
               <Typography>Không tìm thấy gói makeup nào.</Typography>
+            ) : (
+              <ImageList variant="masonry" cols={3} gap={16}>
+                {results.services.map((item) => (
+                  <ImageListItem key={item.artist_id}>
+                    <img
+                      onClick={() =>
+                        navigate(`/artists/${item.artist_id}/profile`)
+                      }
+                      src={`${item.thumbnail}?w=248&fit=crop&auto=format`}
+                      srcSet={`${item.thumbnail}?w=248&fit=crop&auto=format&dpr=2 2x`}
+                      alt={item.service_name}
+                      loading="lazy"
+                      style={{ borderRadius: 12 }}
+                    />
+                    <ImageListItemBar
+                      position="below"
+                      title={item.service_name}
+                      sx={{
+                        mt: 1,
+                        textAlign: "center",
+                        ".MuiImageListItemBar-title": {
+                          fontWeight: 600,
+                          fontSize: "1rem",
+                        },
+                      }}
+                    />
+                  </ImageListItem>
+                ))}
+              </ImageList>
             )}
-            {results.services.map((service) => (
-              <ListItem key={service.id}>
-                <Typography>{service.service_name}</Typography>
-              </ListItem>
-            ))}
-          </List>
+          </Box>
         )}
       </Box>
     </Box>
