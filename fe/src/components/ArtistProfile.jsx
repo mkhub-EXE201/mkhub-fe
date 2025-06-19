@@ -12,8 +12,12 @@ import { isAxiosUnprocessableEntityError } from "../utils/errors.type";
 
 export default function ArtistProfile({ portfolio }) {
   const [editableIndex, setEditableIndex] = useState(null);
-  const [urls, setUrls] = useState([...portfolio.portfolio_url]);
-  const [originalUrls] = useState([...portfolio.portfolio_url]);
+  const [urls, setUrls] = useState(
+    Array.isArray(portfolio.portfolio_url) ? [...portfolio.portfolio_url] : []
+  );
+  const [originalUrls] = useState(
+    Array.isArray(portfolio.portfolio_url) ? [...portfolio.portfolio_url] : []
+  );
 
   const handleEditClick = (index) => {
     if (editableIndex === index) {

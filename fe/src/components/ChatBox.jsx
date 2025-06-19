@@ -111,7 +111,7 @@ const ChatBox = ({ onClose, artist, client }) => {
               sx={{
                 alignSelf: isClient ? "flex-end" : "flex-start",
                 bgcolor: isClient ? "primary.light" : "grey.200",
-                color: "white",
+                color: isClient ? "white" : "black",
                 p: 1,
                 borderRadius: 2,
                 maxWidth: "80%",

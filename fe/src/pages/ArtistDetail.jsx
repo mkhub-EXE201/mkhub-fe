@@ -210,6 +210,8 @@ export default function ArtistDetail() {
 
       if (response?.status === HttpStatusCode.Ok) {
         toast.success("Đặt lịch thành công!");
+        reset();
+        closeModal();
       } else {
         toast.error("Đặt lịch thất bại!");
       }
@@ -383,7 +385,6 @@ export default function ArtistDetail() {
 
   const getArtistProfileDetail = async () => {
     try {
-      console.log(id);
       const response = await userApis.getArtistDetail(id);
       if (response.status === HttpStatusCode.Ok) {
         console.log(response.data.result);
@@ -530,38 +531,40 @@ export default function ArtistDetail() {
                   <Box
                     sx={{ display: "flex", flexDirection: "column", gap: 1 }}
                   >
-                    {profile.portfolio_url.map((item) => (
-                      <Box
-                        key={item}
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
-                        <LinkIcon fontSize="small" />
-                        <Typography
-                          sx={{
-                            fontSize: "14px",
-                            color: (theme) => theme.palette.primary.main,
-                            wordBreak: "break-word",
-                            "& a": {
-                              color: "text.primary",
-                              textDecoration: "none",
-                              transition: "all 0.2s",
-                            },
-                            "& a:hover": {
-                              color: "primary.main",
-                              textDecoration: "underline",
-                            },
-                          }}
+                    {profile &&
+                      profile.portfolio_url &&
+                      profile.portfolio_url.map((item) => (
+                        <Box
+                          key={item}
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
                         >
-                          <a
-                            href={item}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <LinkIcon fontSize="small" />
+                          <Typography
+                            sx={{
+                              fontSize: "14px",
+                              color: (theme) => theme.palette.primary.main,
+                              wordBreak: "break-word",
+                              "& a": {
+                                color: "text.primary",
+                                textDecoration: "none",
+                                transition: "all 0.2s",
+                              },
+                              "& a:hover": {
+                                color: "primary.main",
+                                textDecoration: "underline",
+                              },
+                            }}
                           >
-                            {item}
-                          </a>
-                        </Typography>
-                      </Box>
-                    ))}
+                            <a
+                              href={item}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {item}
+                            </a>
+                          </Typography>
+                        </Box>
+                      ))}
                   </Box>
                 </Box>
 
@@ -696,7 +699,11 @@ export default function ArtistDetail() {
                           pb: 2,
                         }}
                       >
-                        <Button size="small" variant="outlined">
+                        <Button
+                          onClick={() => setIsChatOpen(true)}
+                          size="small"
+                          variant="outlined"
+                        >
                           Liên hệ
                         </Button>
                         <Button
