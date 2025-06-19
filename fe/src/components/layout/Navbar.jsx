@@ -311,6 +311,7 @@ export default function Navbar({
           <IconButton>
             <Badge badgeContent={unreadChatCount} color="error">
               <TelegramIcon
+                onClick={() => navigate(path.clientChatManagement)}
                 sx={{
                   width: isScrolled ? 25 : 30,
                   height: isScrolled ? 25 : 30,

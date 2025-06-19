@@ -663,7 +663,17 @@ export default function ArtistDetail() {
                         alt={item.service_name}
                         sx={{ objectFit: "cover" }}
                       />
-                      <CardContent sx={{ flexGrow: 1 }}>
+
+                      <CardContent
+                        sx={{
+                          flex: "1 1 auto",
+                          display: "flex",
+                          flexDirection: "column",
+                          px: 2,
+                          pt: 2,
+                          pb: 0,
+                        }}
+                      >
                         <Typography
                           variant="h6"
                           component="div"
@@ -671,6 +681,7 @@ export default function ArtistDetail() {
                         >
                           {item.service_name}
                         </Typography>
+
                         <Typography
                           variant="body2"
                           color="text.secondary"
@@ -681,22 +692,28 @@ export default function ArtistDetail() {
                             WebkitLineClamp: 2,
                             WebkitBoxOrient: "vertical",
                             fontSize: 13,
+                            lineHeight: "1.4em",
+                            minHeight: "2.8em",
+                            flexShrink: 0,
                           }}
                         >
                           {item.description}
                         </Typography>
+
                         <Typography
-                          sx={{ mt: 1, fontWeight: "600", fontSize: 14 }}
+                          sx={{ mt: "auto", fontWeight: "600", fontSize: 14 }}
                         >
                           Từ {formatCurrency(item.min_price)} -{" "}
                           {formatCurrency(item.max_price)} VND
                         </Typography>
                       </CardContent>
+
                       <CardActions
                         sx={{
                           justifyContent: "space-between",
                           px: 2,
                           pb: 2,
+                          pt: 1,
                         }}
                       >
                         <Button
@@ -709,7 +726,6 @@ export default function ArtistDetail() {
                         <Button
                           size="small"
                           variant="contained"
-                          // onClick={() => setOpen(item.id)}
                           onClick={() => {
                             setCurrentModal("booking");
                             setSelectedService(item);

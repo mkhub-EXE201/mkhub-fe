@@ -171,7 +171,7 @@ export default function ArtistServiceManagement() {
       console.log(payload);
       response = await artistServiceApis.addNewService(payload);
       if (response.status === HttpStatusCode.Ok) {
-        toast.success(response.data.result.message);
+        toast.success(response.data.message);
         reset();
         setActiveStep(0);
         setPreviewUrl(
@@ -653,11 +653,12 @@ export default function ArtistServiceManagement() {
                 <Grid item xs={12} sm={6} md={4} key={index}>
                   <Card
                     sx={{
-                      width: "250px",
-                      height: "350px",
+                      width: 250,
+                      height: 350,
                       display: "flex",
                       flexDirection: "column",
                       borderRadius: "15px",
+                      overflow: "hidden",
                     }}
                   >
                     <CardMedia
@@ -667,35 +668,54 @@ export default function ArtistServiceManagement() {
                       alt={item.service_name}
                       sx={{ objectFit: "cover" }}
                     />
-                    <CardContent sx={{ flexGrow: 1 }}>
+
+                    <Box
+                      sx={{
+                        flex: "1 1 auto",
+                        display: "flex",
+                        flexDirection: "column",
+                        px: 2,
+                        py: 1,
+                      }}
+                    >
                       <Typography
                         variant="h6"
-                        component="div"
-                        sx={{ fontWeight: 600, mb: 1 }}
+                        sx={{
+                          fontWeight: 600,
+                          fontSize: 16,
+                          mb: 1,
+                          lineHeight: 1.3,
+                        }}
                       >
                         {item.service_name}
                       </Typography>
+
                       <Typography
                         variant="body2"
                         color="text.secondary"
                         sx={{
+                          flexShrink: 0,
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                           display: "-webkit-box",
                           WebkitLineClamp: 2,
                           WebkitBoxOrient: "vertical",
                           fontSize: 13,
+                          lineHeight: "1.4em",
+                          minHeight: "2.8em",
                         }}
                       >
                         {item.description}
                       </Typography>
+
                       <Typography
-                        sx={{ mt: 2, fontWeight: "600", fontSize: 14 }}
+                        sx={{ mt: "auto", fontWeight: 600, fontSize: 14 }}
                       >
                         Từ {formatCurrency(item.min_price)} -{" "}
                         {formatCurrency(item.max_price)} VND
                       </Typography>
-                    </CardContent>
+                    </Box>
+
                     <CardActions
                       sx={{ justifyContent: "space-between", px: 2, pb: 2 }}
                     >

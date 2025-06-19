@@ -79,7 +79,14 @@ export default function ArtistMedia() {
               </Typography>
             </Box>
             {artistPhotos.length > 0 && (
-              <Box sx={{ display: "flex", gap: 2 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: 2,
+                  px: 3,
+                }}
+              >
                 {artistPhotos.map((item) => (
                   <Box sx={{ position: "relative" }} key={item}>
                     <img
