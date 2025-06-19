@@ -23,7 +23,11 @@ import PlaceIcon from "@mui/icons-material/PlaceOutlined";
 import HttpStatusCode from "../constants/httpStatus";
 import toast from "react-hot-toast";
 import appointmentApis from "../apis/appointments.apis";
-import { APPOINTMENT_STATUS_DISPLAY, DUAL_MODE } from "../constants/enum";
+import {
+  APPOINTMENT_STATUS,
+  APPOINTMENT_STATUS_DISPLAY,
+  DUAL_MODE,
+} from "../constants/enum";
 import { formatDate, formatTime } from "../utils/utils";
 import CheckoutModal from "../components/CheckoutModal";
 import paymentApi from "../apis/payments.apis";
@@ -238,23 +242,29 @@ export default function Profile() {
                             <Chip
                               label={
                                 APPOINTMENT_STATUS_DISPLAY[
-                                  appointment.appointmentStatusLog[0]
+                                  appointment.appointmentStatusLog[
+                                    appointment?.appointmentStatusLog.length - 1
+                                  ]
                                 ]
                               }
                               color="primary"
                               variant="outlined"
                             />
-                            <Button
-                              variant="contained"
-                              size="small"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedAppointmentCheckout(appointment);
-                                setOpenCheckoutModal(true);
-                              }}
-                            >
-                              Thanh toán
-                            </Button>
+                            {appointment.appointmentStatusLog[
+                              appointment.appointmentStatusLog.length - 1
+                            ] !== APPOINTMENT_STATUS.PAID && (
+                              <Button
+                                variant="contained"
+                                size="small"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedAppointmentCheckout(appointment);
+                                  setOpenCheckoutModal(true);
+                                }}
+                              >
+                                Thanh toán
+                              </Button>
+                            )}
                           </Box>
                         </CardContent>
                       </Card>
@@ -320,7 +330,10 @@ export default function Profile() {
                   Trạng thái:{" "}
                   {
                     APPOINTMENT_STATUS_DISPLAY[
-                      selectedAppointmentDetail?.appointmentStatusLog[0]
+                      selectedAppointmentDetail?.appointmentStatusLog[
+                        selectedAppointmentDetail?.appointmentStatusLog.length -
+                          1
+                      ]
                     ]
                   }
                 </Typography>
