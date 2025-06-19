@@ -20,7 +20,12 @@ export function formatNumber(value) {
     .replace(".", ",")
     .toLowerCase();
 }
-
+export const formatToVND = (amount) => {
+  return amount.toLocaleString("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  });
+};
 export function formatDateTime(dateString) {
   if (!dateString) return "";
 

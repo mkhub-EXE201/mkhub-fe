@@ -3,18 +3,23 @@ import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
 import EventNoteOutlined from "@mui/icons-material/EventNoteOutlined";
 import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
 import { Box, Card, Skeleton, Typography } from "@mui/material";
-import appointmentApis from "../../apis/appointments.apis";
 import HttpStatusCode from "../../constants/httpStatus";
 import userApis from "../../apis/users.apis";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import adminApis from "../../apis/admin.apis";
+import { formatToVND } from "../../utils/utils";
 
 export default function AdminDashboard() {
   const [totalBookings, setTotalBookings] = useState(0);
   const [totalUsers, setTotalUsers] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [revenue, setRevenue] = useState(0);
+  const exchangeRate = 25000;
+  const vndAmount = (revenue / 100) * exchangeRate;
 
   const getTotalBookings = async () => {
     try {
-      const response = await appointmentApis.getAllAppointments();
+      const response = await adminApis.getAllAppointments();
       if (response.status === HttpStatusCode.Ok) {
         setTotalBookings(response.data.result.length);
       }
@@ -34,11 +39,24 @@ export default function AdminDashboard() {
     }
   };
 
+  const getPlatformRevenue = async () => {
+    try {
+      const response = await adminApis.getPlatformRevenue();
+      if (response.status === HttpStatusCode.Ok) {
+        setRevenue(response.data.result);
+      }
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
-      await Promise.all([getTotalBookings(), getTotalUsers()]).finally(
-        setLoading(false)
-      );
+      await Promise.all([
+        getTotalBookings(),
+        getTotalUsers(),
+        getPlatformRevenue(),
+      ]).finally(setLoading(false));
     };
     fetchData();
   }, []);
@@ -198,7 +216,7 @@ export default function AdminDashboard() {
               borderRadius: 5,
             }}
           >
-            <ThumbUpOffAltIcon
+            <AccountBalanceWalletIcon
               sx={{
                 width: 50,
                 height: 50,
@@ -210,7 +228,7 @@ export default function AdminDashboard() {
             <Typography
               sx={{ marginY: 2, fontSize: 14, color: "text.secondary" }}
             >
-              Tỷ lệ hài lòng
+              Tổng doanh thu
             </Typography>
 
             <Box
@@ -223,7 +241,7 @@ export default function AdminDashboard() {
               <Typography
                 sx={{ fontWeight: "bold", fontSize: 24, color: "text.primary" }}
               >
-                4.7%
+                {formatToVND(vndAmount)} VNĐ
               </Typography>
 
               <Box
