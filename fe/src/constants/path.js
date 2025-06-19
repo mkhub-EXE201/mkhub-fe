@@ -23,6 +23,7 @@ const path = {
   artistDetail: `/artists/:id/profile`,
   search: "/search",
   successCheckout: "/checkout/success",
+  clientChatManagement: "/inbox",
 };
 
 export default path;

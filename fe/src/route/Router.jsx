@@ -31,6 +31,7 @@ import CategoryManagement from "../pages/admin/CategoryManagement";
 import ArtistChatManagement from "../pages/artist/ArtistChatManagement";
 import Search from "../pages/Search";
 import SuccessCheckout from "../pages/SuccessCheckout";
+import ClientInboxManagement from "../pages/ClientInboxMangement";
 
 export const ProtectedRoute = ({ isAdmin, isArtist }) => {
   const { isAuthenticated, role } = useContext(AppContext);
@@ -149,6 +150,14 @@ const AppRouter = () => {
       element: (
         <Layout>
           <SuccessCheckout />
+        </Layout>
+      ),
+    },
+    {
+      path: path.clientChatManagement,
+      element: (
+        <Layout>
+          <ClientInboxManagement />
         </Layout>
       ),
     },

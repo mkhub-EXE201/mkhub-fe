@@ -162,17 +162,28 @@ export default function Search() {
           </List>
         )}
         {tab === 1 && (
-          <List>
-            {results.posts.length === 0 && (
+          <>
+            {results.posts.length === 0 ? (
               <Typography>Không tìm thấy bài đăng nào.</Typography>
+            ) : (
+              <ImageList variant="standard" cols={3} gap={5}>
+                {results.posts.map((item) => (
+                  <ImageListItem key={item.artist_id}>
+                    <img
+                      onClick={() =>
+                        navigate(`/artists/${item.artist_id}/profile`)
+                      }
+                      src={`${item.media_url[0]}?w=248&fit=crop&auto=format`}
+                      srcSet={`${item.media_url[0]}?w=248&fit=crop&auto=format&dpr=2 2x`}
+                      loading="lazy"
+                    />
+                  </ImageListItem>
+                ))}
+              </ImageList>
             )}
-            {results.posts.map((post) => (
-              <ListItem key={post.id}>
-                <Typography>{post.title}</Typography>
-              </ListItem>
-            ))}
-          </List>
+          </>
         )}
+
         {tab === 2 && (
           <Box sx={{ mt: 2 }}>
             {results.categories.length === 0 ? (
