@@ -30,6 +30,7 @@ import { Box } from "@mui/material";
 import CategoryManagement from "../pages/admin/CategoryManagement";
 import ArtistChatManagement from "../pages/artist/ArtistChatManagement";
 import Search from "../pages/Search";
+import SuccessCheckout from "../pages/SuccessCheckout";
 
 export const ProtectedRoute = ({ isAdmin, isArtist }) => {
   const { isAuthenticated, role } = useContext(AppContext);
@@ -140,6 +141,14 @@ const AppRouter = () => {
       element: (
         <Layout>
           <Search />
+        </Layout>
+      ),
+    },
+    {
+      path: path.successCheckout,
+      element: (
+        <Layout>
+          <SuccessCheckout />
         </Layout>
       ),
     },

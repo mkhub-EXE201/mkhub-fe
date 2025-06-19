@@ -22,6 +22,7 @@ const path = {
   artists: "/artists",
   artistDetail: `/artists/:id/profile`,
   search: "/search",
+  successCheckout: "/checkout/success",
 };
 
 export default path;
