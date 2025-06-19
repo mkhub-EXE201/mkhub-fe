@@ -64,6 +64,7 @@ export const DUAL_MODE = {
 
 export const APPOINTMENT_STATUS_DISPLAY = {
   CONFIRMED: "Đã lên lịch",
+  PAID: "Đã thanh toán",
 };
 
 export const USER_ROLE_DISPLAY = {
@@ -74,4 +75,9 @@ export const USER_ROLE_DISPLAY = {
 export const MESSAGE_SENDER_TYPE = {
   ARTIST: "ARTIST",
   CLIENT: "CLIENT",
+};
+
+export const APPOINTMENT_STATUS = {
+  CONFIRMED: "CONFIRMED",
+  PAID: "PAID",
 };
