@@ -32,6 +32,7 @@ import ArtistChatManagement from "../pages/artist/ArtistChatManagement";
 import Search from "../pages/Search";
 import SuccessCheckout from "../pages/SuccessCheckout";
 import ClientInboxManagement from "../pages/ClientInboxMangement";
+import BookingManagement from "../pages/admin/BookingManagement";
 
 export const ProtectedRoute = ({ isAdmin, isArtist }) => {
   const { isAuthenticated, role } = useContext(AppContext);
@@ -181,6 +182,10 @@ const AppRouter = () => {
         {
           path: path.categoryManagement,
           element: <AdminLayout>{<CategoryManagement />}</AdminLayout>,
+        },
+        {
+          path: path.bookingManagement,
+          element: <AdminLayout>{<BookingManagement />}</AdminLayout>,
         },
       ],
     },

@@ -19,6 +19,7 @@ const path = {
   artistNotificationManagement: "/artist/notifications",
   artistManagement: "/admin/artists/management",
   categoryManagement: "/admin/categories/management",
+  bookingManagement: "/admin/bookings/management",
   artists: "/artists",
   artistDetail: `/artists/:id/profile`,
   search: "/search",
