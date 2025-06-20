@@ -34,6 +34,8 @@ import Popover from "../components/Popover";
 import userApis from "../apis/users.apis";
 import HttpStatusCode from "../constants/httpStatus";
 import toast from "react-hot-toast";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+
 const drawerWidth = 300;
 const adminMenus = [
   { label: "Dashboard", icon: <DashboardIcon />, to: path.adminDashboard },
@@ -44,11 +46,6 @@ const adminMenus = [
     to: path.userManagement,
   },
   {
-    label: "Lịch hẹn",
-    icon: <CalendarMonthOutlined />,
-    to: path.adminDashboard,
-  },
-  {
     label: "Kiểm duyệt Makeup Artist",
     icon: <VerifiedUserIcon />,
     to: path.artistManagement,
@@ -57,6 +54,11 @@ const adminMenus = [
     label: "Chủ đề makeup",
     icon: <DashboardCustomizeOutlined />,
     to: path.categoryManagement,
+  },
+  {
+    label: "Quản lí lịch hẹn",
+    icon: <CalendarTodayIcon />,
+    to: path.bookingManagement,
   },
 ];
 
