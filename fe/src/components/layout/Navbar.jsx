@@ -9,12 +9,12 @@ import {
 import React, { useContext, useState, useEffect } from "react";
 import logo from "../../assets/logo.png";
 import TelegramIcon from "@mui/icons-material/Telegram";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AppContext } from "../../contexts/app.context";
 import Popover from "../Popover";
 import path from "../../constants/path";
 import Notification from "../Notification";
-import { USER_ROLE } from "../../constants/enum";
+import { EMIT_TYPE, USER_ROLE } from "../../constants/enum";
 import PropTypes from "prop-types";
 import userApis from "../../apis/users.apis";
 import HttpStatusCode from "../../constants/httpStatus";
@@ -22,10 +22,10 @@ import toast from "react-hot-toast";
 import notificationsApis from "../../apis/notifications.apis";
 import { io } from "socket.io-client";
 import { AnimatedUnderlineLink } from "../animations/AnimatedUnderline";
-
+import createSocket from "../../utils/socket";
 export default function Navbar({
   notifications: externalNotifications,
-  getNotificationsByStatus: externalGetNotificationsByStatus,
+  getNotificationsByStatus,
   unreadNotiCount: externalUnreadNotiCount,
   unreadChatCount: externalUnreadChatCount,
   handleLogout: externalHandleLogout,
@@ -40,7 +40,31 @@ export default function Navbar({
     setIsAuthenticated,
     setProfile,
   } = useContext(AppContext);
-  const location = useLocation();
+  const [socket, setSocket] = useState(null);
+
+  useEffect(() => {
+    if (profile?.id && profile?.role) {
+      const newSocket = createSocket(profile.id, profile.role);
+      setSocket(newSocket);
+
+      newSocket.on(EMIT_TYPE.NOTIFICATION, (noti) => {
+        console.log(" Notification received:", noti);
+      });
+
+      newSocket.on(EMIT_TYPE.ARTIST_APPROVED, (notification) => {
+        console.log(notification.message);
+        toast.success(notification.message);
+        setProfile((prev) => ({
+          ...prev,
+          is_artist: true,
+        }));
+      });
+
+      return () => {
+        newSocket.disconnect();
+      };
+    }
+  }, [profile]);
 
   // Notifications state
   const [noti, setNoti] = useState(externalNotifications || []);
@@ -102,7 +126,6 @@ export default function Navbar({
   // Set up socket connection for real-time notifications
   useEffect(() => {
     if (!isAuthenticated || !profile?.id) return;
-    console.log(import.meta.env.REACT_APP_API_BASE_URL);
     let socket;
     try {
       const socketUrl = import.meta.env.VITE_API_BASE_URL;

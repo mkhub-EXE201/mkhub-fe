@@ -5,14 +5,19 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import toast from "react-hot-toast";
 import adminApis from "../../apis/admin.apis";
 import HttpStatusCode from "../../constants/httpStatus";
-import { ARTIST_APPLICATION_STATUS_DISPLAY } from "../../constants/enum";
+import {
+  ARTIST_APPLICATION_STATUS_DISPLAY,
+  EMIT_TYPE,
+} from "../../constants/enum";
 import { formatDateTime, getStatusColor } from "../../utils/utils";
 import { Box, Skeleton, styled, Typography } from "@mui/material";
 import Modal from "../../components/Modal";
+import createSocket from "../../utils/socket";
+import { AppContext } from "../../contexts/app.context";
 
 const StyledTableCell = styled(TableCell)(() => ({
   backgroundColor: "black",
@@ -24,6 +29,23 @@ export default function ArtistManagement() {
   const [loading, setLoading] = useState(false);
   const [applications, setApplications] = useState([]);
   const [selectedApplication, setSelectedApplication] = useState(null);
+  const [socket, setSocket] = useState(null);
+  const { profile } = useContext(AppContext);
+  useEffect(() => {
+    if (profile?.id && profile?.role) {
+      const newSocket = createSocket(profile.id, profile.role);
+      setSocket(newSocket);
+
+      newSocket.on(EMIT_TYPE.NOTIFICATION, (notification) => {
+        toast.success(notification);
+        getArtistApplications();
+      });
+
+      return () => {
+        newSocket.disconnect();
+      };
+    }
+  }, [profile]);
 
   const handleOpen = (application) => {
     setSelectedApplication(application);
@@ -32,21 +54,20 @@ export default function ArtistManagement() {
   const handleClose = () => {
     setSelectedApplication(null);
   };
-
-  useEffect(() => {
-    const getArtistApplications = async () => {
-      try {
-        setLoading(true);
-        const response = await adminApis.getArtistApplicationsByStatus("");
-        if (response.status === HttpStatusCode.Ok) {
-          setApplications(response.data.result);
-        }
-      } catch (error) {
-        toast.error(error.message || error.response.data.msg);
-      } finally {
-        setLoading(false);
+  const getArtistApplications = async () => {
+    try {
+      setLoading(true);
+      const response = await adminApis.getArtistApplicationsByStatus("");
+      if (response.status === HttpStatusCode.Ok) {
+        setApplications(response.data.result);
       }
-    };
+    } catch (error) {
+      toast.error(error.message || error.response.data.msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
     getArtistApplications();
   }, []);
 
@@ -109,6 +130,7 @@ export default function ArtistManagement() {
         onClose={handleClose}
         aria-labelledby="modal-title"
         aria-describedby="modal-description"
+        getArtistApplications={getArtistApplications}
         selectedApplication={selectedApplication}
       ></Modal>
     </Box>
