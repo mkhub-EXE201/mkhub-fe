@@ -1,22 +1,24 @@
-import { useContext } from "react";
+// utils/socket.js
 import { io } from "socket.io-client";
-import { AppContext } from "../contexts/app.context";
-const { profile } = useContext(AppContext);
-export const socket = io("https://mkhub-be.onrender.com", {
-  transports: ["websocket"],
-  withCredentials: true,
-  query: {
-    userId: profile.id,
-  },
-});
-socket.on("connect", () => {
-  console.log("✅ Connected to socket:", socket.id);
-});
 
-socket.on("NOTIFICATION", (noti) => {
-  console.log("📥 Notification received:", noti);
-});
+export default function createSocket(userId, role) {
+  console.log(userId, role);
+  const socket = io(import.meta.env.VITE_API_BASE_URL, {
+    transports: ["websocket"],
+    withCredentials: true,
+    auth: {
+      userId,
+      role,
+    },
+  });
 
-socket.on("disconnect", () => {
-  console.log("❌ Disconnected from socket");
-});
+  socket.on("connect", () => {
+    console.log("Connected to socket:", socket.id);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Disconnected from socket");
+  });
+
+  return socket;
+}

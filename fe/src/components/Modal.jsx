@@ -19,9 +19,7 @@ import {
   FormHelperText,
   InputLabel,
   Chip,
-  IconButton,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
 import { formatDateTime, getStatusColor } from "../utils/utils";
 import {
   ARTIST_APPLICATION_STATUS,
@@ -38,7 +36,12 @@ import adminApis from "../apis/admin.apis";
 import toast from "react-hot-toast";
 import HttpStatusCode from "../constants/httpStatus";
 
-export default function Modal({ open, onClose, selectedApplication }) {
+export default function Modal({
+  open,
+  onClose,
+  selectedApplication,
+  getArtistApplications,
+}) {
   const [wardName, setWardName] = useState("");
   const [districtName, setDistrictName] = useState("");
   const [provinceName, setProvinceName] = useState("");
@@ -46,6 +49,7 @@ export default function Modal({ open, onClose, selectedApplication }) {
   const {
     register,
     watch,
+    reset,
     trigger,
     formState: { errors },
   } = useForm({
@@ -120,9 +124,10 @@ export default function Modal({ open, onClose, selectedApplication }) {
       );
       if (response.status === HttpStatusCode.Ok) {
         toast.success(response.data.message);
+        reset();
         onClose();
       }
-      await adminApis.getArtistApplicationsByStatus("");
+      getArtistApplications();
     } catch (error) {
       toast.error(error.message || error.response.data.message);
     }

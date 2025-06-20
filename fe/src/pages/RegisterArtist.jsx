@@ -171,49 +171,57 @@ export default function RegisterArtist() {
 
   const onSubmit = async () => {
     setIsSubmitting(true);
-    // 1. upload avatar
-    const avatarData = getValues("avatar_url");
-    let avatar_url = avatarData;
 
-    if (avatarData instanceof File) {
-      const avatarFormData = new FormData();
-      avatarFormData.append("folderName", "avatar");
-      avatarFormData.append("images", avatarData);
-      const response = await mediaApis.uploadImage(avatarFormData);
-      avatar_url = response.data.result[0];
-    }
+    try {
+      // 1. upload avatar
+      const avatarData = getValues("avatar_url");
+      let avatar_url = avatarData;
 
-    // 2. upload ảnh làm profile
-    const files = watch("media_urls") || [];
-    const profileMediaFormData = new FormData();
-    profileMediaFormData.append("folderName", "profile");
-    files.forEach((file) => {
-      profileMediaFormData.append("images", file);
-    });
-    await mediaApis.uploadImage(profileMediaFormData);
+      if (avatarData instanceof File) {
+        const avatarFormData = new FormData();
+        avatarFormData.append("folderName", "avatar");
+        avatarFormData.append("images", avatarData);
+        const response = await mediaApis.uploadImage(avatarFormData);
+        avatar_url = response.data.result[0];
+      }
 
-    let response = await mediaApis.uploadImage(profileMediaFormData);
-    const profileMedia = response.data.result;
-    const payload = {
-      name: watch("name"),
-      phone_number: watch("phone_number"),
-      ...(avatar_url && { avatar_url }),
-      portfolio_url: watch("portfolio_urls"),
-      media_url: profileMedia,
-      address_type: watch("address_type"),
-      location_name: watch("location_name"),
-      street_name: watch("street_name"),
-      ward_code: watch("ward_code"),
-      district_id: watch("district_id"),
-      province_id: watch("province_id"),
-      email: watch("email"),
-    };
+      // 2. upload ảnh làm profile
+      const files = watch("media_urls") || [];
+      const profileMediaFormData = new FormData();
+      profileMediaFormData.append("folderName", "profile");
+      files.forEach((file) => {
+        profileMediaFormData.append("images", file);
+      });
 
-    response = await artistApis.registerArtist(payload);
-    if (response.status === HttpStatusCode.Ok) {
+      const profileResponse = await mediaApis.uploadImage(profileMediaFormData);
+      const profileMedia = profileResponse.data.result;
+
+      // 3. Gửi đơn
+      const payload = {
+        name: watch("name"),
+        phone_number: watch("phone_number"),
+        ...(avatar_url && { avatar_url }),
+        portfolio_url: watch("portfolio_urls"),
+        media_url: profileMedia,
+        address_type: watch("address_type"),
+        location_name: watch("location_name"),
+        street_name: watch("street_name"),
+        ward_code: watch("ward_code"),
+        district_id: watch("district_id"),
+        province_id: watch("province_id"),
+        email: watch("email"),
+      };
+
+      const response = await artistApis.registerArtist(payload);
+      if (response.status === HttpStatusCode.Ok) {
+        toast.success(response.data.message);
+        navigate(path.login);
+      }
+    } catch (error) {
+      console.error("❌ Submit failed:", error);
+      toast.error("Đã có lỗi xảy ra. Vui lòng thử lại.");
+    } finally {
       setIsSubmitting(false);
-      toast.success(response.data.message);
-      navigate(path.login);
     }
   };
 
