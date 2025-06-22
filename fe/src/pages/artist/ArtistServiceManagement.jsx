@@ -360,7 +360,6 @@ export default function ArtistServiceManagement() {
                           error={!!errors.service_name}
                           helperText={errors.service_name?.message || " "}
                         />
-
                         <Controller
                           name="category_id"
                           control={control}
@@ -386,7 +385,6 @@ export default function ArtistServiceManagement() {
                             </FormControl>
                           )}
                         />
-
                         <TextField
                           fullWidth
                           label="Mô tả gói dịch vụ"
@@ -394,6 +392,15 @@ export default function ArtistServiceManagement() {
                           {...register("description")}
                           error={!!errors.description}
                           helperText={errors.description?.message || " "}
+                        />
+                        <TextField
+                          fullWidth
+                          label="Thời lượng makeup"
+                          variant="outlined"
+                          type="number"
+                          {...register("duration")}
+                          error={!!errors.duration}
+                          helperText={errors.duration?.message || " "}
                         />
                         <TextField
                           fullWidth

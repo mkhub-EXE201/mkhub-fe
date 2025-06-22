@@ -10,27 +10,26 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
+  Step,
+  StepButton,
+  StepLabel,
+  Stepper,
   Tab,
   Tabs,
   Typography,
 } from "@mui/material";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "../components/layout/Navbar";
-import { useState } from "react";
 import Skeleton from "../components/Skeleton";
 import userApis from "../apis/users.apis";
-import PlaceIcon from "@mui/icons-material/PlaceOutlined";
 import HttpStatusCode from "../constants/httpStatus";
 import toast from "react-hot-toast";
 import appointmentApis from "../apis/appointments.apis";
-import {
-  APPOINTMENT_STATUS,
-  APPOINTMENT_STATUS_DISPLAY,
-  DUAL_MODE,
-} from "../constants/enum";
+import { APPOINTMENT_STATUS_DISPLAY, DUAL_MODE } from "../constants/enum";
 import { formatDate, formatTime } from "../utils/utils";
 import CheckoutModal from "../components/CheckoutModal";
 import paymentApi from "../apis/payments.apis";
+import AppointmentCard from "../components/AppointmentCard";
 
 export default function Profile() {
   const [isLoading, setIsLoading] = useState(true);
@@ -42,6 +41,24 @@ export default function Profile() {
     useState(null);
   const [selectedAppointmentCheckout, setSelectedAppointmentCheckout] =
     useState(null);
+
+  const STATUS_STEPS = [
+    { label: "Chờ xác nhận", value: "PENDING" },
+    { label: "Đã từ chối", value: "REJECTED" },
+    { label: "Đã xác nhận", value: "CONFIRMED" },
+    { label: "Đã thanh toán", value: "PAID" },
+    { label: "Hoàn thành", value: "COMPLETED" },
+  ];
+
+  const [activeStep, setActiveStep] = useState(0);
+  const selectedStatus = STATUS_STEPS[activeStep].value;
+
+  const getLatestStatus = (appointment) =>
+    appointment.appointmentStatusLog.at(-1);
+
+  const filteredAppointments = appointments.filter(
+    (appointment) => getLatestStatus(appointment) === selectedStatus
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -72,13 +89,6 @@ export default function Profile() {
     setValue(newValue);
   };
 
-  function a11yProps(index) {
-    return {
-      id: `simple-tab-${index}`,
-      "aria-controls": `simple-tabpanel-${index}`,
-    };
-  }
-
   return (
     <Box>
       <Navbar />
@@ -87,13 +97,13 @@ export default function Profile() {
           <Skeleton />
         ) : (
           <Box sx={{ padding: 3 }}>
+            {/* Hồ sơ người dùng */}
             <Box
               sx={{
                 padding: 3,
                 margin: "0 auto",
                 marginTop: 5,
                 borderRadius: 5,
-                // border: "1px solid black",
                 width: { xs: "90%", md: "85%" },
               }}
             >
@@ -105,7 +115,6 @@ export default function Profile() {
                   flexWrap: "wrap",
                 }}
               >
-                {/* Avatar */}
                 <Box
                   component="img"
                   src={profile?.avatar_url}
@@ -116,167 +125,95 @@ export default function Profile() {
                     borderRadius: "50%",
                     flexShrink: 0,
                   }}
-                  alt="Artist Avatar"
+                  alt="User Avatar"
                 />
 
-                {/* Thông tin Artist */}
                 <Box sx={{ flexGrow: 1 }}>
-                  <Typography
-                    sx={{
-                      fontSize: "24px",
-                      fontWeight: "bold",
-                      marginBottom: 1,
-                    }}
-                  >
+                  <Typography sx={{ fontSize: 24, fontWeight: "bold", mb: 1 }}>
                     {profile?.last_name} {profile?.first_name}
                   </Typography>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "row",
-                      gap: 1,
-                      alignItems: "center",
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        marginBottom: 1,
-                      }}
-                    >
-                      {profile?.email}
-                    </Typography>
+                  <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                    <Typography>{profile?.email}</Typography>
                     <Divider orientation="vertical" flexItem />
-                    <Typography
-                      sx={{ fontSize: "16px", color: "gray", marginBottom: 1 }}
-                    >
+                    <Typography sx={{ fontSize: 16, color: "gray" }}>
                       {profile?.phone_number}
                     </Typography>
                   </Box>
                 </Box>
               </Box>
             </Box>
+
+            {/* Tabs */}
             <Box sx={{ marginX: 10, padding: 2 }}>
               <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-                <Tabs
-                  value={value}
-                  onChange={handleChange}
-                  aria-label="basic tabs example"
-                >
-                  <Tab label="Lịch hẹn makeup" {...a11yProps(0)} />
-                  <Tab label="Sổ địa chỉ" {...a11yProps(1)} />
-                  <Tab label="Ưu đãi của tôi" {...a11yProps(2)} />
+                <Tabs value={value} onChange={handleChange}>
+                  <Tab label="Lịch hẹn makeup" />
+                  <Tab label="Sổ địa chỉ" />
+                  <Tab label="Ưu đãi của tôi" />
                 </Tabs>
               </Box>
-              <CustomTabPanel value={value} index={0}>
-                <>
-                  {appointments && appointments.length > 0 ? (
-                    appointments.map((appointment, index) => (
-                      <Card
-                        onClick={() =>
+
+              {/* Tab nội dung */}
+              {value === 0 && (
+                <Box sx={{ p: 3 }}>
+                  {/* Stepper */}
+                  <Stepper
+                    activeStep={activeStep}
+                    alternativeLabel
+                    sx={{ mb: 4 }}
+                  >
+                    {STATUS_STEPS.map((step, index) => (
+                      <Step key={step.value} completed={false}>
+                        <StepLabel
+                          onClick={() => {
+                            setActiveStep(index);
+                            console.log("Clicked step:", index);
+                          }}
+                          sx={{ cursor: "pointer" }}
+                        >
+                          {step.label}
+                        </StepLabel>
+                      </Step>
+                    ))}
+                  </Stepper>
+
+                  {/* Danh sách lịch hẹn */}
+                  {filteredAppointments.length > 0 ? (
+                    filteredAppointments.map((appointment) => (
+                      <AppointmentCard
+                        key={appointment.id}
+                        appointment={appointment}
+                        onViewDetail={() =>
                           setSelectedAppointmentDetail(appointment)
                         }
-                        key={index}
-                        sx={{
-                          mb: 2,
-                          boxShadow: 2,
-                          borderRadius: 2,
+                        onCheckout={() => {
+                          setSelectedAppointmentCheckout(appointment);
+                          setOpenCheckoutModal(true);
                         }}
-                      >
-                        <CardContent>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 2,
-                              mb: 1,
-                            }}
-                          >
-                            <Avatar src={appointment.artist.avatar_url} />
-                            <Box>
-                              <Typography variant="subtitle1" fontWeight="bold">
-                                {appointment.artist.name}
-                              </Typography>
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                              >
-                                {appointment.service.service_name}
-                              </Typography>
-                            </Box>
-                          </Box>
-
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 1,
-                              mb: 1,
-                            }}
-                          >
-                            <PlaceIcon
-                              sx={{ fontSize: 18, color: "text.secondary" }}
-                            />
-                            <Typography variant="body2" color="text.secondary">
-                              {appointment.district_name},{" "}
-                              {appointment.province_name}
-                            </Typography>
-                          </Box>
-
-                          <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            mb={1}
-                          >
-                            {`${formatTime(appointment.start_time)} - ${formatTime(
-                              appointment.end_time
-                            )} | ${formatDate(appointment.booking_date)}`}
-                          </Typography>
-
-                          <Box
-                            sx={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                            }}
-                          >
-                            <Chip
-                              label={
-                                APPOINTMENT_STATUS_DISPLAY[
-                                  appointment.appointmentStatusLog[
-                                    appointment?.appointmentStatusLog.length - 1
-                                  ]
-                                ]
-                              }
-                              color="primary"
-                              variant="outlined"
-                            />
-                            {appointment.appointmentStatusLog[
-                              appointment.appointmentStatusLog.length - 1
-                            ] !== APPOINTMENT_STATUS.PAID && (
-                              <Button
-                                variant="contained"
-                                size="small"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedAppointmentCheckout(appointment);
-                                  setOpenCheckoutModal(true);
-                                }}
-                              >
-                                Thanh toán
-                              </Button>
-                            )}
-                          </Box>
-                        </CardContent>
-                      </Card>
+                      />
                     ))
                   ) : (
-                    <Typography variant="body2" color="text.secondary">
-                      Không có lịch hẹn nào.
+                    <Typography color="text.secondary">
+                      Không có lịch hẹn ở trạng thái này.
                     </Typography>
                   )}
-                </>
-              </CustomTabPanel>
+                </Box>
+              )}
+
+              {value === 1 && (
+                <Box sx={{ p: 3 }}>
+                  <Typography>Sổ địa chỉ đang được phát triển.</Typography>
+                </Box>
+              )}
+
+              {value === 2 && (
+                <Box sx={{ p: 3 }}>
+                  <Typography>Ưu đãi đang được phát triển.</Typography>
+                </Box>
+              )}
             </Box>
+
+            {/* Modal thanh toán */}
             <CheckoutModal
               open={openCheckoutModal}
               onClose={() => setOpenCheckoutModal(false)}
@@ -301,6 +238,7 @@ export default function Profile() {
               }}
             />
 
+            {/* Modal chi tiết lịch hẹn */}
             <Dialog
               open={!!selectedAppointmentDetail}
               onClose={() => setSelectedAppointmentDetail(null)}
@@ -330,10 +268,7 @@ export default function Profile() {
                   Trạng thái:{" "}
                   {
                     APPOINTMENT_STATUS_DISPLAY[
-                      selectedAppointmentDetail?.appointmentStatusLog[
-                        selectedAppointmentDetail?.appointmentStatusLog.length -
-                          1
-                      ]
+                      selectedAppointmentDetail?.appointmentStatusLog?.at(-1)
                     ]
                   }
                 </Typography>
@@ -348,21 +283,5 @@ export default function Profile() {
         )}
       </Box>
     </Box>
-  );
-}
-function CustomTabPanel(props) {
-  // eslint-disable-next-line react/prop-types
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-    </div>
   );
 }
