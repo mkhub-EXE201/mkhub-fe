@@ -12,6 +12,7 @@ import {
   FormControlLabel,
   FormLabel,
   RadioGroup,
+  Button,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -25,6 +26,7 @@ import artistServiceApis from "../apis/artistServices.apis";
 import Skeleton from "../components/Skeleton";
 import categoryApis from "../apis/categories.apis";
 import { useNavigate } from "react-router-dom";
+import artistLocationApis from "../apis/artistLocations.apis";
 
 export default function Explore() {
   const [provinces, setProvinces] = useState([]);
@@ -120,6 +122,15 @@ export default function Explore() {
     }
   };
 
+  const handleSearchLocation = async () => {
+    const response = await artistLocationApis.findNearArtists(
+      selectedProvince,
+      selectedDistrict
+    );
+    if (response.status === HttpStatusCode.Ok) {
+      setLayouts(response.data.result);
+    }
+  };
   return (
     <Box>
       {loading ? (
@@ -283,6 +294,13 @@ export default function Explore() {
                           ))}
                       </Select>
                     </FormControl>
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      onClick={handleSearchLocation}
+                    >
+                      Tìm kiếm
+                    </Button>
                     <Typography
                       sx={{
                         textAlign: "center",
