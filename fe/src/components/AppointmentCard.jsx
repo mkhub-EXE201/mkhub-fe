@@ -55,7 +55,9 @@ const AppointmentCard = ({ appointment, onViewDetail, onCheckout }) => {
       </Box>
 
       {/* Checkout Button */}
-      {appointment.status === APPOINTMENT_STATUS.CONFIRMED && (
+      {appointment.appointmentStatusLog[
+        appointment.appointmentStatusLog.length - 1
+      ] === APPOINTMENT_STATUS.CONFIRMED && (
         <Button
           variant="contained"
           sx={{ mt: 2 }}

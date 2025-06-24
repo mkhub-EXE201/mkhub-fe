@@ -142,6 +142,7 @@ export default function ArtistScheduleManagement() {
         {/* General Schedule Tab */}
         <TabPanel value={activeTab} index={TABS.GENERAL}>
           <GeneralScheduleTab
+            getBookingRequests={getBookingRequests}
             selectedDate={selectedDate}
             handleDateChange={handleDateChange}
             scheduleData={bookings}

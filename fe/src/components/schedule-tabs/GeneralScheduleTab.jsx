@@ -60,6 +60,7 @@ function GeneralScheduleTab({
   calendarEvents,
   onAddEvent,
   getAllSchedules,
+  getBookingRequests,
 }) {
   const isLaptop = useMediaQuery("(max-width:1024px)");
 
@@ -81,7 +82,11 @@ function GeneralScheduleTab({
           {filteredSchedule.length > 0 ? (
             <Box sx={styles.cardsGrid}>
               {filteredSchedule.map((appointment) => (
-                <ScheduleCard key={appointment.id} appointment={appointment} />
+                <ScheduleCard
+                  key={appointment.id}
+                  appointment={appointment}
+                  getBookingRequests={getBookingRequests}
+                />
               ))}
             </Box>
           ) : (
