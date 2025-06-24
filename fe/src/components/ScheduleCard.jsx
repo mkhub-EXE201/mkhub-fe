@@ -25,7 +25,6 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { verifyBookingSchema } from "../schemas/verifyBookingSchema";
 import bookingApis from "../apis/bookings.apis";
-import { reach } from "yup";
 import toast from "react-hot-toast";
 
 // Common styles extracted for better maintenance
@@ -45,7 +44,7 @@ const styles = {
   },
 };
 
-const ScheduleCard = ({ appointment }) => {
+const ScheduleCard = ({ appointment, getBookingRequests }) => {
   const [client, setClient] = useState({});
   const [location, setLocation] = useState("");
   const [openModal, setOpenModal] = useState(false);
@@ -78,6 +77,7 @@ const ScheduleCard = ({ appointment }) => {
     if (response.status === HttpStatusCode.Ok) {
       toast.success(response.data.message);
       setOpenModal(false);
+      getBookingRequests();
     }
   };
   const handleClick = async () => {
@@ -101,97 +101,87 @@ const ScheduleCard = ({ appointment }) => {
   };
 
   return (
-    <Box
-      sx={{
-        border: "1px solid #ccc",
-        borderRadius: 2,
-        padding: 2,
-        display: "flex",
-        flexDirection: "column",
-        gap: 2,
-        boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.15)",
-        backgroundColor: "#fff",
-        ":hover": {
-          cursor: "pointer",
-        },
-      }}
-      onClick={() => {
-        handleClick();
-      }}
-    >
+    <>
       <Box
         sx={{
+          border: "1px solid #ccc",
+          borderRadius: 2,
+          padding: 2,
           display: "flex",
-          alignItems: "center",
+          flexDirection: "column",
           gap: 2,
+          boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.15)",
+          backgroundColor: "#fff",
+          ":hover": {
+            cursor: "pointer",
+          },
         }}
+        onClick={() => handleClick()}
       >
-        <img
-          src={client.avatar_url}
-          alt={`Khach Hang ${client.last_name} ${client.first_name}`}
-          style={styles.avatar}
-        />
-        <Box>
-          <Typography
-            fontWeight={500}
-          >{`Khách hàng ${client.last_name} ${client.first_name}`}</Typography>
-          <Box
-            sx={{
-              display: "flex",
-              gap: "5px",
-            }}
-          >
-            <PlaceIcon sx={{ fontSize: 16 }} />
-            <Typography sx={{ fontSize: 13 }}>
-              {appointment.address_type === BOOKING_ADDRESS_TYPE.ARTIST_ADDRESS
-                ? "Tại studio của tôi"
-                : "Tại địa chỉ của khách hàng"}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <img
+            src={client.avatar_url}
+            alt={`Khach Hang ${client.last_name} ${client.first_name}`}
+            style={styles.avatar}
+          />
+          <Box>
+            <Typography fontWeight={500}>
+              {`Khách hàng ${client.last_name} ${client.first_name}`}
             </Typography>
+            <Box sx={{ display: "flex", gap: "5px" }}>
+              <PlaceIcon sx={{ fontSize: 16 }} />
+              <Typography sx={{ fontSize: 13 }}>
+                {appointment.address_type ===
+                BOOKING_ADDRESS_TYPE.ARTIST_ADDRESS
+                  ? "Tại studio của tôi"
+                  : "Tại địa chỉ của khách hàng"}
+              </Typography>
+            </Box>
           </Box>
         </Box>
-      </Box>
-      <Box
-        sx={{
-          display: "flex",
-          gap: 2,
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <Box>
-          <Typography sx={styles.service}>
-            {appointment.service_name}
-          </Typography>
-          <Typography sx={styles.dateTime}>
-            {formatTime(appointment.start_time)} -{" "}
-            {formatTime(appointment.end_time)}
-          </Typography>
-        </Box>
-        <Chip
-          sx={{
-            backgroundColor: getStatusColor(appointment.status),
-            padding: "2px 8px",
-            borderRadius: "12px",
-            fontSize: 12,
-            fontWeight: 500,
-            textTransform: "capitalize",
-            width: "fit-content",
-          }}
-          label={
-            appointment.status === BOOKING_STATUS.APPROVED
-              ? "Đã duyệt"
-              : appointment.status === BOOKING_STATUS.PENDING
-                ? "Chờ duyệt"
-                : "Đã từ chối"
-          }
-        />
-      </Box>
-      <Modal
-        open={openModal}
-        onClose={() => setOpenModal(false)}
-        BackdropProps={{ style: { backgroundColor: "rgba(0,0,0,0.5)" } }}
-      >
+
         <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <Box>
+            <Typography sx={styles.service}>
+              {appointment.service_name}
+            </Typography>
+            <Typography sx={styles.dateTime}>
+              {formatTime(appointment.start_time)} -{" "}
+              {formatTime(appointment.end_time)}
+            </Typography>
+          </Box>
+          <Chip
+            sx={{
+              backgroundColor: getStatusColor(appointment.status),
+              padding: "2px 8px",
+              borderRadius: "12px",
+              fontSize: 12,
+              fontWeight: 500,
+              textTransform: "capitalize",
+              width: "fit-content",
+            }}
+            label={
+              appointment.status === BOOKING_STATUS.APPROVED
+                ? "Đã duyệt"
+                : appointment.status === BOOKING_STATUS.PENDING
+                  ? "Chờ duyệt"
+                  : "Đã từ chối"
+            }
+          />
+        </Box>
+      </Box>
+
+      {/* MODAL */}
+      <Modal open={openModal} onClose={() => setOpenModal(false)}>
+        <Box
+          onClick={(e) => e.stopPropagation()} // Ngăn sự kiện click lan ra ngoài làm mở lại
           sx={{
             p: 3,
             backgroundColor: "#fff",
@@ -206,17 +196,16 @@ const ScheduleCard = ({ appointment }) => {
             borderRadius: 2,
           }}
         >
+          {/* Các TextField như cũ */}
           <Typography variant="h5" gutterBottom>
             Thông tin buổi Makeup
           </Typography>
           <TextField
             fullWidth
-            id="outlined-basic"
             label="Tên khách hàng"
             variant="outlined"
             value={`${client.last_name} ${client.first_name}`}
             disabled
-            InputLabelProps={{ shrink: true }}
           />
           <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
             <TextField
@@ -228,20 +217,18 @@ const ScheduleCard = ({ appointment }) => {
                 "dd-MM-yyyy"
               )}
               disabled
-              InputLabelProps={{ shrink: true }}
             />
-
             <TextField
               fullWidth
-              id="outlined-basic"
               label="Thời gian bắt đầu - dự kiến kết thúc"
               variant="outlined"
-              value={`${formatTime(appointment.start_time)} - ${formatTime(appointment.end_time)}`}
+              value={`${formatTime(appointment.start_time)} - ${formatTime(
+                appointment.end_time
+              )}`}
               disabled
-              InputLabelProps={{ shrink: true }}
             />
           </Box>
-          <Typography sx={styles.dateTime}></Typography>
+
           <Box
             sx={{
               display: "flex",
@@ -252,44 +239,40 @@ const ScheduleCard = ({ appointment }) => {
           >
             <TextField
               fullWidth
-              id="outlined-basic"
               label="Gói makeup"
               variant="outlined"
               value={`${appointment.service_name}`}
               disabled
-              InputLabelProps={{ shrink: true }}
             />
             <TextField
               fullWidth
-              id="outlined-basic"
               label="Số lượng người đặt makeup"
               variant="outlined"
               value={`${appointment.group_size}`}
               disabled
-              InputLabelProps={{ shrink: true }}
             />
             <TextField
               fullWidth
-              id="outlined-basic"
               label="Tổng giá tiền"
               variant="outlined"
               value={`${formatCurrency(appointment.total_price)} VNĐ`}
               disabled
-              InputLabelProps={{ shrink: true }}
             />
           </Box>
           <TextField
             fullWidth
-            id="outlined-basic"
             label="Ghi chú của khách hàng"
             variant="outlined"
             value={appointment.client_note || "Không có"}
             disabled
-            InputLabelProps={{ shrink: true }}
+            InputProps={{
+              style: {
+                color: appointment.client_note ? "inherit" : "#888",
+              },
+            }}
           />
           <TextField
             fullWidth
-            id="outlined-basic"
             label="Địa chỉ makeup"
             variant="outlined"
             value={
@@ -298,16 +281,13 @@ const ScheduleCard = ({ appointment }) => {
                 : "Địa chỉ của khách hàng"
             }
             disabled
-            InputLabelProps={{ shrink: true }}
           />
           <TextField
             fullWidth
-            id="outlined-basic"
             label="Địa chỉ cụ thể"
             variant="outlined"
             value={location}
             disabled
-            InputLabelProps={{ shrink: true }}
           />
 
           <FormControl fullWidth error={!!errors.verify_status}>
@@ -331,13 +311,13 @@ const ScheduleCard = ({ appointment }) => {
 
           <TextField
             fullWidth
-            id="reason"
             label="Lý do"
             value={watch("reason")}
             error={!!errors.reason}
             helperText={errors.reason?.message}
             {...register("reason")}
           />
+
           <Button
             onClick={handleSubmit}
             variant="contained"
@@ -349,7 +329,7 @@ const ScheduleCard = ({ appointment }) => {
           </Button>
         </Box>
       </Modal>
-    </Box>
+    </>
   );
 };
 

@@ -77,7 +77,10 @@ export default function Profile() {
         }
         let appointmentsData = [];
         if (bookingRes.status === HttpStatusCode.Ok) {
-          appointmentsData = [...appointmentsData, ...bookingRes.data.result];
+          const filterBookings = bookingRes.data.result.filter(
+            (item) => item.status !== "APPROVED"
+          );
+          appointmentsData = [...appointmentsData, ...filterBookings];
         }
         if (appointmentRes.status === HttpStatusCode.Ok) {
           appointmentsData = [
@@ -85,7 +88,6 @@ export default function Profile() {
             ...appointmentRes.data.result,
           ];
         }
-
         if (appointmentsData.length > 0) {
           setAppointments(appointmentsData);
         }
