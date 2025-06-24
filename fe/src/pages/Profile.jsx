@@ -2,16 +2,12 @@ import {
   Avatar,
   Box,
   Button,
-  Card,
-  CardContent,
-  Chip,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Divider,
   Step,
-  StepButton,
   StepLabel,
   Stepper,
   Tab,
@@ -30,6 +26,7 @@ import { formatDate, formatTime } from "../utils/utils";
 import CheckoutModal from "../components/CheckoutModal";
 import paymentApi from "../apis/payments.apis";
 import AppointmentCard from "../components/AppointmentCard";
+import bookingApis from "../apis/bookings.apis";
 
 export default function Profile() {
   const [isLoading, setIsLoading] = useState(true);
@@ -44,17 +41,23 @@ export default function Profile() {
 
   const STATUS_STEPS = [
     { label: "Chờ xác nhận", value: "PENDING" },
-    { label: "Đã từ chối", value: "REJECTED" },
     { label: "Đã xác nhận", value: "CONFIRMED" },
     { label: "Đã thanh toán", value: "PAID" },
+    { label: "Đã từ chối", value: "REJECTED" },
     { label: "Hoàn thành", value: "COMPLETED" },
   ];
 
   const [activeStep, setActiveStep] = useState(0);
   const selectedStatus = STATUS_STEPS[activeStep].value;
 
-  const getLatestStatus = (appointment) =>
-    appointment.appointmentStatusLog.at(-1);
+  const getLatestStatus = (item) => {
+    // Nếu có status log (appointment)
+    if (Array.isArray(item.appointmentStatusLog)) {
+      return item.appointmentStatusLog.at(-1);
+    }
+    // Nếu có status (booking)
+    return item.status;
+  };
 
   const filteredAppointments = appointments.filter(
     (appointment) => getLatestStatus(appointment) === selectedStatus
@@ -63,17 +66,28 @@ export default function Profile() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [profileRes, appointmentRes] = await Promise.all([
+        const [profileRes, bookingRes, appointmentRes] = await Promise.all([
           userApis.getMe(),
+          bookingApis.getBookingRequests("MEMBER"),
           appointmentApis.getAllAppointments(DUAL_MODE.CLIENT),
         ]);
 
         if (profileRes.status === HttpStatusCode.Ok) {
           setProfile(profileRes.data.result);
         }
-
+        let appointmentsData = [];
+        if (bookingRes.status === HttpStatusCode.Ok) {
+          appointmentsData = [...appointmentsData, ...bookingRes.data.result];
+        }
         if (appointmentRes.status === HttpStatusCode.Ok) {
-          setAppointments(appointmentRes.data.result);
+          appointmentsData = [
+            ...appointmentsData,
+            ...appointmentRes.data.result,
+          ];
+        }
+
+        if (appointmentsData.length > 0) {
+          setAppointments(appointmentsData);
         }
       } catch (error) {
         toast.error(error.message || error.response?.data?.message);
@@ -115,8 +129,7 @@ export default function Profile() {
                   flexWrap: "wrap",
                 }}
               >
-                <Box
-                  component="img"
+                <Avatar
                   src={profile?.avatar_url}
                   sx={{
                     width: 100,

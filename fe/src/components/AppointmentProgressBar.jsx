@@ -4,6 +4,7 @@ import React from "react";
 import { APPOINTMENT_STATUS } from "../constants/enum";
 
 const STEPS = [
+  { label: "Chờ xác nhận", value: APPOINTMENT_STATUS.PENDING },
   { label: "Đã xác nhận", value: APPOINTMENT_STATUS.CONFIRMED },
   { label: "Đã thanh toán", value: APPOINTMENT_STATUS.PAID },
   { label: "Hoàn thành", value: APPOINTMENT_STATUS.COMPLETED },
