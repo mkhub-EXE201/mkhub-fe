@@ -2,7 +2,7 @@ import * as Yup from "yup";
 import { BOOKING_REQUEST_MESSAGES } from "../constants/message";
 import { BOOKING_ADDRESS_TYPE } from "../constants/enum";
 
-export const artistAddressSchema = Yup.object().shape({
+export const addNewBookingSchema = Yup.object().shape({
   bookingSchedule: Yup.object().required(
     BOOKING_REQUEST_MESSAGES.BOOKING_SCHEDULE_IS_REQUIRED
   ),
@@ -45,7 +45,11 @@ export const artistAddressSchema = Yup.object().shape({
   group_size: Yup.number()
     .required(BOOKING_REQUEST_MESSAGES.GROUP_SIZE_IS_REQUIRED)
     .min(1, BOOKING_REQUEST_MESSAGES.GROUP_SIZE_MIN_IS_ONE),
-  client_note: Yup.string().optional(),
+  client_note: Yup.string()
+    .trim()
+    .nullable()
+    .notRequired()
+    .max(200, "Ghi chú chỉ được tối đa 200 kí tự."),
   total_price: Yup.number().required(),
 });
-export default artistAddressSchema;
+export default addNewBookingSchema;

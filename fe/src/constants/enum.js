@@ -78,6 +78,8 @@ export const MESSAGE_SENDER_TYPE = {
 };
 
 export const APPOINTMENT_STATUS = {
+  PENDING: "PENDING",
+  REJECTED: "REJECTED",
   CONFIRMED: "CONFIRMED",
   PAID: "PAID",
 };

@@ -146,22 +146,7 @@ const AppRouter = () => {
         </Layout>
       ),
     },
-    {
-      path: path.successCheckout,
-      element: (
-        <Layout>
-          <SuccessCheckout />
-        </Layout>
-      ),
-    },
-    {
-      path: path.clientChatManagement,
-      element: (
-        <Layout>
-          <ClientInboxManagement />
-        </Layout>
-      ),
-    },
+
     // protect route - admin
     {
       path: "",
@@ -230,6 +215,22 @@ const AppRouter = () => {
         {
           path: path.profile,
           element: <Profile />,
+        },
+        {
+          path: path.successCheckout,
+          element: (
+            <Layout>
+              <SuccessCheckout />
+            </Layout>
+          ),
+        },
+        {
+          path: path.clientChatManagement,
+          element: (
+            <Layout>
+              <ClientInboxManagement />
+            </Layout>
+          ),
         },
       ],
     },

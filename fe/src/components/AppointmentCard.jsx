@@ -2,20 +2,8 @@
 import React from "react";
 import { Avatar, Box, Button, Card, Divider, Typography } from "@mui/material";
 import { formatDate, formatTime } from "../utils/utils";
-import {
-  APPOINTMENT_STATUS,
-  APPOINTMENT_STATUS_DISPLAY,
-} from "../constants/enum";
-import PlaceIcon from "@mui/icons-material/PlaceOutlined";
-import AppointmentProgressBar from "./AppointmentProgressBar";
-
-// Props typing
+import { APPOINTMENT_STATUS } from "../constants/enum";
 const AppointmentCard = ({ appointment, onViewDetail, onCheckout }) => {
-  const latestStatus =
-    appointment.appointmentStatusLog[
-      appointment.appointmentStatusLog.length - 1
-    ];
-
   return (
     <Card onClick={onViewDetail} sx={{ mb: 2, p: 2, cursor: "pointer" }}>
       {/* Artist Info */}
@@ -55,26 +43,19 @@ const AppointmentCard = ({ appointment, onViewDetail, onCheckout }) => {
           </Typography>
         </Box>
       </Box>
-      <AppointmentProgressBar statusLog={appointment.appointmentStatusLog} />
 
       {/* Extra Info */}
       <Box mt={2}>
         <Typography variant="body2">
           Ghi chú: {appointment.client_note || "Không có"}
         </Typography>
-        <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
-          <Typography variant="body2">Trạng thái: </Typography>
-          <Typography variant="body2" fontWeight="bold" color="primary" ml={1}>
-            {APPOINTMENT_STATUS_DISPLAY[latestStatus]}
-          </Typography>
-        </Box>
         <Typography variant="subtitle1" mt={1}>
           Tổng tiền: {appointment.total_price.toLocaleString("vi-VN")}₫
         </Typography>
       </Box>
 
       {/* Checkout Button */}
-      {latestStatus !== APPOINTMENT_STATUS.PAID && (
+      {appointment.status === APPOINTMENT_STATUS.CONFIRMED && (
         <Button
           variant="contained"
           sx={{ mt: 2 }}

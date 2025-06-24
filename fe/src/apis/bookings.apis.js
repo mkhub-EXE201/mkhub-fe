@@ -4,7 +4,7 @@ export const bookingUrl = "bookings";
 
 const bookingApis = {
   addBookingRequest: (payload) => http.post(`${bookingUrl}/add`, payload),
-  getBookingRequests: () => http.get(`${bookingUrl}/`),
+  getBookingRequests: (type) => http.get(`${bookingUrl}?type=${type}`),
   verifyBookingRequest: (booking_id, payload) =>
     http.post(`${bookingUrl}/verify/${booking_id}`, payload),
 };
