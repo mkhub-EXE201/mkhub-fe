@@ -44,7 +44,11 @@ const styles = {
   },
 };
 
-const ScheduleCard = ({ appointment, getBookingRequests }) => {
+const ScheduleCard = ({
+  appointment,
+  getBookingRequests,
+  onClickGoToPersonalTab,
+}) => {
   const [client, setClient] = useState({});
   const [location, setLocation] = useState("");
   const [openModal, setOpenModal] = useState(false);
@@ -81,6 +85,7 @@ const ScheduleCard = ({ appointment, getBookingRequests }) => {
     }
   };
   const handleClick = async () => {
+    onClickGoToPersonalTab();
     if (appointment.status === BOOKING_STATUS.PENDING) {
       const [ward, district, province] = await Promise.all([
         locationApi.getWardNameByCode(

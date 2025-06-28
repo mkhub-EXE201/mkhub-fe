@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React from "react";
 import { Box, Typography, useMediaQuery, Divider } from "@mui/material";
 import PropTypes from "prop-types";
@@ -61,6 +62,7 @@ function GeneralScheduleTab({
   onAddEvent,
   getAllSchedules,
   getBookingRequests,
+  onSelectAppointment,
 }) {
   const isLaptop = useMediaQuery("(max-width:1024px)");
 
@@ -86,6 +88,9 @@ function GeneralScheduleTab({
                   key={appointment.id}
                   appointment={appointment}
                   getBookingRequests={getBookingRequests}
+                  onClickGoToPersonalTab={() =>
+                    onSelectAppointment(appointment)
+                  }
                 />
               ))}
             </Box>
