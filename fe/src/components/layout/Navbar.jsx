@@ -320,7 +320,7 @@ export default function Navbar({
                   ? "Trở thành Makeup Artist"
                   : role === USER_ROLE.ARTIST
                     ? "Chuyển sang chế độ User"
-                    : profile.is_artist
+                    : profile?.is_artist
                       ? "Chuyển sang chế độ Makeup Artist"
                       : "Trở thành Makeup Artist"}
               </Typography>

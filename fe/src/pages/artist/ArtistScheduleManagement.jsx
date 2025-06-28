@@ -64,6 +64,7 @@ export default function ArtistScheduleManagement() {
   const [calendarEvents, setCalendarEvents] = useState([]);
   const { profile } = useContext(AppContext);
   const [bookings, setBookings] = useState([]);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
 
   const getBookingRequests = async () => {
     const response = await bookingApis.getBookingRequests();
@@ -149,12 +150,16 @@ export default function ArtistScheduleManagement() {
             calendarEvents={calendarEvents}
             getAllSchedules={getAllSchedules}
             onAddEvent={handleAddEvent}
+            onSelectAppointment={(appointment) => {
+              setSelectedAppointment(appointment);
+              setActiveTab(TABS.PERSONAL);
+            }}
           />
         </TabPanel>
 
         {/* Personal Schedule Tab */}
         <TabPanel value={activeTab} index={TABS.PERSONAL}>
-          <PersonalScheduleTab />
+          <PersonalScheduleTab selectedAppointment={selectedAppointment} />
         </TabPanel>
 
         {/* Canceled Schedule Tab */}

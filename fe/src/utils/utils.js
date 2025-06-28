@@ -99,3 +99,34 @@ export const getValidEndTimeSlots = (startTime, interval = 30) => {
     return slotTime.isAfter(start);
   });
 };
+export const formatFullDateTimeRange = (start, end) => {
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+
+  const weekdayMap = [
+    "Chủ nhật",
+    "Thứ 2",
+    "Thứ 3",
+    "Thứ 4",
+    "Thứ 5",
+    "Thứ 6",
+    "Thứ 7",
+  ];
+  const weekday = weekdayMap[startDate.getDay()];
+
+  const day = String(startDate.getDate()).padStart(2, "0");
+  const month = String(startDate.getMonth() + 1).padStart(2, "0");
+  const year = startDate.getFullYear();
+
+  const formatTime = (date) =>
+    date.toLocaleTimeString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+
+  const startTime = formatTime(startDate);
+  const endTime = formatTime(endDate);
+
+  return `${weekday} ${day}/${month}/${year} ${startTime}-${endTime}`;
+};
