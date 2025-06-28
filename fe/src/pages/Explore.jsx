@@ -1,10 +1,7 @@
 import {
   Box,
-  MenuItem,
   Typography,
-  Select,
   FormControl,
-  InputLabel,
   AccordionDetails,
   AccordionSummary,
   Accordion,
@@ -12,11 +9,9 @@ import {
   FormControlLabel,
   FormLabel,
   RadioGroup,
-  Button,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import locationApi from "../apis/locations.apis";
 import { HttpStatusCode } from "axios";
 import toast from "react-hot-toast";
 import PlaceIcon from "@mui/icons-material/PlaceOutlined";
@@ -26,28 +21,14 @@ import artistServiceApis from "../apis/artistServices.apis";
 import Skeleton from "../components/Skeleton";
 import categoryApis from "../apis/categories.apis";
 import { useNavigate } from "react-router-dom";
-import artistLocationApis from "../apis/artistLocations.apis";
 
 export default function Explore() {
-  const [provinces, setProvinces] = useState([]);
-  const [districts, setDistricts] = useState([]);
-  const [selectedProvince, setSelectedProvince] = useState(null);
-  const [selectedDistrict, setSelectedDistrict] = useState(null);
   const [selectedValue, setSelectedValue] = useState("all");
-  const [userCoords, setUserCoords] = useState(null);
   const [layouts, setLayouts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
-  const getProvinces = async () => {
-    const response = await locationApi.getProvinces();
-    if (response.status === HttpStatusCode.Ok) {
-      const data = response.data.result;
-      setProvinces(data);
-    } else {
-      toast.error("Lỗi lấy danh sách tỉnh/thành phố");
-    }
-  };
+
   const getCategories = async () => {
     const response = await categoryApis.getAllCategories();
     if (response.status === HttpStatusCode.Ok) {
@@ -59,30 +40,11 @@ export default function Explore() {
   };
   useEffect(() => {
     const fetchData = async () => {
-      await Promise.all([
-        getProvinces(),
-        handleGetAllServices(),
-        getCategories(),
-      ]);
+      await Promise.all([handleGetAllServices(), getCategories()]);
       setLoading(false);
     };
     fetchData();
   }, []);
-
-  useEffect(() => {
-    const getDistricts = async () => {
-      if (!selectedProvince) return;
-      const response = await locationApi.getDistricts(Number(selectedProvince));
-      if (response.status === HttpStatusCode.Ok) {
-        const data = response.data.result;
-        setDistricts(data);
-        setSelectedDistrict("");
-      } else {
-        toast.error("Lỗi lấy danh sách quận/huyện");
-      }
-    };
-    getDistricts();
-  }, [selectedProvince]);
 
   const handleFilter = async (value) => {
     const params = {};
@@ -98,23 +60,6 @@ export default function Explore() {
     }
   };
 
-  const handleGetLocation = () => {
-    if (!navigator.geolocation) {
-      toast.error("Trình duyệt không hỗ trợ định vị");
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setUserCoords({ lat: latitude, lng: longitude });
-        toast.success(`Đã lấy được vị trí!, ${latitude} ${longitude}`);
-      },
-      () => {
-        toast.error("Không thể lấy vị trí của bạn");
-      }
-    );
-  };
-
   const handleGetAllServices = async () => {
     const response = await artistServiceApis.getAllServices();
     if (response.status === HttpStatusCode.Ok) {
@@ -122,15 +67,6 @@ export default function Explore() {
     }
   };
 
-  const handleSearchLocation = async () => {
-    const response = await artistLocationApis.findNearArtists(
-      selectedProvince,
-      selectedDistrict
-    );
-    if (response.status === HttpStatusCode.Ok) {
-      setLayouts(response.data.result);
-    }
-  };
   return (
     <Box>
       {loading ? (
@@ -213,134 +149,6 @@ export default function Explore() {
                           ))}
                       </RadioGroup>
                     </FormControl>
-                  </AccordionDetails>
-                </Accordion>
-
-                <Accordion>
-                  <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls="panel2-content"
-                    id="panel2-header"
-                  >
-                    <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
-                      <PlaceIcon />
-                      <Typography
-                        component="span"
-                        sx={{ fontWeight: "600", fontSize: 14 }}
-                      >
-                        Địa điểm
-                      </Typography>
-                    </Box>
-                  </AccordionSummary>
-                  <Typography
-                    sx={{
-                      paddingX: 3,
-                      paddingBottom: 2,
-                      color: (theme) => theme.palette.darkBrown,
-                    }}
-                  >
-                    Chọn khu vực để hiển thị kết quả phù hợp gần bạn.
-                  </Typography>
-                  {/* tỉnh/thành phố */}
-                  <AccordionDetails>
-                    <FormControl fullWidth>
-                      <InputLabel id="demo-simple-select-label">
-                        Tỉnh/Thành phố
-                      </InputLabel>
-                      <Select
-                        labelId="demo-simple-select-label"
-                        value={selectedProvince ?? ""}
-                        label="Tỉnh/Thành phố"
-                        onChange={(e) =>
-                          setSelectedProvince(Number(e.target.value))
-                        }
-                      >
-                        {provinces &&
-                          provinces.length > 0 &&
-                          provinces.map((province) => (
-                            <MenuItem
-                              key={province.ProvinceID}
-                              value={province.ProvinceID.toString()}
-                            >
-                              {province.ProvinceName}
-                            </MenuItem>
-                          ))}
-                      </Select>
-                    </FormControl>
-                  </AccordionDetails>
-                  {/* quận/huyện */}
-                  <AccordionDetails>
-                    <FormControl fullWidth>
-                      <InputLabel id="demo-simple-select-label">
-                        Quận/Huyện
-                      </InputLabel>
-                      <Select
-                        labelId="demo-simple-select-label"
-                        value={selectedDistrict ?? ""}
-                        label="Quận/Huyện"
-                        onChange={(e) =>
-                          setSelectedDistrict(Number(e.target.value))
-                        }
-                      >
-                        {districts &&
-                          districts.length > 0 &&
-                          districts.map((district) => (
-                            <MenuItem
-                              key={district.DistrictID}
-                              value={district.DistrictID.toString()}
-                            >
-                              {district.DistrictName}
-                            </MenuItem>
-                          ))}
-                      </Select>
-                    </FormControl>
-                    <Button
-                      variant="contained"
-                      fullWidth
-                      onClick={handleSearchLocation}
-                    >
-                      Tìm kiếm
-                    </Button>
-                    <Typography
-                      sx={{
-                        textAlign: "center",
-                        marginX: 2,
-                        marginY: 1,
-                        color: (theme) => theme.palette.darkBrown,
-                      }}
-                    >
-                      Hoặc
-                    </Typography>
-                    <Box sx={{ padding: 1 }}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: 1,
-                        }}
-                      >
-                        <button
-                          onClick={handleGetLocation}
-                          style={{
-                            backgroundColor: "#ED1E79",
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: "4px",
-                            padding: "8px 12px",
-                            cursor: "pointer",
-                            fontWeight: 500,
-                          }}
-                        >
-                          Lấy tọa độ của tôi
-                        </button>
-                        {userCoords && (
-                          <Typography sx={{ fontSize: 14 }}>
-                            Vĩ độ: <b>{userCoords.lat.toFixed(5)}</b> <br />
-                            Kinh độ: <b>{userCoords.lng.toFixed(5)}</b>
-                          </Typography>
-                        )}
-                      </Box>
-                    </Box>
                   </AccordionDetails>
                 </Accordion>
               </Box>

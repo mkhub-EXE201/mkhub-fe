@@ -130,6 +130,7 @@ function PersonalScheduleTab({ selectedAppointment }) {
 
         {/* Customer Information Card */}
         <CustomProfileCard
+          isHome={false}
           customerData={selectedAppointment}
           wardName={wardName}
           districtName={districtName}

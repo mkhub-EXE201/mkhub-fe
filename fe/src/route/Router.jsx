@@ -33,6 +33,7 @@ import Search from "../pages/Search";
 import SuccessCheckout from "../pages/SuccessCheckout";
 import ClientInboxManagement from "../pages/ClientInboxMangement";
 import BookingManagement from "../pages/admin/BookingManagement";
+import Community from "../pages/Community";
 
 export const ProtectedRoute = ({ isAdmin, isArtist }) => {
   const { isAuthenticated, role } = useContext(AppContext);
@@ -143,6 +144,14 @@ const AppRouter = () => {
       element: (
         <Layout>
           <Search />
+        </Layout>
+      ),
+    },
+    {
+      path: path.community,
+      element: (
+        <Layout>
+          <Community />
         </Layout>
       ),
     },
