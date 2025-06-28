@@ -1,10 +1,4 @@
-import {
-  Avatar,
-  Box,
-  Button,
-  InputAdornment,
-  TextField,
-} from "@mui/material";
+import { Avatar, Box, Button, InputAdornment, TextField } from "@mui/material";
 import React, { useContext, useEffect, useState } from "react";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { Link, useNavigate } from "react-router-dom";
@@ -95,7 +89,11 @@ export default function ArtistNavbar() {
           label="Khám phá"
           isScrolled={true}
         />
-        <AnimatedUnderlineLink to={path.home} label="Cộng đồng" isScrolled={true} />
+        <AnimatedUnderlineLink
+          to={path.community}
+          label="Cộng đồng"
+          isScrolled={true}
+        />
       </Box>
       {/* search box */}
       <Box

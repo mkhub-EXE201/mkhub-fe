@@ -264,7 +264,7 @@ export default function Navbar({
             isScrolled={isScrolled}
           />
           <AnimatedUnderlineLink
-            to={path.home}
+            to={path.community}
             label="Cộng đồng"
             isScrolled={isScrolled}
           />

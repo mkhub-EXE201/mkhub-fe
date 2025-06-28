@@ -40,6 +40,7 @@ const defaultStyles = {
 };
 
 function CustomProfileCard({
+  isHome,
   customerData,
   width,
   height,
@@ -92,7 +93,7 @@ function CustomProfileCard({
           renderAvatar(customerData)
         ) : (
           <img
-            src={customerData.client.avatar_url}
+            src={isHome ? customerData.avatar : customerData.client.avatar_url}
             alt={customerData.name}
             style={{
               ...defaultStyles.avatar,
@@ -113,7 +114,11 @@ function CustomProfileCard({
                 ...customStyles.nameText,
               }}
             >
-              {customerData.client.last_name} {customerData.client.first_name}
+              {isHome
+                ? customerData.name
+                : customerData.client.last_name +
+                  " " +
+                  customerData.client.first_name}
             </Typography>
             <Box
               sx={{
@@ -135,8 +140,9 @@ function CustomProfileCard({
                   ...customStyles.locationText,
                 }}
               >
-                {customerData.street_name}, {wardName}, {districtName},{" "}
-                {provinceName}
+                {isHome
+                  ? customerData.location
+                  : `${customerData.street_name}, ${wardName}, ${districtName}, ${provinceName}`}
               </Typography>
             </Box>
           </Box>

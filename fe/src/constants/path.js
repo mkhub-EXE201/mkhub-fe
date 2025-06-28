@@ -25,6 +25,7 @@ const path = {
   search: "/search",
   successCheckout: "/checkout/success",
   clientChatManagement: "/inbox",
+  community: "/community",
 };
 
 export default path;
