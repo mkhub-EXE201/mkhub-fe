@@ -2,7 +2,6 @@ import React, { useState, useEffect, useContext } from "react";
 import { Box, Skeleton, Tab, Tabs, Typography } from "@mui/material";
 import PropTypes from "prop-types";
 import theme from "../../theme/theme";
-import avatar from "../../assets/artist-banner.jpg";
 import GeneralScheduleTab from "../../components/schedule-tabs/GeneralScheduleTab";
 import PersonalScheduleTab from "../../components/schedule-tabs/PersonalScheduleTab";
 import CanceledScheduleTab from "../../components/schedule-tabs/CanceledScheduleTab";
@@ -10,6 +9,7 @@ import HttpStatusCode from "../../constants/httpStatus";
 import { AppContext } from "../../contexts/app.context";
 import artistApis from "../../apis/artists.apis";
 import bookingApis from "../../apis/bookings.apis";
+import { BOOKING_STATUS } from "../../constants/enum";
 
 // Constants
 const TABS = { GENERAL: 0, PERSONAL: 1, CANCELED: 2 };
@@ -65,11 +65,15 @@ export default function ArtistScheduleManagement() {
   const { profile } = useContext(AppContext);
   const [bookings, setBookings] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
-
+  const [cancelBookings, setCancelBookings] = useState([]);
   const getBookingRequests = async () => {
     const response = await bookingApis.getBookingRequests();
     if (response.status === HttpStatusCode.Ok) {
       setBookings(response.data.result);
+      const cancelBookings = response.data.result.filter(
+        (item) => item.status === BOOKING_STATUS.REJECTED
+      );
+      setCancelBookings(cancelBookings);
     }
   };
 
@@ -164,7 +168,7 @@ export default function ArtistScheduleManagement() {
 
         {/* Canceled Schedule Tab */}
         <TabPanel value={activeTab} index={TABS.CANCELED}>
-          <CanceledScheduleTab />
+          <CanceledScheduleTab cancelBookings={cancelBookings} />
         </TabPanel>
       </Box>
     </Box>
