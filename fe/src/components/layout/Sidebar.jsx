@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect} from "react";
+import React, { useContext, useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import { AppContext } from "../../contexts/app.context";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -67,11 +67,11 @@ export default function Sidebar() {
     <Box
       key={`sidebar-${location.pathname}`}
       sx={{
-        height: "calc(100vh - 32px)", 
+        height: "calc(100vh - 32px)",
         width: "100%",
         position: "sticky",
-        top: "16px", 
-        overflowY: "hidden", 
+        top: "16px",
+        overflowY: "auto",
         pb: 2,
         display: "flex",
         flexDirection: "column",
