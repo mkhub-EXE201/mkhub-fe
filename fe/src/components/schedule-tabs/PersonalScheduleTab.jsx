@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -8,13 +7,16 @@ import {
   Step,
   StepLabel,
   Divider,
+  CircularProgress,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import artistBanner from "../../assets/artist-banner.jpg";
 import PersonalScheduleDetails from "./PersonalScheduleDetails";
 import CustomProfileCard from "./CustomProfileCard";
 import locationApi from "../../apis/locations.apis";
+import appointmentApis from "../../apis/appointments.apis";
+import { USER_ROLE } from "../../constants/enum";
+import { HttpStatusCode } from "axios";
 
 const styles = {
   tabContent: {
@@ -49,31 +51,8 @@ const styles = {
     textAlign: "center",
     fontWeight: 500,
   },
-  calendarContainer: (isLaptop) => ({
-    width: isLaptop ? "100%" : "50%",
-    height: isLaptop ? "500px" : "100%",
-  }),
-  dailyViewContainer: (isLaptop) => ({
-    display: "flex",
-    flexDirection: isLaptop ? "column" : "row",
-    gap: 3,
-    height: isLaptop ? "auto" : "500px",
-  }),
 };
 
-const customerData = {
-  id: 1,
-  name: "Nguyễn Văn A",
-  avatar: artistBanner,
-  location: "Bình Thạnh, Hồ Chí Minh",
-  phone: "+84 123 456 789",
-  email: "nguyenvana@email.com",
-  appointmentDate: new Date(2025, 4, 15),
-  service: "Makeup hàng ngày concept nhẹ nhàng",
-  time: "9:00 AM",
-};
-
-// Process steps data
 const processSteps = [
   { id: 1, label: "Chốt lịch", completed: true },
   { id: 2, label: "Đi chuyến đến điểm hẹn", completed: true },
@@ -83,61 +62,96 @@ const processSteps = [
 ];
 
 function PersonalScheduleTab({ selectedAppointment }) {
+  const [appointments, setAppointments] = useState([]);
   const [wardName, setWardName] = useState(null);
   const [districtName, setDistrictName] = useState(null);
   const [provinceName, setProvinceName] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const getWardNameByCode = async (wardCode, district_id) => {
-    return await locationApi.getWardNameByCode(wardCode, district_id);
+  const getAppointments = async () => {
+    try {
+      const response = await appointmentApis.getAllAppointments(
+        USER_ROLE.ARTIST
+      );
+      if (response.status === HttpStatusCode.Ok) {
+        setAppointments(response.data.result);
+      }
+    } catch (error) {
+      console.error("Failed to fetch appointments:", error);
+    }
   };
 
-  const getDistrictNameByCode = async (districtId, province_id) => {
-    return await locationApi.getDistrictNameByCode(districtId, province_id);
-  };
+  const getLocation = async (appointmentData) => {
+    if (!appointmentData) return;
 
-  const getProvinceNameByCode = async (provinceId) => {
-    return await locationApi.getProvinceNameByCode(provinceId);
-  };
+    try {
+      const ward = await locationApi.getWardNameByCode(
+        appointmentData.ward_code,
+        appointmentData.district_id
+      );
+      const district = await locationApi.getDistrictNameByCode(
+        appointmentData.district_id,
+        appointmentData.province_id
+      );
+      const province = await locationApi.getProvinceNameByCode(
+        appointmentData.province_id
+      );
 
-  const getLocation = async () => {
-    const ward = await getWardNameByCode(
-      selectedAppointment.ward_code,
-      selectedAppointment.district_id
-    );
-    const district = await getDistrictNameByCode(
-      selectedAppointment.district_id,
-      selectedAppointment.province_id
-    );
-    const province = await getProvinceNameByCode(
-      selectedAppointment.province_id
-    );
-    setWardName(ward.data.result);
-    setDistrictName(district.data.result);
-    setProvinceName(province.data.result);
+      setWardName(ward.data.result);
+      setDistrictName(district.data.result);
+      setProvinceName(province.data.result);
+    } catch (error) {
+      console.error("Error fetching location data:", error);
+    }
   };
 
   useEffect(() => {
-    getLocation();
+    const fetchData = async () => {
+      setIsLoading(true);
+      await getAppointments();
+      setIsLoading(false);
+    };
+    fetchData();
   }, []);
+
+  useEffect(() => {
+    const appointment = selectedAppointment || appointments[0];
+    if (appointment) getLocation(appointment);
+  }, [selectedAppointment, appointments]);
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  const appointmentToUse = selectedAppointment || appointments[0];
+
+  if (!appointmentToUse) {
+    return (
+      <Typography sx={{ mt: 5, textAlign: "center" }}>
+        Không có lịch hẹn nào để hiển thị.
+      </Typography>
+    );
+  }
 
   return (
     <Box sx={styles.tabContent}>
-      {/* Customer Info Section */}
       <Box sx={styles.customerContainer}>
         <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
           Khách hàng
         </Typography>
 
-        {/* Customer Information Card */}
         <CustomProfileCard
           isHome={false}
-          customerData={selectedAppointment}
+          customerData={appointmentToUse}
           wardName={wardName}
           districtName={districtName}
           provinceName={provinceName}
         />
 
-        {/* Process Flow Section */}
         <Box sx={styles.processContainer}>
           <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
             Quy trình
@@ -156,17 +170,11 @@ function PersonalScheduleTab({ selectedAppointment }) {
                     >
                       {index <= 3 ? (
                         <CheckCircleIcon
-                          sx={{
-                            color: "white",
-                            fontSize: 24,
-                          }}
+                          sx={{ color: "white", fontSize: 24 }}
                         />
                       ) : (
                         <CheckCircleOutlineIcon
-                          sx={{
-                            color: "#999",
-                            fontSize: 24,
-                          }}
+                          sx={{ color: "#999", fontSize: 24 }}
                         />
                       )}
                     </Box>
@@ -187,9 +195,8 @@ function PersonalScheduleTab({ selectedAppointment }) {
 
           <Divider sx={{ my: 4 }} />
 
-          {/* Appointment Tabs Section */}
           <PersonalScheduleDetails
-            appointment={selectedAppointment}
+            appointment={appointmentToUse}
             wardName={wardName}
             districtName={districtName}
             provinceName={provinceName}
