@@ -27,5 +27,6 @@ const userApis = {
   getMe: () => http.get(`${userRoute}/me`),
   getUser: (user_id) => http.get(`${userRoute}/${user_id}`),
   getUsers: () => http.get(`${userRoute}`),
+  updateMe: (body) => http.patch(`${userRoute}/me`, body),
 };
 export default userApis;

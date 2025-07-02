@@ -18,9 +18,10 @@ import PlaceIcon from "@mui/icons-material/PlaceOutlined";
 import CategoryIcon from "@mui/icons-material/CategoryOutlined";
 import Footer from "../components/layout/Footer";
 import artistServiceApis from "../apis/artistServices.apis";
-import Skeleton from "../components/Skeleton";
 import categoryApis from "../apis/categories.apis";
 import { useNavigate } from "react-router-dom";
+import loadingAnimation from "../assets/loading.json";
+import Lottie from "react-lottie";
 
 export default function Explore() {
   const [selectedValue, setSelectedValue] = useState("all");
@@ -70,7 +71,18 @@ export default function Explore() {
   return (
     <Box>
       {loading ? (
-        <Skeleton />
+        <Lottie
+          options={{
+            loop: true,
+            autoplay: true,
+            animationData: loadingAnimation,
+            rendererSettings: {
+              preserveAspectRatio: "xMidYMid slice",
+            },
+          }}
+          height={500}
+          width={500}
+        />
       ) : layouts.length > 0 ? (
         <>
           <Box sx={{ display: "flex", gap: 2, marginTop: 5, marginX: 5 }}>
