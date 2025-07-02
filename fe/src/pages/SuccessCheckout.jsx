@@ -24,8 +24,10 @@ export default function SuccessCheckout() {
     const fetchAppointment = async () => {
       if (!appointmentId) return;
       try {
-        const response =
-          await appointmentApis.getAppointmentById(appointmentId);
+        const response = await appointmentApis.getAppointmentById(
+          appointmentId,
+          "appointment"
+        );
         setAppointment(response.data.result);
       } catch (error) {
         toast.error("Không thể lấy thông tin lịch hẹn.");

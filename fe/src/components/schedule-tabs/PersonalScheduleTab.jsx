@@ -53,71 +53,75 @@ const styles = {
   },
 };
 
-const processSteps = [
-  { id: 1, label: "Chốt lịch", completed: true },
-  { id: 2, label: "Đi chuyến đến điểm hẹn", completed: true },
-  { id: 3, label: "Trong quá trình Makeup", completed: true },
-  { id: 4, label: "Hoàn thành", completed: true },
-  { id: 5, label: "Thanh toán", completed: true },
+const statusStepsMap = [
+  { status: "CONFIRMED", label: "Chốt lịch" },
+  { status: "PAID", label: "Thanh toán" },
+  { status: "COMPLETED", label: "Hoàn thành" },
+  { status: "REVIEWED", label: "Đánh giá" },
 ];
 
 function PersonalScheduleTab({ selectedAppointment }) {
+  const [appointmentToUse, setAppointmentToUse] = useState(null);
   const [appointments, setAppointments] = useState([]);
   const [wardName, setWardName] = useState(null);
   const [districtName, setDistrictName] = useState(null);
   const [provinceName, setProvinceName] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const getAppointments = async () => {
-    try {
-      const response = await appointmentApis.getAllAppointments(
-        USER_ROLE.ARTIST
-      );
-      if (response.status === HttpStatusCode.Ok) {
-        setAppointments(response.data.result);
-      }
-    } catch (error) {
-      console.error("Failed to fetch appointments:", error);
-    }
-  };
-
-  const getLocation = async (appointmentData) => {
-    if (!appointmentData) return;
-
-    try {
-      const ward = await locationApi.getWardNameByCode(
-        appointmentData.ward_code,
-        appointmentData.district_id
-      );
-      const district = await locationApi.getDistrictNameByCode(
-        appointmentData.district_id,
-        appointmentData.province_id
-      );
-      const province = await locationApi.getProvinceNameByCode(
-        appointmentData.province_id
-      );
-
-      setWardName(ward.data.result);
-      setDistrictName(district.data.result);
-      setProvinceName(province.data.result);
-    } catch (error) {
-      console.error("Error fetching location data:", error);
-    }
-  };
-
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-      await getAppointments();
-      setIsLoading(false);
-    };
-    fetchData();
-  }, []);
+      try {
+        let data = selectedAppointment;
 
-  useEffect(() => {
-    const appointment = selectedAppointment || appointments[0];
-    if (appointment) getLocation(appointment);
-  }, [selectedAppointment, appointments]);
+        // Nếu có selectedAppointment thì lấy chi tiết
+        if (selectedAppointment) {
+          const response = await appointmentApis.getAppointmentById(
+            selectedAppointment.id,
+            "booking"
+          );
+          if (response.status === HttpStatusCode.Ok) {
+            data = response.data.result;
+          }
+        } else {
+          // Nếu không có selectedAppointment thì lấy danh sách
+          const res = await appointmentApis.getAllAppointments(
+            USER_ROLE.ARTIST
+          );
+          if (res.status === HttpStatusCode.Ok && res.data.result.length > 0) {
+            data = res.data.result[0];
+            setAppointments(res.data.result);
+          }
+        }
+
+        setAppointmentToUse(data);
+
+        if (data) {
+          const ward = await locationApi.getWardNameByCode(
+            data.ward_code,
+            data.district_id
+          );
+          const district = await locationApi.getDistrictNameByCode(
+            data.district_id,
+            data.province_id
+          );
+          const province = await locationApi.getProvinceNameByCode(
+            data.province_id
+          );
+
+          setWardName(ward.data.result);
+          setDistrictName(district.data.result);
+          setProvinceName(province.data.result);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [selectedAppointment]);
 
   if (isLoading) {
     return (
@@ -127,8 +131,6 @@ function PersonalScheduleTab({ selectedAppointment }) {
     );
   }
 
-  const appointmentToUse = selectedAppointment || appointments[0];
-
   if (!appointmentToUse) {
     return (
       <Typography sx={{ mt: 5, textAlign: "center" }}>
@@ -136,6 +138,13 @@ function PersonalScheduleTab({ selectedAppointment }) {
       </Typography>
     );
   }
+  const latestStatus = appointmentToUse?.appointmentStatusLog?.at(-1);
+  const activeStep = Math.max(
+    0,
+    statusStepsMap.findIndex((step) => step.status === latestStatus)
+  );
+
+  console.log(activeStep);
 
   return (
     <Box sx={styles.tabContent}>
@@ -157,40 +166,46 @@ function PersonalScheduleTab({ selectedAppointment }) {
             Quy trình
           </Typography>
 
-          <Stepper activeStep={3} alternativeLabel>
-            {processSteps.map((step, index) => (
-              <Step key={step.id} completed={step.completed}>
-                <StepLabel
-                  StepIconComponent={() => (
-                    <Box
+          <Stepper activeStep={activeStep} alternativeLabel>
+            {statusStepsMap.map((step, index) => {
+              const isCompleted = index < activeStep;
+              const isActive = index === activeStep;
+
+              return (
+                <Step key={step.status} completed={isCompleted}>
+                  <StepLabel
+                    StepIconComponent={() => (
+                      <Box
+                        sx={{
+                          ...styles.stepIcon,
+                          backgroundColor:
+                            isCompleted || isActive ? "#F13067" : "#f5f5f5",
+                        }}
+                      >
+                        {isCompleted || isActive ? (
+                          <CheckCircleIcon
+                            sx={{ color: "white", fontSize: 24 }}
+                          />
+                        ) : (
+                          <CheckCircleOutlineIcon
+                            sx={{ color: "#999", fontSize: 24 }}
+                          />
+                        )}
+                      </Box>
+                    )}
+                  >
+                    <Typography
                       sx={{
-                        ...styles.stepIcon,
-                        backgroundColor: index <= 3 ? "#F13067" : "#f5f5f5",
+                        ...styles.stepText,
+                        color: isCompleted || isActive ? "#000" : "#999",
                       }}
                     >
-                      {index <= 3 ? (
-                        <CheckCircleIcon
-                          sx={{ color: "white", fontSize: 24 }}
-                        />
-                      ) : (
-                        <CheckCircleOutlineIcon
-                          sx={{ color: "#999", fontSize: 24 }}
-                        />
-                      )}
-                    </Box>
-                  )}
-                >
-                  <Typography
-                    sx={{
-                      ...styles.stepText,
-                      color: index <= 3 ? "#000" : "#999",
-                    }}
-                  >
-                    {step.label}
-                  </Typography>
-                </StepLabel>
-              </Step>
-            ))}
+                      {step.label}
+                    </Typography>
+                  </StepLabel>
+                </Step>
+              );
+            })}
           </Stepper>
 
           <Divider sx={{ my: 4 }} />
