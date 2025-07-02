@@ -7,18 +7,20 @@ export default function Counter({ targetNumber }) {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
+    setCount(0);
+
     const interval = setInterval(() => {
       setCount((prev) => {
         if (prev >= targetNumber) {
           clearInterval(interval);
           return targetNumber;
         }
-        return prev + 50;
+        return prev + 1;
       });
     }, 30);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [targetNumber]);
 
   return (
     <motion.div

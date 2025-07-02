@@ -195,6 +195,7 @@ export default function Explore() {
                         }
                         key={item.id}
                         sx={{
+                          cursor: "pointer",
                           border: "1px solid #ccc",
                           borderRadius: 2,
                           padding: 2,

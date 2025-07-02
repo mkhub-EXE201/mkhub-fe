@@ -1,9 +1,45 @@
 import CountUp from "react-countup";
 import { Box, Typography, Grid } from "@mui/material";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Counter from "../Counter";
+import { HttpStatusCode } from "axios";
+import artistApis from "../../apis/artists.apis";
+import bookingApis from "../../apis/bookings.apis";
 
 export default function StatCard() {
+  const [numOfRegister, setNumOfRegister] = useState(0);
+  const [numOfArtists, setNumOfArtists] = useState(0);
+  const [numOfBookings, setNumOfBookings] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchAllStats = async () => {
+    try {
+      const [artistsRes, bookingsRes, applicationsRes] = await Promise.all([
+        artistApis.getAllArtists(),
+        bookingApis.getTotalBookings(),
+        artistApis.getTotalApplications(),
+      ]);
+
+      if (artistsRes.status === HttpStatusCode.Ok) {
+        setNumOfArtists(artistsRes.data.result.length);
+      }
+      if (bookingsRes.status === HttpStatusCode.Ok) {
+        setNumOfBookings(bookingsRes.data.result);
+      }
+      if (applicationsRes.status === HttpStatusCode.Ok) {
+        setNumOfRegister(applicationsRes.data.result.length);
+      }
+    } catch (error) {
+      console.error("Error loading statistics:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllStats();
+  }, []);
+
   return (
     <Box sx={{ marginTop: 5, marginBottom: 10, marginX: 2 }}>
       <Grid
@@ -52,7 +88,7 @@ export default function StatCard() {
                 color: (theme) => theme.palette.primary.main,
               }}
             >
-              <Counter targetNumber={1000} />
+              <Counter targetNumber={numOfRegister} />
             </Box>
           </Box>
         </Grid>
@@ -84,7 +120,7 @@ export default function StatCard() {
                 color: (theme) => theme.palette.primary.main,
               }}
             >
-              <Counter targetNumber={400} />
+              <Counter targetNumber={numOfArtists} />
             </Box>
           </Box>
         </Grid>
@@ -117,7 +153,7 @@ export default function StatCard() {
               }}
             >
               {/* <CountUp start={24950} end={25000} duration={5.0} separator="," /> */}
-              <Counter targetNumber={2000} />
+              <Counter targetNumber={numOfBookings} />
             </Box>
           </Box>
         </Grid>

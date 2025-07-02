@@ -8,6 +8,7 @@ export const loginWithGoogle = "oauth/google";
 export const logoutUrl = "logout";
 export const refreshTokenUrl = "refresh-token";
 export const getAllUsers = "all";
+export const getTotalUserNum = "total";
 
 const userApis = {
   login: (body) => http.post(`/${userRoute}/${loginUrl}`, body),
@@ -28,5 +29,6 @@ const userApis = {
   getUser: (user_id) => http.get(`${userRoute}/${user_id}`),
   getUsers: () => http.get(`${userRoute}`),
   updateMe: (body) => http.patch(`${userRoute}/me`, body),
+  getTotalNumOfUers: () => http.get(`${userRoute}/${getTotalUserNum}`),
 };
 export default userApis;

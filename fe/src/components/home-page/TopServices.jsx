@@ -15,6 +15,7 @@ import "swiper/css";
 import { Link } from "react-router-dom";
 import categoryApis from "../../apis/categories.apis";
 import HttpStatusCode from "../../constants/httpStatus";
+import path from "../../constants/path";
 
 export default function TopServices() {
   const [categories, setCategories] = useState([]);
@@ -71,7 +72,7 @@ export default function TopServices() {
               }}
             >
               <Link
-                to={"/"}
+                to={path.explore}
                 style={{
                   textDecoration: "none",
                   color: "inherit",
