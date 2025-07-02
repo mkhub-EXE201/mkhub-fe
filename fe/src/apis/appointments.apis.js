@@ -4,7 +4,7 @@ export const appointmentUrl = "appointments";
 
 const appointmentApis = {
   getAllAppointments: (role) => http.get(`/${appointmentUrl}?role=${role}`),
-  getAppointmentById: (appointment_id) =>
-    http.get(`/${appointmentUrl}/${appointment_id}`),
+  getAppointmentById: (id, type) =>
+    http.get(`/${appointmentUrl}/${id}?type=${type}`),
 };
 export default appointmentApis;
