@@ -21,5 +21,6 @@ const artistApis = {
     http.get(`${artistUrl}/${artist_id}/schedules`),
   getArtistPaymentAccountStatus: () =>
     http.get(`${artistUrl}/me/stripe/status`),
+  getTotalApplications: () => http.get(`${artistUrl}/applications/total`),
 };
 export default artistApis;

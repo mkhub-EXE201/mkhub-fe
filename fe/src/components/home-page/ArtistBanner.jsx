@@ -49,7 +49,7 @@ export default function ArtistBanner() {
               }}
             >
               <Link
-                to={path.artists}
+                to={path.community}
                 style={{
                   textDecoration: "none",
                   color: "inherit",

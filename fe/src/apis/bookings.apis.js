@@ -10,5 +10,6 @@ const bookingApis = {
   },
   verifyBookingRequest: (booking_id, payload) =>
     http.post(`${bookingUrl}/verify/${booking_id}`, payload),
+  getTotalBookings: () => http.get(`${bookingUrl}/total`),
 };
 export default bookingApis;
