@@ -32,8 +32,8 @@ import artistApis from "../apis/artists.apis";
 import postApis from "../apis/posts.apis";
 import { AppContext } from "../contexts/app.context";
 import PostModal from "../components/PostModal";
-import ChatBox from "../components/Chatbox";
 import BookingModal from "../components/BookingModal";
+import ChatBox from "../components/ChatBox";
 
 export default function ArtistDetail() {
   const { id } = useParams();
