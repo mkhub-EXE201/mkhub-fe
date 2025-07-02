@@ -41,7 +41,7 @@ export default function ArtistAddress({ profile }) {
     setValue,
     control,
     watch,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm({
     resolver: yupResolver(artistAddressSchema),
     defaultValues: {

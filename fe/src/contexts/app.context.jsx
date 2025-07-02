@@ -35,13 +35,19 @@ export const AppProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(
     initialAppContext.isAuthenticated || false
   );
+  const getInitialRole = () => localStorage.getItem("role") || checkUserRole();
   const [profile, setProfile] = useState(initialAppContext.profile);
-  const [role, setRole] = useState(initialAppContext.role);
+  const [role, setRoleState] = useState(getInitialRole());
   const reset = () => {
     setIsAuthenticated(false);
     setProfile(null);
     setRole(null);
   };
+  const setRole = (newRole) => {
+    setRoleState(newRole);
+    localStorage.setItem("role", newRole);
+  };
+
   return (
     <AppContext.Provider
       value={{
