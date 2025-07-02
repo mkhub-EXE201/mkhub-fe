@@ -7,11 +7,13 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
+  Modal,
   Step,
   StepLabel,
   Stepper,
   Tab,
   Tabs,
+  TextField,
   Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
@@ -27,6 +29,10 @@ import CheckoutModal from "../components/CheckoutModal";
 import paymentApi from "../apis/payments.apis";
 import AppointmentCard from "../components/AppointmentCard";
 import bookingApis from "../apis/bookings.apis";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { updateMeSchema } from "../schemas/updateMeSchema";
+import { isAxiosUnprocessableEntityError } from "../utils/errors.type";
 
 export default function Profile() {
   const [isLoading, setIsLoading] = useState(true);
@@ -38,7 +44,7 @@ export default function Profile() {
     useState(null);
   const [selectedAppointmentCheckout, setSelectedAppointmentCheckout] =
     useState(null);
-
+  const [open, setOpen] = useState(false);
   const STATUS_STEPS = [
     { label: "Chờ xác nhận", value: "PENDING" },
     { label: "Đã xác nhận", value: "CONFIRMED" },
@@ -49,6 +55,26 @@ export default function Profile() {
 
   const [activeStep, setActiveStep] = useState(0);
   const selectedStatus = STATUS_STEPS[activeStep].value;
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: yupResolver(updateMeSchema),
+  });
+
+  useEffect(() => {
+    if (profile) {
+      reset({
+        first_name: profile.first_name || "",
+        last_name: profile.last_name || "",
+        email: profile.email || "",
+        phone_number: profile.phone_number || "",
+      });
+    }
+  }, [profile, reset]);
 
   const getLatestStatus = (item) => {
     // Nếu có status log (appointment)
@@ -62,6 +88,30 @@ export default function Profile() {
   const filteredAppointments = appointments.filter(
     (appointment) => getLatestStatus(appointment) === selectedStatus
   );
+
+  const onSubmit = async (data) => {
+    try {
+      const res = await userApis.updateMe(data);
+      if (res.status === HttpStatusCode.Ok) {
+        toast.success(res.data.message);
+        setProfile((prev) => ({
+          ...prev,
+          ...data,
+        }));
+        setOpen(false);
+      }
+    } catch (error) {
+      if (isAxiosUnprocessableEntityError(error)) {
+        const formError = error.response.data.errors;
+        Object.keys(formError).forEach((key) => {
+          setError(key, {
+            type: "Server",
+            message: formError[key],
+          });
+        });
+      }
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -145,18 +195,150 @@ export default function Profile() {
 
                 <Box sx={{ flexGrow: 1 }}>
                   <Typography sx={{ fontSize: 24, fontWeight: "bold", mb: 1 }}>
-                    {profile?.last_name} {profile?.first_name}
+                    {profile?.last_name || ""} {profile?.first_name || ""}
                   </Typography>
-                  <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                    <Typography>{profile?.email}</Typography>
-                    <Divider orientation="vertical" flexItem />
-                    <Typography sx={{ fontSize: 16, color: "gray" }}>
-                      {profile?.phone_number}
-                    </Typography>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: 1.5,
+                      alignItems: "center",
+                    }}
+                  >
+                    {profile.email && (
+                      <Typography sx={{ fontSize: 16 }}>
+                        {profile.email}
+                      </Typography>
+                    )}
+
+                    {profile?.email && profile?.phone_number && (
+                      <Divider orientation="vertical" flexItem />
+                    )}
+
+                    {profile?.phone_number && (
+                      <Typography sx={{ fontSize: 16, color: "gray" }}>
+                        {profile.phone_number}
+                      </Typography>
+                    )}
+
+                    <Button
+                      onClick={() => setOpen(true)}
+                      variant="outlined"
+                      size="small"
+                      sx={{
+                        ml: "auto",
+                        textTransform: "none",
+                        fontWeight: 500,
+                      }}
+                    >
+                      Chỉnh sửa hồ sơ
+                    </Button>
                   </Box>
                 </Box>
               </Box>
             </Box>
+            <Modal open={open} onClose={() => setOpen(false)}>
+              <Dialog
+                open={open}
+                onClose={() => setOpen(false)}
+                maxWidth="sm"
+                fullWidth
+              >
+                <form onSubmit={handleSubmit(onSubmit)}>
+                  <DialogTitle>Chỉnh sửa hồ sơ</DialogTitle>
+
+                  <DialogContent>
+                    <Box sx={{ display: "flex", gap: 4 }}>
+                      <Avatar
+                        src={profile?.avatar_url}
+                        sx={{
+                          width: 150,
+                          height: 150,
+                          objectFit: "cover",
+                          flexShrink: 0,
+                        }}
+                      />
+
+                      <Box sx={{ flex: 1 }}>
+                        <Box
+                          sx={{
+                            display: "grid",
+                            gridTemplateColumns: "1fr 1fr",
+                            gap: 2,
+                          }}
+                        >
+                          <TextField
+                            variant="standard"
+                            label="Họ"
+                            {...register("last_name", {
+                              required: "Vui lòng nhập họ",
+                            })}
+                            error={!!errors.last_name}
+                            helperText={errors.last_name?.message}
+                            fullWidth
+                          />
+
+                          <TextField
+                            variant="standard"
+                            label="Tên"
+                            {...register("first_name", {
+                              required: "Vui lòng nhập tên",
+                            })}
+                            error={!!errors.first_name}
+                            helperText={errors.first_name?.message}
+                            fullWidth
+                          />
+
+                          <TextField
+                            variant="standard"
+                            label="Email"
+                            {...register("email", {
+                              required: "Vui lòng nhập email",
+                              pattern: {
+                                value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/,
+                                message: "Email không hợp lệ",
+                              },
+                            })}
+                            error={!!errors.email}
+                            helperText={errors.email?.message}
+                            fullWidth
+                          />
+
+                          <TextField
+                            variant="standard"
+                            label="Số điện thoại"
+                            {...register("phone_number", {
+                              required: "Vui lòng nhập số điện thoại",
+                              pattern: {
+                                value: /^[0-9]{9,11}$/,
+                                message: "Số điện thoại không hợp lệ",
+                              },
+                            })}
+                            error={!!errors.phone_number}
+                            helperText={errors.phone_number?.message}
+                            fullWidth
+                          />
+                        </Box>
+                      </Box>
+                    </Box>
+                  </DialogContent>
+
+                  <DialogActions>
+                    <Button onClick={() => setOpen(false)} color="secondary">
+                      Hủy
+                    </Button>
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "Đang lưu..." : "Lưu thay đổi"}
+                    </Button>
+                  </DialogActions>
+                </form>
+              </Dialog>
+            </Modal>
 
             {/* Tabs */}
             <Box sx={{ marginX: 10, padding: 2 }}>

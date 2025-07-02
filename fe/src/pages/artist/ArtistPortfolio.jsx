@@ -14,7 +14,8 @@ import toast from "react-hot-toast";
 import ArtistProfile from "../../components/ArtistProfile";
 import ArtistAddress from "../../components/ArtistAddress";
 import paymentApi from "../../apis/payments.apis";
-import { useNavigate } from "react-router-dom";
+import loadingAnimation from "../../assets/makeup.json";
+import Lottie from "react-lottie";
 
 function a11yProps(index) {
   return {
