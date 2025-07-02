@@ -18,9 +18,7 @@ const AppointmentCard = ({ appointment, onViewDetail, onCheckout }) => {
           </Typography>
         </Box>
       </Box>
-
       <Divider sx={{ my: 2 }} />
-
       {/* Service Info */}
       <Box sx={{ display: "flex", gap: 2 }}>
         <Box
@@ -43,7 +41,6 @@ const AppointmentCard = ({ appointment, onViewDetail, onCheckout }) => {
           </Typography>
         </Box>
       </Box>
-
       {/* Extra Info */}
       <Box mt={2}>
         <Typography variant="body2">
@@ -53,11 +50,9 @@ const AppointmentCard = ({ appointment, onViewDetail, onCheckout }) => {
           Tổng tiền: {appointment.total_price.toLocaleString("vi-VN")}₫
         </Typography>
       </Box>
-
       {/* Checkout Button */}
-      {appointment.appointmentStatusLog[
-        appointment.appointmentStatusLog.length - 1
-      ] === APPOINTMENT_STATUS.CONFIRMED && (
+      {appointment?.appointmentStatusLog?.at(-1) ===
+        APPOINTMENT_STATUS.CONFIRMED && (
         <Button
           variant="contained"
           sx={{ mt: 2 }}
