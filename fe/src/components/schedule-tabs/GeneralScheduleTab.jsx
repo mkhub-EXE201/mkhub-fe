@@ -6,6 +6,7 @@ import ScheduleCalendar from "../ScheduleCalendar";
 import ScheduleCard from "../ScheduleCard";
 import FullCalendarComponent from "../FullCalendar";
 import { dateUtils } from "../../utils/common_utilities";
+import { APPOINTMENT_STATUS } from "../../constants/enum";
 
 const styles = {
   tabContent: {
@@ -88,9 +89,11 @@ function GeneralScheduleTab({
                   key={appointment.id}
                   appointment={appointment}
                   getBookingRequests={getBookingRequests}
-                  onClickGoToPersonalTab={() =>
-                    onSelectAppointment(appointment)
-                  }
+                  onClickGoToPersonalTab={() => {
+                    if (appointment.status !== APPOINTMENT_STATUS.PENDING) {
+                      onSelectAppointment(appointment);
+                    }
+                  }}
                 />
               ))}
             </Box>
