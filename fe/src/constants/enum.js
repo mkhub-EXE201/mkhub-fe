@@ -82,6 +82,7 @@ export const APPOINTMENT_STATUS = {
   REJECTED: "REJECTED",
   CONFIRMED: "CONFIRMED",
   PAID: "PAID",
+  COMPLETED: "COMPLETED",
 };
 
 export const EMIT_TYPE = {
