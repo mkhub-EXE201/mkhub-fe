@@ -1,9 +1,39 @@
 /* eslint-disable react/prop-types */
-import React from "react";
-import { Avatar, Box, Button, Card, Divider, Typography } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import {
+  Avatar,
+  Box,
+  Button,
+  Card,
+  Divider,
+  Modal,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { formatDate, formatTime } from "../utils/utils";
 import { APPOINTMENT_STATUS } from "../constants/enum";
+import feedbackApis from "../apis/feedbacks.apis";
+import { HttpStatusCode } from "axios";
 const AppointmentCard = ({ appointment, onViewDetail, onCheckout }) => {
+  const [openFeedbackModal, setOpenFeedbackModal] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+
+  const getFeedback = async () => {
+    const response = await feedbackApis.getFeedback(
+      "appointment",
+      appointment.id
+    );
+    if (response.status === HttpStatusCode.Ok) {
+      if (response.data.result !== null) {
+        setFeedback(response.data.result);
+      }
+    }
+  };
+
+  useEffect(() => {
+    getFeedback();
+  }, []);
+
   return (
     <Card onClick={onViewDetail} sx={{ mb: 2, p: 2, cursor: "pointer" }}>
       {/* Artist Info */}
@@ -64,6 +94,52 @@ const AppointmentCard = ({ appointment, onViewDetail, onCheckout }) => {
           Thanh toán
         </Button>
       )}
+      {/* Feedback Button */}
+      {appointment?.appointmentStatusLog?.at(-1) ===
+        APPOINTMENT_STATUS.COMPLETED &&
+        !feedback && (
+          <Button
+            variant="contained"
+            sx={{ mt: 2 }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpenFeedbackModal(true);
+            }}
+          >
+            Đánh giá
+          </Button>
+        )}
+      <Modal
+        open={openFeedbackModal}
+        onClose={() => setOpenFeedbackModal(false)}
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: 2,
+            minWidth: 600,
+          }}
+        >
+          <Typography variant="h6" sx={{ marginBottom: 2 }}>
+            Đánh giá dịch vụ
+          </Typography>
+          <TextField
+            multiline
+            rows={4}
+            fullWidth
+            label="Nội dung đánh giá"
+            value={
+              "dịch vụ tốt, artist đến đúng giờ, layout rất hợp với mình, sẽ book lại."
+            }
+          />
+        </Box>
+      </Modal>
     </Card>
   );
 };
