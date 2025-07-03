@@ -33,6 +33,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { updateMeSchema } from "../schemas/updateMeSchema";
 import { isAxiosUnprocessableEntityError } from "../utils/errors.type";
+import FeedBack from "../components/FeedBack";
 
 export default function Profile() {
   const [isLoading, setIsLoading] = useState(true);
@@ -347,6 +348,7 @@ export default function Profile() {
                   <Tab label="Lịch hẹn makeup" />
                   <Tab label="Sổ địa chỉ" />
                   <Tab label="Ưu đãi của tôi" />
+                  <Tab label="Đánh giá của tôi" />
                 </Tabs>
               </Box>
 
@@ -406,6 +408,11 @@ export default function Profile() {
               {value === 2 && (
                 <Box sx={{ p: 3 }}>
                   <Typography>Ưu đãi đang được phát triển.</Typography>
+                </Box>
+              )}
+              {value === 3 && (
+                <Box sx={{ p: 3 }}>
+                  <FeedBack />
                 </Box>
               )}
             </Box>
