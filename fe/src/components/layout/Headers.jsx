@@ -15,6 +15,7 @@ import headerbanner4 from "../../assets/header-banner4.jpg";
 import headerBanner1 from "../../assets/header-banner1.jpg";
 import headerBanner3 from "../../assets/header-banner3.jpg";
 import artistBanner4 from "../../assets/artist-banner4.jpg";
+import path from "../../constants/path";
 
 // Hero slide data
 const heroSlides = [
@@ -308,7 +309,7 @@ const MainLayout = ({
                     boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
                   },
                 }}
-                onClick={() => navigate("/booking")}
+                onClick={() => navigate(path.community)}
               >
                 Đặt lịch ngay
               </Box>

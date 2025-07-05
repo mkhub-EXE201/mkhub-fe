@@ -23,3 +23,9 @@ export function isAxiosExpiredTokenError(error) {
     error.response?.data?.message === "jwt expired"
   );
 }
+export function isInternalServerError(error) {
+  return (
+    isAxiosError(error) &&
+    error.response?.status === HttpStatusCode.InternalServerError
+  );
+}
