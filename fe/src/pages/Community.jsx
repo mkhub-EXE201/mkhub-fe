@@ -22,25 +22,11 @@ import toast from "react-hot-toast";
 import HttpStatusCode from "../constants/httpStatus";
 import artistLocationApis from "../apis/artistLocations.apis";
 import locationApi from "../apis/locations.apis";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import artistApis from "../apis/artists.apis";
 import loadingAnimation from "../assets/loading.json";
 import Lottie from "react-lottie";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-
-const userIcon = new L.Icon({
-  iconUrl: "https://cdn-icons-png.flaticon.com/512/64/64113.png",
-  iconSize: [32, 32],
-  iconAnchor: [16, 32],
-});
-
-const artistIcon = new L.Icon({
-  iconUrl: "https://cdn-icons-png.flaticon.com/512/149/149060.png",
-  iconSize: [32, 32],
-  iconAnchor: [16, 32],
-});
+import path from "../constants/path";
 
 export default function Community() {
   const [provinces, setProvinces] = useState([]);
@@ -49,8 +35,8 @@ export default function Community() {
   const [selectedDistrict, setSelectedDistrict] = useState(null);
   const [loading, setLoading] = useState(true);
   const [artists, setArtists] = useState([]);
-  const [userCoords, setUserCoords] = useState(null);
-  const [nearbyArtists, setNearbyArtists] = useState([]);
+
+  const nav = useNavigate();
 
   useEffect(() => {
     getProvinces();
@@ -103,37 +89,6 @@ export default function Community() {
     if (response.status === HttpStatusCode.Ok) {
       setArtists(response.data.result);
     }
-  };
-
-  const handleGetLocation = () => {
-    if (!navigator.geolocation) {
-      toast.error("Trình duyệt không hỗ trợ định vị");
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        const coords = { lat: latitude, lng: longitude };
-        setUserCoords(coords);
-        toast.success(`Đã lấy được vị trí!, ${latitude}, ${longitude}`);
-
-        try {
-          const response = await artistLocationApis.findArtistsByGeology(
-            latitude,
-            longitude,
-            3
-          );
-          setNearbyArtists(response.data.result);
-        } catch (error) {
-          toast.error("Lỗi khi lấy artist gần bạn");
-          console.error(error);
-        }
-      },
-      () => {
-        toast.error("Không thể lấy vị trí của bạn");
-      }
-    );
   };
 
   return (
@@ -274,7 +229,7 @@ export default function Community() {
                       }}
                     >
                       <button
-                        onClick={handleGetLocation}
+                        onClick={() => nav(path.nearBy)}
                         style={{
                           backgroundColor: "#ED1E79",
                           color: "#fff",
@@ -285,7 +240,7 @@ export default function Community() {
                           fontWeight: 500,
                         }}
                       >
-                        Lấy tọa độ của tôi
+                        Tìm kiếm theo tọa độ
                       </button>
                       {/* {userCoords && (
                         <MapContainer
@@ -311,39 +266,6 @@ export default function Community() {
                           ))}
                         </MapContainer>
                       )} */}
-
-                      {userCoords && (
-                        <MapContainer
-                          center={userCoords}
-                          zoom={14}
-                          style={{ height: "400px", marginTop: 16 }}
-                        >
-                          <TileLayer
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                            attribution="&copy; OpenStreetMap contributors"
-                          />
-
-                          {/* Marker client */}
-                          <Marker position={userCoords} icon={userIcon}>
-                            <Popup>Bạn đang ở đây</Popup>
-                          </Marker>
-
-                          {/* Marker các artist */}
-                          {nearbyArtists.map((artist) => (
-                            <Marker
-                              key={artist.id}
-                              position={[artist.latitude, artist.longitude]}
-                              icon={artistIcon}
-                            >
-                              <Popup>
-                                {artist.artist_name}
-                                <br />
-                                Cách bạn khoảng {artist.distance.toFixed(2)} km
-                              </Popup>
-                            </Marker>
-                          ))}
-                        </MapContainer>
-                      )}
                     </Box>
                   </Box>
                 </AccordionDetails>

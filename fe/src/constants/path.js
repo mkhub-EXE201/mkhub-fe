@@ -26,6 +26,7 @@ const path = {
   successCheckout: "/checkout/success",
   clientChatManagement: "/inbox",
   community: "/community",
+  nearBy: "/artists/nearby",
 };
 
 export default path;
