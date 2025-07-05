@@ -9,5 +9,9 @@ const artistLocationApis = {
     http.get(
       `${artistLocationUrl}/nearest?province_id=${province_id}&district_id=${district_id}`
     ),
+  findArtistsByGeology: (lat, lng, radiusKm) =>
+    http.get(
+      `${artistLocationUrl}/nearby?lat=${lat}&lng=${lng}&radiusKm=${radiusKm}`
+    ),
 };
 export default artistLocationApis;
