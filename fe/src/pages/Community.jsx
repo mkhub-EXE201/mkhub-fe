@@ -90,6 +90,25 @@ export default function Community() {
       setArtists(response.data.result);
     }
   };
+  const handleFindNearby = () => {
+    if (!navigator.geolocation) {
+      alert("Trình duyệt không hỗ trợ định vị");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const center = encodeURIComponent(`${latitude},${longitude}`);
+        const distance = 10;
+
+        nav(`/artists/nearby?center=${center}&distance=${distance}`);
+      },
+      () => {
+        alert("Không thể lấy vị trí");
+      }
+    );
+  };
 
   return (
     <>
@@ -229,7 +248,7 @@ export default function Community() {
                       }}
                     >
                       <button
-                        onClick={() => nav(path.nearBy)}
+                        onClick={handleFindNearby}
                         style={{
                           backgroundColor: "#ED1E79",
                           color: "#fff",

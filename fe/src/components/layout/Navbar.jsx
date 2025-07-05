@@ -269,9 +269,28 @@ export default function Navbar({
             isScrolled={isScrolled}
           />
           <AnimatedUnderlineLink
-            to={path.nearBy}
             label="Tìm quanh đây"
             isScrolled={isScrolled}
+            onClick={() => {
+              if (!navigator.geolocation) {
+                toast.error("Trình duyệt không hỗ trợ định vị");
+                return;
+              }
+
+              navigator.geolocation.getCurrentPosition(
+                (position) => {
+                  const { latitude, longitude } = position.coords;
+                  const center = encodeURIComponent(`${latitude},${longitude}`);
+                  const distance = 10;
+                  navigate(
+                    `/artists/nearby?center=${center}&distance=${distance}`
+                  );
+                },
+                () => {
+                  toast.error("Không thể lấy vị trí của bạn");
+                }
+              );
+            }}
           />
         </Box>
 

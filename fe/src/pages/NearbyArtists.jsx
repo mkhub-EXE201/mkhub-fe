@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import toast from "react-hot-toast";
 import artistLocationApis from "../apis/artistLocations.apis";
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 
 const userIcon = new L.Icon({
   iconUrl: "https://cdn-icons-png.flaticon.com/512/149/149060.png",
@@ -19,39 +21,25 @@ const artistIcon = new L.Icon({
 });
 
 export default function NearbyArtists() {
+  const [searchParams] = useSearchParams();
   const [userCoords, setUserCoords] = useState(null);
   const [nearbyArtists, setNearbyArtists] = useState([]);
+  const nav = useNavigate();
+  useEffect(() => {
+    const center = searchParams.get("center");
+    const distance = searchParams.get("distance") || 5;
 
-  const handleGetLocation = () => {
-    if (!navigator.geolocation) {
-      toast.error("Trình duyệt không hỗ trợ định vị");
-      return;
+    if (center) {
+      const [lat, lng] = center.split(",").map(Number);
+      const coords = { lat, lng };
+      setUserCoords(coords);
+
+      artistLocationApis
+        .findArtistsByGeology(lat, lng, distance)
+        .then((res) => setNearbyArtists(res.data.result))
+        .catch((err) => toast.error("Lỗi khi lấy artist gần bạn"));
     }
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        const coords = { lat: latitude, lng: longitude };
-        setUserCoords(coords);
-
-        try {
-          const response = await artistLocationApis.findArtistsByGeology(
-            latitude,
-            longitude,
-            20
-          );
-          setNearbyArtists(response.data.result);
-        } catch (error) {
-          toast.error("Lỗi khi lấy artist gần bạn");
-          console.error(error);
-        }
-      },
-      () => {
-        toast.error("Không thể lấy vị trí của bạn");
-      }
-    );
-  };
-
+  }, [searchParams]);
   return (
     <Box
       sx={{
@@ -73,15 +61,9 @@ export default function NearbyArtists() {
           boxSizing: "border-box",
         }}
       >
-        <Button
-          variant="contained"
-          onClick={handleGetLocation}
-          fullWidth
-          sx={{ marginBottom: 2 }}
-        >
-          Lấy vị trí của tôi
-        </Button>
-
+        <Typography sx={{ fontSize: 14, color: "gray", marginBottom: 2 }}>
+          {nearbyArtists.length} artists trong khu vực bản đồ
+        </Typography>
         {nearbyArtists.length === 0 ? (
           <Typography>Không có nghệ sĩ gần bạn.</Typography>
         ) : (
@@ -144,7 +126,7 @@ export default function NearbyArtists() {
 
             <Marker position={userCoords} icon={userIcon}>
               <Popup>
-                <Typography fontWeight={600}>📍 Bạn đang ở đây</Typography>
+                <Typography fontWeight={600}>📍Bạn đang ở đây</Typography>
               </Popup>
             </Marker>
 
@@ -154,48 +136,65 @@ export default function NearbyArtists() {
                 position={[artist.latitude, artist.longitude]}
                 icon={artistIcon}
               >
-                <Popup>
+                <Popup closeButton={false}>
                   <Box
+                    onClick={() => nav(`/artists/${artist.artist_id}/profile`)}
                     sx={{
                       display: "flex",
                       flexDirection: "column",
-                      alignItems: "center",
+                      gap: 2,
+                      lineHeight: 1.2,
                     }}
                   >
-                    <img
+                    <Box
+                      component="img"
                       src={artist.avatar_url}
                       alt={artist.artist_name}
-                      width={100}
-                      height={100}
-                      style={{
+                      sx={{
+                        width: "100%",
+                        height: 150,
                         objectFit: "cover",
-                        borderRadius: "8px",
-                        marginBottom: "8px",
+                        borderRadius: 1,
+                        mb: 0.5,
+                        transition: "transform 0.2s ease-in-out",
+                        "&:hover": {
+                          transform: "scale(1.05)",
+                        },
                       }}
                     />
+
                     <Typography
+                      variant="body2"
+                      component="div"
                       fontWeight={600}
-                      sx={{ fontSize: 14, textAlign: "center" }}
+                      sx={{ fontSize: 14, m: 0, p: 0 }}
                     >
                       {artist.artist_name}
                     </Typography>
-                    <Typography
+
+                    <Box
                       sx={{
-                        fontSize: 12,
-                        textAlign: "center",
-                        color: "#555",
-                        mt: 0.5,
+                        display: "flex",
+                        gap: 0.5,
+                        alignItems: "flex-start",
                       }}
                     >
-                      {artist.address}
-                    </Typography>
+                      <LocationOnIcon
+                        sx={{ fontSize: 16, color: "#ED1E79", mt: "2px" }}
+                      />
+                      <Typography
+                        variant="body2"
+                        component="div"
+                        sx={{ fontSize: 13, color: "#555", m: 0, p: 0 }}
+                      >
+                        {artist.address}
+                      </Typography>
+                    </Box>
+
                     <Typography
-                      sx={{
-                        fontSize: 12,
-                        color: "#888",
-                        textAlign: "center",
-                        marginTop: "4px",
-                      }}
+                      variant="body2"
+                      component="div"
+                      sx={{ fontSize: 13, color: "#888", m: 0, p: 0 }}
                     >
                       Cách bạn khoảng {artist.distance.toFixed(2)} km
                     </Typography>
