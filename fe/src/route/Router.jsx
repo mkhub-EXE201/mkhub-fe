@@ -34,6 +34,7 @@ import SuccessCheckout from "../pages/SuccessCheckout";
 import ClientInboxManagement from "../pages/ClientInboxMangement";
 import BookingManagement from "../pages/admin/BookingManagement";
 import Community from "../pages/Community";
+import NearbyArtists from "../pages/NearbyArtists";
 
 export const ProtectedRoute = ({ isAdmin, isArtist }) => {
   const { isAuthenticated, role } = useContext(AppContext);
@@ -155,7 +156,14 @@ const AppRouter = () => {
         </Layout>
       ),
     },
-
+    {
+      path: path.nearBy,
+      element: (
+        <Layout>
+          <NearbyArtists />
+        </Layout>
+      ),
+    },
     // protect route - admin
     {
       path: "",

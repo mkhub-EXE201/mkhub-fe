@@ -268,6 +268,11 @@ export default function Navbar({
             label="Cộng đồng"
             isScrolled={isScrolled}
           />
+          <AnimatedUnderlineLink
+            to={path.nearBy}
+            label="Tìm quanh đây"
+            isScrolled={isScrolled}
+          />
         </Box>
 
         {/* Right */}
