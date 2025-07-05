@@ -27,6 +27,7 @@ const path = {
   clientChatManagement: "/inbox",
   community: "/community",
   nearBy: "/artists/nearby",
+  registerRequest: "/artist-requests",
 };
 
 export default path;
