@@ -5,8 +5,7 @@ import SendIcon from "@mui/icons-material/Send";
 import chatLineApis from "../apis/chatLines.apis";
 import { HttpStatusCode } from "axios";
 import { MESSAGE_SENDER_TYPE } from "../constants/enum";
-
-export default function ChatWindow({ room }) {
+export default function ChatWindow({ room, isClient }) {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
 
@@ -24,7 +23,9 @@ export default function ChatWindow({ room }) {
       artist_id: room.artist_id,
       client_id: room.client_id,
       message,
-      sender_type: MESSAGE_SENDER_TYPE.ARTIST,
+      sender_type: isClient
+        ? MESSAGE_SENDER_TYPE.CLIENT
+        : MESSAGE_SENDER_TYPE.ARTIST,
     };
 
     const res = await chatLineApis.sendMessage(payload);
@@ -53,7 +54,9 @@ export default function ChatWindow({ room }) {
     <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
       <Box sx={{ p: 2, borderBottom: "1px solid #ccc" }}>
         <Typography variant="h6">
-          {room.client?.last_name} {room.client?.first_name}
+          {isClient
+            ? `${room.artist?.name}`
+            : `${room.client?.last_name} ${room.client?.first_name}`}
         </Typography>
       </Box>
 
@@ -68,17 +71,20 @@ export default function ChatWindow({ room }) {
         }}
       >
         {messages.map((msg, index) => {
-          const isArtist = msg.sender_type === MESSAGE_SENDER_TYPE.ARTIST;
+          const isMyMessage = isClient
+            ? msg.sender_type === MESSAGE_SENDER_TYPE.CLIENT
+            : msg.sender_type === MESSAGE_SENDER_TYPE.ARTIST;
+
           return (
             <Box
               key={index}
               sx={{
-                alignSelf: isArtist ? "flex-end" : "flex-start",
-                bgcolor: isArtist ? "primary.light" : "grey.300",
+                alignSelf: isMyMessage ? "flex-end" : "flex-start",
+                bgcolor: isMyMessage ? "primary.light" : "grey.300",
                 p: 1,
                 borderRadius: 2,
                 maxWidth: "70%",
-                color: isArtist ? "white" : "black",
+                color: isMyMessage ? "white" : "black",
               }}
             >
               <Typography variant="body2">{msg.message}</Typography>

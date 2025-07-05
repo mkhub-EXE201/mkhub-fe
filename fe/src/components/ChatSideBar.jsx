@@ -11,7 +11,12 @@ import {
   Divider,
 } from "@mui/material";
 
-export default function ChatSideBar({ chatRooms, selectedRoom, onSelect }) {
+export default function ChatSideBar({
+  isClient,
+  chatRooms,
+  selectedRoom,
+  onSelect,
+}) {
   return (
     <Box
       sx={{
@@ -44,14 +49,18 @@ export default function ChatSideBar({ chatRooms, selectedRoom, onSelect }) {
             >
               <ListItemAvatar>
                 <Avatar
-                  src={room.client?.avatar_url}
+                  src={
+                    isClient ? room.artist?.avatar_url : room.client?.avatar_url
+                  }
                   sx={{ width: 48, height: 48 }}
                 />
               </ListItemAvatar>
               <ListItemText
                 primary={
                   <Typography variant="subtitle1" fontWeight="medium">
-                    {room.client?.last_name} {room.client?.first_name}
+                    {isClient
+                      ? `${room.artist?.name}`
+                      : `${room.client?.last_name} ${room.client?.first_name}`}
                   </Typography>
                 }
                 secondary={
