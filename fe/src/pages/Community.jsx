@@ -100,7 +100,7 @@ export default function Community() {
       (position) => {
         const { latitude, longitude } = position.coords;
         const center = encodeURIComponent(`${latitude},${longitude}`);
-        const distance = 5; // bạn có thể đổi
+        const distance = 10;
 
         nav(`/artists/nearby?center=${center}&distance=${distance}`);
       },

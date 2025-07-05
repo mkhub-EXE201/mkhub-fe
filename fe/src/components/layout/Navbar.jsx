@@ -281,7 +281,7 @@ export default function Navbar({
                 (position) => {
                   const { latitude, longitude } = position.coords;
                   const center = encodeURIComponent(`${latitude},${longitude}`);
-                  const distance = 5;
+                  const distance = 10;
                   navigate(
                     `/artists/nearby?center=${center}&distance=${distance}`
                   );
