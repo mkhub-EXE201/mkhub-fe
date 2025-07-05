@@ -415,6 +415,7 @@ export default function Navbar({
                       </Button>
                     </Link>
                     <Button
+                      onClick={() => navigate(path.registerRequest)}
                       sx={{
                         mt: 1,
                         py: 1,

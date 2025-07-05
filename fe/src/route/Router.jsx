@@ -35,6 +35,7 @@ import ClientInboxManagement from "../pages/ClientInboxMangement";
 import BookingManagement from "../pages/admin/BookingManagement";
 import Community from "../pages/Community";
 import NearbyArtists from "../pages/NearbyArtists";
+import RegisterRequest from "../pages/RegisterRequest";
 
 export const ProtectedRoute = ({ isAdmin, isArtist }) => {
   const { isAuthenticated, role } = useContext(AppContext);
@@ -246,6 +247,14 @@ const AppRouter = () => {
           element: (
             <Layout>
               <ClientInboxManagement />
+            </Layout>
+          ),
+        },
+        {
+          path: path.registerRequest,
+          element: (
+            <Layout>
+              <RegisterRequest />
             </Layout>
           ),
         },
