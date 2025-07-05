@@ -34,11 +34,12 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { updateMeSchema } from "../schemas/updateMeSchema";
 import { isAxiosUnprocessableEntityError } from "../utils/errors.type";
 import FeedBack from "../components/FeedBack";
+import mediaApis from "../apis/media.apis";
 
 export default function Profile() {
   const [isLoading, setIsLoading] = useState(true);
   const [profile, setProfile] = useState();
-  const [value, setValue] = useState(0);
+  const [tab, setTab] = useState(0);
   const [appointments, setAppointments] = useState([]);
   const [openCheckoutModal, setOpenCheckoutModal] = useState(false);
   const [selectedAppointmentDetail, setSelectedAppointmentDetail] =
@@ -61,10 +62,14 @@ export default function Profile() {
     handleSubmit,
     reset,
     setError,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: yupResolver(updateMeSchema),
   });
+
+  const [previewImage, setPreviewImage] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
 
   useEffect(() => {
     if (profile) {
@@ -92,12 +97,23 @@ export default function Profile() {
 
   const onSubmit = async (data) => {
     try {
+      if (selectedFile) {
+        const avatarFormData = new FormData();
+        avatarFormData.append("folderName", "profile");
+        avatarFormData.append("images", selectedFile);
+        const resUpload = await mediaApis.uploadImage(avatarFormData);
+        if (resUpload.status === HttpStatusCode.Ok) {
+          setValue("avatar_url", ...resUpload.data.result);
+        }
+      }
+
       const res = await userApis.updateMe(data);
       if (res.status === HttpStatusCode.Ok) {
+        console.log(data);
         toast.success(res.data.message);
         setProfile((prev) => ({
           ...prev,
-          ...data,
+          ...res.data.result,
         }));
         setOpen(false);
       }
@@ -153,7 +169,7 @@ export default function Profile() {
   }, []);
 
   const handleChange = (event, newValue) => {
-    setValue(newValue);
+    setTab(newValue);
   };
 
   return (
@@ -251,15 +267,42 @@ export default function Profile() {
 
                   <DialogContent>
                     <Box sx={{ display: "flex", gap: 4 }}>
-                      <Avatar
-                        src={profile?.avatar_url}
+                      <Box
                         sx={{
-                          width: 150,
-                          height: 150,
-                          objectFit: "cover",
-                          flexShrink: 0,
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
                         }}
-                      />
+                      >
+                        <Avatar
+                          src={previewImage || profile?.avatar_url}
+                          sx={{
+                            width: 150,
+                            height: 150,
+                            objectFit: "cover",
+                            mb: 1,
+                          }}
+                        />
+                        <Button
+                          variant="outlined"
+                          component="label"
+                          size="small"
+                        >
+                          Chọn ảnh mới
+                          <input
+                            hidden
+                            accept="image/*"
+                            type="file"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                setSelectedFile(file);
+                                setPreviewImage(URL.createObjectURL(file));
+                              }
+                            }}
+                          />
+                        </Button>
+                      </Box>
 
                       <Box sx={{ flex: 1 }}>
                         <Box
@@ -344,7 +387,7 @@ export default function Profile() {
             {/* Tabs */}
             <Box sx={{ marginX: 10, padding: 2 }}>
               <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-                <Tabs value={value} onChange={handleChange}>
+                <Tabs value={tab} onChange={handleChange}>
                   <Tab label="Lịch hẹn makeup" />
                   <Tab label="Sổ địa chỉ" />
                   <Tab label="Ưu đãi của tôi" />
@@ -353,7 +396,7 @@ export default function Profile() {
               </Box>
 
               {/* Tab nội dung */}
-              {value === 0 && (
+              {tab === 0 && (
                 <Box sx={{ p: 3 }}>
                   {/* Stepper */}
                   <Stepper
@@ -399,18 +442,18 @@ export default function Profile() {
                 </Box>
               )}
 
-              {value === 1 && (
+              {tab === 1 && (
                 <Box sx={{ p: 3 }}>
                   <Typography>Sổ địa chỉ đang được phát triển.</Typography>
                 </Box>
               )}
 
-              {value === 2 && (
+              {tab === 2 && (
                 <Box sx={{ p: 3 }}>
                   <Typography>Ưu đãi đang được phát triển.</Typography>
                 </Box>
               )}
-              {value === 3 && (
+              {tab === 3 && (
                 <Box sx={{ p: 3 }}>
                   <FeedBack />
                 </Box>
