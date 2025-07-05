@@ -26,15 +26,31 @@ import { Link } from "react-router-dom";
 import artistApis from "../apis/artists.apis";
 import loadingAnimation from "../assets/loading.json";
 import Lottie from "react-lottie";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+
+const userIcon = new L.Icon({
+  iconUrl: "https://cdn-icons-png.flaticon.com/512/64/64113.png",
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+});
+
+const artistIcon = new L.Icon({
+  iconUrl: "https://cdn-icons-png.flaticon.com/512/149/149060.png",
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+});
 
 export default function Community() {
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [selectedProvince, setSelectedProvince] = useState(null);
   const [selectedDistrict, setSelectedDistrict] = useState(null);
-  const [userCoords, setUserCoords] = useState(null);
   const [loading, setLoading] = useState(true);
   const [artists, setArtists] = useState([]);
+  const [userCoords, setUserCoords] = useState(null);
+  const [nearbyArtists, setNearbyArtists] = useState([]);
 
   useEffect(() => {
     getProvinces();
@@ -94,11 +110,25 @@ export default function Community() {
       toast.error("Trình duyệt không hỗ trợ định vị");
       return;
     }
+
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      async (position) => {
         const { latitude, longitude } = position.coords;
-        setUserCoords({ lat: latitude, lng: longitude });
-        toast.success(`Đã lấy được vị trí!, ${latitude} ${longitude}`);
+        const coords = { lat: latitude, lng: longitude };
+        setUserCoords(coords);
+        toast.success(`Đã lấy được vị trí!, ${latitude}, ${longitude}`);
+
+        try {
+          const response = await artistLocationApis.findArtistsByGeology(
+            latitude,
+            longitude,
+            3
+          );
+          setNearbyArtists(response.data.result);
+        } catch (error) {
+          toast.error("Lỗi khi lấy artist gần bạn");
+          console.error(error);
+        }
       },
       () => {
         toast.error("Không thể lấy vị trí của bạn");
@@ -220,6 +250,7 @@ export default function Community() {
                   <Button
                     variant="contained"
                     fullWidth
+                    sx={{ marginTop: 2 }}
                     onClick={handleSearchLocation}
                   >
                     Tìm kiếm
@@ -256,11 +287,62 @@ export default function Community() {
                       >
                         Lấy tọa độ của tôi
                       </button>
+                      {/* {userCoords && (
+                        <MapContainer
+                          center={userCoords}
+                          zoom={14}
+                          style={{ height: "400px", marginTop: 16 }}
+                        >
+                          <TileLayer
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            attribution="&copy; OpenStreetMap contributors"
+                          />
+                          <Marker position={userCoords}>
+                            <Popup>Bạn đang ở đây</Popup>
+                          </Marker>
+
+                          {nearbyArtists.map((artist) => (
+                            <Marker
+                              key={artist.id}
+                              position={[artist.latitude, artist.longitude]}
+                            >
+                              <Popup>{artist.artist_name}</Popup>
+                            </Marker>
+                          ))}
+                        </MapContainer>
+                      )} */}
+
                       {userCoords && (
-                        <Typography sx={{ fontSize: 14 }}>
-                          Vĩ độ: <b>{userCoords.lat.toFixed(5)}</b> <br />
-                          Kinh độ: <b>{userCoords.lng.toFixed(5)}</b>
-                        </Typography>
+                        <MapContainer
+                          center={userCoords}
+                          zoom={14}
+                          style={{ height: "400px", marginTop: 16 }}
+                        >
+                          <TileLayer
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            attribution="&copy; OpenStreetMap contributors"
+                          />
+
+                          {/* Marker client */}
+                          <Marker position={userCoords} icon={userIcon}>
+                            <Popup>Bạn đang ở đây</Popup>
+                          </Marker>
+
+                          {/* Marker các artist */}
+                          {nearbyArtists.map((artist) => (
+                            <Marker
+                              key={artist.id}
+                              position={[artist.latitude, artist.longitude]}
+                              icon={artistIcon}
+                            >
+                              <Popup>
+                                {artist.artist_name}
+                                <br />
+                                Cách bạn khoảng {artist.distance.toFixed(2)} km
+                              </Popup>
+                            </Marker>
+                          ))}
+                        </MapContainer>
                       )}
                     </Box>
                   </Box>

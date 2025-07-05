@@ -4,6 +4,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { useEffect } from "react";
 import { AppContext } from "./contexts/app.context";
 import { io } from "socket.io-client";
+import "leaflet/dist/leaflet.css";
 
 function App() {
   const { profile } = useContext(AppContext);
