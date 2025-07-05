@@ -139,28 +139,29 @@ export default function NearbyArtists() {
                   <Divider sx={{ my: 2 }} />
 
                   {/* Services (max 2) */}
-                  {artist.services.slice(0, 2).map((service) => (
-                    <Box key={service.id} sx={{ my: 1 }}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          gap: 2,
-                          alignItems: "center",
-                        }}
-                      >
-                        <Typography fontWeight={500} sx={{ flex: 1 }}>
-                          {service.service_name}
-                        </Typography>
-                        <Typography fontWeight={500}>
-                          ~{service.duration}p
-                        </Typography>
-                        <Typography fontWeight={600} color="primary">
-                          {service.max_price.toLocaleString()} VNĐ
-                        </Typography>
+                  {artist.services &&
+                    artist.services.slice(0, 2).map((service) => (
+                      <Box key={service.id} sx={{ my: 1 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            gap: 2,
+                            alignItems: "center",
+                          }}
+                        >
+                          <Typography fontWeight={500} sx={{ flex: 1 }}>
+                            {service.service_name}
+                          </Typography>
+                          <Typography fontWeight={500}>
+                            ~{service.duration}p
+                          </Typography>
+                          <Typography fontWeight={600} color="primary">
+                            {service.max_price.toLocaleString()} VNĐ
+                          </Typography>
+                        </Box>
                       </Box>
-                    </Box>
-                  ))}
+                    ))}
 
                   {/* See detail */}
                   <Box
