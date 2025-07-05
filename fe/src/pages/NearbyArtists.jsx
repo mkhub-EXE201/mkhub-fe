@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import toast from "react-hot-toast";
 import artistLocationApis from "../apis/artistLocations.apis";
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
+import { useSearchParams } from "react-router-dom";
 
 const userIcon = new L.Icon({
   iconUrl: "https://cdn-icons-png.flaticon.com/512/149/149060.png",
@@ -19,39 +20,25 @@ const artistIcon = new L.Icon({
 });
 
 export default function NearbyArtists() {
+  const [searchParams] = useSearchParams();
   const [userCoords, setUserCoords] = useState(null);
   const [nearbyArtists, setNearbyArtists] = useState([]);
 
-  const handleGetLocation = () => {
-    if (!navigator.geolocation) {
-      toast.error("Trình duyệt không hỗ trợ định vị");
-      return;
+  useEffect(() => {
+    const center = searchParams.get("center");
+    const distance = searchParams.get("distance") || 5;
+
+    if (center) {
+      const [lat, lng] = center.split(",").map(Number);
+      const coords = { lat, lng };
+      setUserCoords(coords);
+
+      artistLocationApis
+        .findArtistsByGeology(lat, lng, distance)
+        .then((res) => setNearbyArtists(res.data.result))
+        .catch((err) => toast.error("Lỗi khi lấy artist gần bạn"));
     }
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        const coords = { lat: latitude, lng: longitude };
-        setUserCoords(coords);
-
-        try {
-          const response = await artistLocationApis.findArtistsByGeology(
-            latitude,
-            longitude,
-            20
-          );
-          setNearbyArtists(response.data.result);
-        } catch (error) {
-          toast.error("Lỗi khi lấy artist gần bạn");
-          console.error(error);
-        }
-      },
-      () => {
-        toast.error("Không thể lấy vị trí của bạn");
-      }
-    );
-  };
-
+  }, [searchParams]);
   return (
     <Box
       sx={{
@@ -73,15 +60,9 @@ export default function NearbyArtists() {
           boxSizing: "border-box",
         }}
       >
-        <Button
-          variant="contained"
-          onClick={handleGetLocation}
-          fullWidth
-          sx={{ marginBottom: 2 }}
-        >
-          Lấy vị trí của tôi
-        </Button>
-
+        <Typography sx={{ fontSize: 14, color: "gray", marginBottom: 2 }}>
+          {nearbyArtists.length} artists trong khu vực bản đồ
+        </Typography>
         {nearbyArtists.length === 0 ? (
           <Typography>Không có nghệ sĩ gần bạn.</Typography>
         ) : (
