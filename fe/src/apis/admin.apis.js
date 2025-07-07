@@ -9,5 +9,6 @@ const adminApis = {
     http.post(`/${adminUrl}/artists/${application_id}/verify`, payload),
   getPlatformRevenue: () => http.get(`${adminUrl}/balance`),
   getAllAppointments: () => http.get(`${adminUrl}/appointments`),
+  getPlatformMonthlyRevenue: () => http.get(`${adminUrl}/revenue`),
 };
 export default adminApis;
