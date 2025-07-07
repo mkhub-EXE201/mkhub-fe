@@ -63,8 +63,11 @@ export const DUAL_MODE = {
 };
 
 export const APPOINTMENT_STATUS_DISPLAY = {
+  PENDING: "Đang chờ duyệt",
+  APPROVED: "Chờ thanh toán",
   CONFIRMED: "Đã lên lịch",
   PAID: "Đã thanh toán",
+  COMPLETED: "Đã hoàn thành",
 };
 
 export const USER_ROLE_DISPLAY = {
