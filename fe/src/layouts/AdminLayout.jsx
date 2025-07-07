@@ -271,23 +271,6 @@ export default function AdminLayout({ children }) {
                       color: "black",
                     }}
                   >
-                    <Link to={path.profile}>
-                      <Button
-                        sx={{
-                          py: 1,
-                          px: 1.5,
-                          justifyContent: "flex-start",
-                          color: "black",
-                          textTransform: "none",
-                          "&:hover": {
-                            backgroundColor: (theme) => theme.palette.lightGray,
-                          },
-                        }}
-                      >
-                        Thông tin tài khoản
-                      </Button>
-                    </Link>
-
                     <Button
                       onClick={() => handleLogout()}
                       sx={{
