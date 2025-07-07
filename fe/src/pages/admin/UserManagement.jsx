@@ -10,11 +10,13 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
+import CheckIcon from "@mui/icons-material/Check";
+import CloseIcon from "@mui/icons-material/Close";
 import React, { useEffect, useState } from "react";
 import Skeleton from "../../components/Skeleton";
 import userApis from "../../apis/users.apis";
 import HttpStatusCode from "../../constants/httpStatus";
-import { formatDateTime, getStatusColor } from "../../utils/utils";
+import { formatDateTime } from "../../utils/utils";
 import { USER_ROLE_DISPLAY } from "../../constants/enum";
 
 const StyledTableCell = styled(TableCell)(() => ({
@@ -78,7 +80,13 @@ export default function UserManagement() {
                   <TableCell>{row.email}</TableCell>
                   <TableCell>{row.phone_number}</TableCell>
                   <TableCell>{formatDateTime(row.created_at)}</TableCell>
-                  <TableCell>{row.is_artist.toString()}</TableCell>
+                  <TableCell>
+                    {row.is_artist ? (
+                      <CheckIcon color="success" fontSize="small" />
+                    ) : (
+                      <CloseIcon color="error" fontSize="small" />
+                    )}
+                  </TableCell>{" "}
                   <TableCell>{USER_ROLE_DISPLAY[row.role]}</TableCell>
                 </TableRow>
               ))}
