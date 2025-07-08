@@ -20,12 +20,11 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import NotificationsNoneOutlined from "@mui/icons-material/NotificationsNoneOutlined";
 import AccountCircleOutlined from "@mui/icons-material/AccountCircleOutlined";
-import CalendarMonthOutlined from "@mui/icons-material/CalendarMonthOutlined";
+import BarChartIcon from "@mui/icons-material/BarChart";
 import logo from "../assets/logo.png";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import { Avatar, Button, InputAdornment, TextField } from "@mui/material";
-import DashboardIcon from "@mui/icons-material/Dashboard";
 import DashboardCustomizeOutlined from "@mui/icons-material/DashboardCustomizeOutlined";
 import { Link, useNavigate } from "react-router-dom";
 import { AppContext } from "../contexts/app.context";
@@ -38,7 +37,7 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 
 const drawerWidth = 300;
 const adminMenus = [
-  { label: "Dashboard", icon: <DashboardIcon />, to: path.adminDashboard },
+  { label: "Thống kê", icon: <BarChartIcon />, to: path.adminDashboard },
 
   {
     label: "Tài khoản",

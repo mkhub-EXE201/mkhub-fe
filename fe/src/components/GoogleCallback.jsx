@@ -1,20 +1,25 @@
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import toast from "react-hot-toast";
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { decodeToken } from "../utils/jwt";
-import { setToken, setUser } from "../store/slices/users.slices";
 import path from "../constants/path";
+import { AppContext } from "../contexts/app.context";
+import { decodeToken } from "../utils/jwt";
+import {
+  setAccessTokenToLocalStorage,
+  setProfileToLocalStorage,
+  setRefreshTokenToLocalStorage,
+} from "../utils/auth";
 
 const GoogleCallback = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const { setIsAuthenticated, setProfile, setRole } = useContext(AppContext);
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get("token");
-    if (token) {
+    const access_token = urlParams.get("access_token");
+    const refresh_token = urlParams.get("refresh_token");
+    if (access_token) {
       try {
-        const decoded = decodeToken(token);
+        const decoded = decodeToken(access_token);
         const userData = {
           id: decoded.id,
           name: decoded.unique_name,
@@ -24,8 +29,12 @@ const GoogleCallback = () => {
           isModerator: decoded.isModerator,
         };
 
-        dispatch(setUser(userData));
-        dispatch(setToken(token));
+        setIsAuthenticated(true);
+        setProfile(userData);
+        setRole(userData.role);
+        setAccessTokenToLocalStorage(access_token);
+        setRefreshTokenToLocalStorage(refresh_token);
+        setProfileToLocalStorage(userData);
         toast.success("Đăng nhập thành công!");
         navigate(path.home);
       } catch (error) {
