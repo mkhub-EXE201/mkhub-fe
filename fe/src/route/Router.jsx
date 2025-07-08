@@ -36,6 +36,7 @@ import BookingManagement from "../pages/admin/BookingManagement";
 import Community from "../pages/Community";
 import NearbyArtists from "../pages/NearbyArtists";
 import RegisterRequest from "../pages/RegisterRequest";
+import GoogleCallback from "../components/GoogleCallback";
 
 export const ProtectedRoute = ({ isAdmin, isArtist }) => {
   const { isAuthenticated, role } = useContext(AppContext);
@@ -164,6 +165,10 @@ const AppRouter = () => {
           <NearbyArtists />
         </Layout>
       ),
+    },
+    {
+      path: "/oauth",
+      element: <GoogleCallback />,
     },
     // protect route - admin
     {
