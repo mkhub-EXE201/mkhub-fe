@@ -63,7 +63,7 @@ export default function ArtistPostManagement() {
     watch,
     reset,
     setValue,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm({
     resolver: yupResolver(addPostSchema),
     defaultValues: {
@@ -297,8 +297,12 @@ export default function ArtistPostManagement() {
 
                     <Box display="flex" justifyContent="flex-end" gap={2}>
                       <Button onClick={() => setOpen(false)}>Huỷ</Button>
-                      <Button type="submit" variant="contained">
-                        Đăng bài
+                      <Button
+                        type="submit"
+                        disabled={isSubmitting}
+                        variant="contained"
+                      >
+                        {isSubmitting ? "...Đang đăng bài" : "Đăng bài"}
                       </Button>
                     </Box>
                   </Box>

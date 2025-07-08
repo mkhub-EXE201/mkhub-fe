@@ -63,7 +63,8 @@ export default function ArtistServiceManagement() {
     control,
     setValue,
     trigger,
-    formState: { errors },
+
+    formState: { errors, isSubmitting },
   } = useForm({
     resolver: yupResolver(addNewArtistServiceSchema),
     defaultValues: {
@@ -561,11 +562,12 @@ export default function ArtistServiceManagement() {
                           {watch("group_size")}
                         </Typography>
                         <Typography>
-                          <strong>Giá tối thiểu:</strong> {watch("min_price")}{" "}
-                          VNĐ
+                          <strong>Giá tối thiểu:</strong>{" "}
+                          {formatCurrency(watch("min_price"))} VNĐ
                         </Typography>
                         <Typography>
-                          <strong>Giá tối đa:</strong> {watch("max_price")} VNĐ
+                          <strong>Giá tối đa:</strong>{" "}
+                          {formatCurrency(watch("max_price"))} VNĐ
                         </Typography>
 
                         <Box>
@@ -639,9 +641,15 @@ export default function ArtistServiceManagement() {
                         activeStep === steps.length ? handleSubmit : handleNext
                       }
                       sx={{ mr: 1 }}
+                      disabled={isSubmitting}
                     >
-                      {activeStep === steps.length ? "Gửi" : "Tiếp theo"}
+                      {activeStep === steps.length
+                        ? isSubmitting
+                          ? "Đang lưu..."
+                          : "Lưu thay đổi"
+                        : "Tiếp theo"}
                     </Button>
+
                     <Button onClick={handleBack} disabled={activeStep === 0}>
                       Quay lại
                     </Button>
@@ -655,7 +663,7 @@ export default function ArtistServiceManagement() {
               marginX: 4,
             }}
           >
-            <Grid container disableGutters spacing={2} justifyContent="center">
+            <Grid container disableGutters spacing={2}>
               {services.map((item, index) => (
                 <Grid item xs={12} sm={6} md={4} key={index}>
                   <Card
