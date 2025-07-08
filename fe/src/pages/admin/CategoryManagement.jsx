@@ -46,7 +46,7 @@ export default function CategoryManagement() {
     handleSubmit,
     setValue,
     watch,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm({
     resolver: yupResolver(addNewCategorySchema),
   });
@@ -315,6 +315,7 @@ export default function CategoryManagement() {
             <Button
               type="submit"
               variant="contained"
+              disabled={isSubmitting}
               color="primary"
               fullWidth
               sx={{ mt: 2 }}
@@ -338,10 +339,10 @@ export default function CategoryManagement() {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">
-            Cancel
+            Hủy
           </Button>
           <Button onClick={handleDeleteConfirmed} color="primary" autoFocus>
-            Delete
+            Xóa
           </Button>
         </DialogActions>
       </Dialog>
