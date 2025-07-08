@@ -52,7 +52,7 @@ class Http {
     this.instance.interceptors.response.use(
       (response) => {
         const { url } = response.config;
-        if (url.includes(loginUrl)) {
+        if (url.includes(loginUrl) || url.includes("/login/google")) {
           this.accessToken = response.data.result.access_token;
           this.refreshToken = response.data.result.refresh_token;
           setAccessTokenToLocalStorage(this.accessToken);

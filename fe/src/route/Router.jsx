@@ -167,7 +167,7 @@ const AppRouter = () => {
       ),
     },
     {
-      path: "/oauth",
+      path: path.oauth,
       element: <GoogleCallback />,
     },
     // protect route - admin

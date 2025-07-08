@@ -9,6 +9,7 @@ import {
   setProfileToLocalStorage,
   setRefreshTokenToLocalStorage,
 } from "../utils/auth";
+import userApis from "../apis/users.apis";
 
 const GoogleCallback = () => {
   const navigate = useNavigate();
@@ -17,28 +18,32 @@ const GoogleCallback = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const access_token = urlParams.get("access_token");
     const refresh_token = urlParams.get("refresh_token");
-    if (access_token) {
+    setAccessTokenToLocalStorage(access_token);
+    setRefreshTokenToLocalStorage(refresh_token);
+    const fetchUserProfile = async (userId) => {
       try {
-        const decoded = decodeToken(access_token);
-        const userData = {
-          id: decoded.id,
-          name: decoded.unique_name,
-          email: decoded.email,
-          avartar: decoded.avartar,
-          role: decoded.role,
-          isModerator: decoded.isModerator,
-        };
-
+        const response = await userApis.getMe(userId);
+        const userData = response.data.result;
         setIsAuthenticated(true);
         setProfile(userData);
         setRole(userData.role);
-        setAccessTokenToLocalStorage(access_token);
-        setRefreshTokenToLocalStorage(refresh_token);
+
         setProfileToLocalStorage(userData);
         toast.success("Đăng nhập thành công!");
         navigate(path.home);
       } catch (error) {
-        toast.error(error.message);
+        toast.error("Lấy thông tin người dùng thất bại");
+        navigate(path.login);
+      }
+    };
+
+    if (access_token) {
+      try {
+        const decoded = decodeToken(access_token);
+        const userId = decoded.user_id || decoded.id;
+        fetchUserProfile(userId);
+      } catch (error) {
+        toast.error("Token không hợp lệ!");
         navigate(path.login);
       }
     } else {

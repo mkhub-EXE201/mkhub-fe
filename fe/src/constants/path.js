@@ -28,6 +28,7 @@ const path = {
   community: "/community",
   nearBy: "/artists/nearby",
   registerRequest: "/artist-requests",
+  oauth: "/oauth",
 };
 
 export default path;
