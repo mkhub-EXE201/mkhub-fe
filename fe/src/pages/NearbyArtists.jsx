@@ -1,14 +1,20 @@
-import React, { useEffect, useState } from "react";
-import "leaflet/dist/leaflet.css";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  useMapEvents,
+} from "react-leaflet";
 import L from "leaflet";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import toast from "react-hot-toast";
-import artistLocationApis from "../apis/artistLocations.apis";
 import { Box, Button, Divider, Typography } from "@mui/material";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
-import loadingAnimation from "../assets/loading.json";
 import Lottie from "react-lottie";
+import debounce from "lodash/debounce";
+import artistLocationApis from "../apis/artistLocations.apis";
+import loadingAnimation from "../assets/loading.json";
 
 const userIcon = new L.Icon({
   iconUrl: "https://cdn-icons-png.flaticon.com/512/149/149060.png",
@@ -22,40 +28,65 @@ const artistIcon = new L.Icon({
   iconAnchor: [16, 32],
 });
 
+function MapEventHandler({ onBoundsChanged }) {
+  useMapEvents({
+    zoomend: debounce(onBoundsChanged, 500),
+    moveend: debounce(onBoundsChanged, 500),
+  });
+  return null;
+}
+
 export default function NearbyArtists() {
-  const [loading, setLoading] = useState(true);
   const [searchParams] = useSearchParams();
   const [userCoords, setUserCoords] = useState(null);
   const [nearbyArtists, setNearbyArtists] = useState([]);
+  const [loading, setLoading] = useState(true);
   const nav = useNavigate();
+
+  const mapRef = useRef(null);
+
+  const fetchArtists = useCallback(async () => {
+    const map = mapRef.current;
+    if (!map || !userCoords) return;
+
+    const bounds = map.getBounds();
+    const center = map.getCenter();
+
+    // Tính khoảng cách từ center tới góc (approx radius)
+    const radius = center.distanceTo(bounds.getNorthEast()) / 1000; // km
+    nav(
+      `/artists/nearby?center=${center.lat.toFixed(6)},${center.lng.toFixed(6)}&distance=${radius.toFixed(2)}`,
+      { replace: true }
+    );
+    try {
+      const res = await artistLocationApis.findArtistsByGeology(
+        center.lat,
+        center.lng,
+        radius
+      );
+      setNearbyArtists(res.data.result);
+    } catch (error) {
+      toast.error("Lỗi khi tải danh sách nghệ sĩ gần bạn");
+    }
+  }, [userCoords]);
+
   useEffect(() => {
     const center = searchParams.get("center");
-    const distance = searchParams.get("distance") || 5;
+    if (!center) return;
 
-    if (center) {
-      const [lat, lng] = center.split(",").map(Number);
-      const coords = { lat, lng };
-      setUserCoords(coords);
-
-      artistLocationApis
-        .findArtistsByGeology(lat, lng, distance)
-        .then((res) => {
-          setNearbyArtists(res.data.result);
-          setLoading(false);
-        })
-        .catch((err) => toast.error("Lỗi khi lấy artist gần bạn"));
-    }
+    const [lat, lng] = center.split(",").map(Number);
+    setUserCoords({ lat, lng });
+    setLoading(true);
   }, [searchParams]);
+
+  useEffect(() => {
+    if (userCoords) {
+      fetchArtists().finally(() => setLoading(false));
+    }
+  }, [userCoords, fetchArtists]);
+
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "row",
-        height: "calc(100vh - 100px)",
-        width: "100vw",
-        overflow: "hidden",
-      }}
-    >
+    <Box sx={{ display: "flex", height: "calc(100vh - 100px)" }}>
       {loading ? (
         <Lottie
           options={{
@@ -66,27 +97,19 @@ export default function NearbyArtists() {
               preserveAspectRatio: "xMidYMid slice",
             },
           }}
-          height={500}
-          width={500}
+          height={300}
+          width={300}
         />
       ) : (
         <>
-          {/* BÊN TRÁI: LIST ARTISTS */}
-          <Box
-            sx={{
-              flex: 1,
-              overflowY: "auto",
-              height: "100%",
-              padding: 2,
-              paddingBottom: 4,
-              boxSizing: "border-box",
-            }}
-          >
-            <Typography sx={{ fontSize: 14, color: "gray", marginBottom: 2 }}>
-              {nearbyArtists.length} artists trong khu vực bản đồ
+          {/* artist & service*/}
+          <Box sx={{ flex: 1, overflowY: "auto", p: 2 }}>
+            <Typography sx={{ fontSize: 14, color: "gray", mb: 2 }}>
+              {nearbyArtists.length} nghệ sĩ trong khu vực bản đồ
             </Typography>
+
             {nearbyArtists.length === 0 ? (
-              <Typography>Không có nghệ sĩ gần bạn.</Typography>
+              <Typography>Không có artist nào gần bạn.</Typography>
             ) : (
               nearbyArtists.map((artist) => (
                 <Box
@@ -99,10 +122,9 @@ export default function NearbyArtists() {
                     backgroundColor: "#fff",
                   }}
                 >
-                  {/* Avatar + Name + Distance */}
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
                     <img
-                      src={artist.avatar_url || "/default-avatar.jpg"}
+                      src={artist.avatar_url}
                       alt={artist.artist_name}
                       width={60}
                       height={60}
@@ -113,60 +135,33 @@ export default function NearbyArtists() {
                       }}
                     />
                     <Box sx={{ flex: 1 }}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Typography fontWeight={600}>
-                          {artist.artist_name}
-                        </Typography>
-                        <Typography
-                          sx={{ fontSize: 13, color: "#555", fontWeight: 600 }}
-                        >
-                          {artist.distance.toFixed(2)} km
-                        </Typography>
-                      </Box>
-                      <Typography sx={{ fontSize: 13, color: "#555", mt: 0.5 }}>
+                      <Typography fontWeight={600}>
+                        {artist.artist_name}
+                      </Typography>
+                      <Typography sx={{ fontSize: 13, color: "#555" }}>
                         {artist.address}
                       </Typography>
                     </Box>
+                    <Typography sx={{ fontSize: 13, color: "#777" }}>
+                      {artist.distance.toFixed(2)} km
+                    </Typography>
                   </Box>
 
-                  {/* Full-width Divider - moved outside avatar box */}
                   <Divider sx={{ my: 2 }} />
 
-                  {/* Services (max 2) */}
-                  {artist.services &&
-                    artist.services.slice(0, 2).map((service) => (
-                      <Box key={service.id} sx={{ my: 1 }}>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            gap: 2,
-                            alignItems: "center",
-                          }}
-                        >
-                          <Typography fontWeight={500} sx={{ flex: 1 }}>
-                            {service.service_name}
-                          </Typography>
-                          <Typography fontWeight={500}>
-                            ~{service.duration}p
-                          </Typography>
-                          <Typography fontWeight={600} color="primary">
-                            {service.max_price.toLocaleString()} VNĐ
-                          </Typography>
-                        </Box>
-                      </Box>
-                    ))}
+                  {artist.services?.slice(0, 2).map((item) => (
+                    <Box key={item.id} sx={{ display: "flex", gap: 2, mb: 1 }}>
+                      <Typography sx={{ flex: 1 }}>
+                        {item.service_name}
+                      </Typography>
+                      <Typography>~{item.duration}p</Typography>
+                      <Typography color="primary" fontWeight={600}>
+                        {item.max_price.toLocaleString()} VNĐ
+                      </Typography>
+                    </Box>
+                  ))}
 
-                  {/* See detail */}
-                  <Box
-                    sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}
-                  >
+                  <Box sx={{ textAlign: "right", mt: 1 }}>
                     <Button
                       variant="text"
                       size="small"
@@ -181,33 +176,25 @@ export default function NearbyArtists() {
               ))
             )}
           </Box>
-          {/* BÊN PHẢI: MAP */}
-          <Box
-            sx={{
-              flex: 2,
-              height: "100%",
-              width: "100vw",
-            }}
-          >
+
+          {/* map */}
+          <Box sx={{ flex: 2 }}>
             {userCoords && (
               <MapContainer
                 center={userCoords}
                 zoom={14}
+                ref={mapRef}
                 style={{ height: "100%", width: "100%" }}
                 scrollWheelZoom
-                dragging
-                doubleClickZoom
-                zoomControl
               >
                 <TileLayer
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   attribution="&copy; OpenStreetMap contributors"
                 />
+                <MapEventHandler onBoundsChanged={fetchArtists} />
 
                 <Marker position={userCoords} icon={userIcon}>
-                  <Popup>
-                    <Typography fontWeight={600}>📍Bạn đang ở đây</Typography>
-                  </Popup>
+                  <Popup>Bạn đang ở đây</Popup>
                 </Marker>
 
                 {nearbyArtists.map((artist) => (
@@ -216,69 +203,36 @@ export default function NearbyArtists() {
                     position={[artist.latitude, artist.longitude]}
                     icon={artistIcon}
                   >
-                    <Popup closeButton={false}>
+                    <Popup>
                       <Box
                         onClick={() =>
                           nav(`/artists/${artist.artist_id}/profile`)
                         }
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: 2,
-                          lineHeight: 1.2,
-                        }}
+                        sx={{ cursor: "pointer" }}
                       >
-                        <Box
-                          component="img"
+                        <img
                           src={artist.avatar_url}
                           alt={artist.artist_name}
-                          sx={{
+                          style={{
                             width: "100%",
-                            height: 150,
+                            height: 200,
                             objectFit: "cover",
-                            borderRadius: 1,
-                            mb: 0.5,
-                            transition: "transform 0.2s ease-in-out",
-                            "&:hover": {
-                              transform: "scale(1.05)",
-                            },
+                            borderRadius: 4,
                           }}
                         />
-
-                        <Typography
-                          variant="body2"
-                          component="div"
-                          fontWeight={600}
-                          sx={{ fontSize: 14, m: 0, p: 0 }}
-                        >
+                        <Typography fontWeight={600} mt={1}>
                           {artist.artist_name}
                         </Typography>
-
-                        <Box
-                          sx={{
-                            display: "flex",
-                            gap: 0.5,
-                            alignItems: "flex-start",
-                          }}
-                        >
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
                           <LocationOnIcon
-                            sx={{ fontSize: 16, color: "#ED1E79", mt: "2px" }}
+                            sx={{ fontSize: 16, color: "#ED1E79", mr: 0.5 }}
                           />
-                          <Typography
-                            variant="body2"
-                            component="div"
-                            sx={{ fontSize: 13, color: "#555", m: 0, p: 0 }}
-                          >
+                          <Typography fontSize={13}>
                             {artist.address}
                           </Typography>
                         </Box>
-
-                        <Typography
-                          variant="body2"
-                          component="div"
-                          sx={{ fontSize: 13, color: "#888", m: 0, p: 0 }}
-                        >
-                          Cách bạn khoảng {artist.distance.toFixed(2)} km
+                        <Typography fontSize={13} color="gray">
+                          {artist.distance.toFixed(2)} km
                         </Typography>
                       </Box>
                     </Popup>

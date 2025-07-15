@@ -34,7 +34,7 @@ export default function Register() {
     setError,
     handleSubmit,
     watch,
-    formState: { errors },
+    formState: { errors, isSubmmitting },
   } = useForm({
     resolver: yupResolver(registerSchema),
   });
@@ -415,7 +415,7 @@ export default function Register() {
                           : "not-allowed",
                     }}
                   >
-                    Đăng ký
+                    {isSubmmitting ? "Đang đăng ký..." : "Đăng ký"}
                   </Button>
                 </form>
                 <Box sx={{ display: "flex", alignItems: "center", my: 1 }}>
