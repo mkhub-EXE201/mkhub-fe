@@ -1,7 +1,14 @@
 /* eslint-disable react/prop-types */
 import React, { useState } from "react";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { IconButton, Badge, Popover, Typography, Box } from "@mui/material";
+import {
+  IconButton,
+  Badge,
+  Popover,
+  Typography,
+  Box,
+  Tooltip,
+} from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { USER_ROLE } from "../constants/enum";
 
@@ -34,15 +41,23 @@ export default function Notification({
   };
   return (
     <>
-      <IconButton
-        aria-describedby={id}
-        onClick={handleClick}
-        sx={{ position: "relative" }}
-      >
-        <Badge badgeContent={notifications?.length ?? 0} color="error">
-          <NotificationsIcon sx={{ color: isScrolled ? "black" : "white", width: isScrolled ? 25 : 30, height: isScrolled ? 25 : 30 }} />
-        </Badge>
-      </IconButton>
+      <Tooltip title="Thông báo">
+        <IconButton
+          aria-describedby={id}
+          onClick={handleClick}
+          sx={{ position: "relative" }}
+        >
+          <Badge badgeContent={notifications?.length ?? 0} color="error">
+            <NotificationsIcon
+              sx={{
+                color: isScrolled ? "black" : "white",
+                width: isScrolled ? 25 : 30,
+                height: isScrolled ? 25 : 30,
+              }}
+            />
+          </Badge>
+        </IconButton>
+      </Tooltip>
 
       <Popover
         id={id}

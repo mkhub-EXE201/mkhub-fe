@@ -35,7 +35,6 @@ import { AppContext } from "../contexts/app.context";
 import PostModal from "../components/PostModal";
 import BookingModal from "../components/BookingModal";
 import ChatBox from "../components/ChatBox";
-import { set } from "react-hook-form";
 
 export default function ArtistDetail() {
   const { id } = useParams();
