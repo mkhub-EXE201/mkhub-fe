@@ -1,5 +1,12 @@
 /* eslint-disable react/prop-types */
-import { Box, TextField, IconButton, Typography, Avatar } from "@mui/material";
+import {
+  Box,
+  TextField,
+  IconButton,
+  Typography,
+  Avatar,
+  Tooltip,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
 import React, { useEffect, useState } from "react";
@@ -118,6 +125,16 @@ const ChatBox = ({ onClose, artist, client }) => {
               }}
             >
               <Typography variant="body2">{msg.message}</Typography>
+              <Tooltip
+                title={`Gửi lúc: ${new Date(msg.created_at).toLocaleString("vi-VN")}`}
+              >
+                <Typography
+                  variant="caption"
+                  sx={{ display: "block", marginTop: 0.5 }}
+                >
+                  {new Date(msg.created_at).toLocaleTimeString("vi-VN")}
+                </Typography>
+              </Tooltip>
             </Box>
           );
         })}
