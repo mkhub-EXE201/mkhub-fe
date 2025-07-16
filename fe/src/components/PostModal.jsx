@@ -17,6 +17,11 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import { REACTION_REFERENCE_TYPE, REACTION_TYPE } from "../constants/enum";
 import commentApis from "../apis/comment.apis";
 import HttpStatusCode from "../constants/httpStatus";
+import dayjs from "dayjs";
+import "dayjs/locale/vi";
+dayjs.locale("vi");
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
 
 export default function PostModal({
   selectedPost,
@@ -106,12 +111,28 @@ export default function PostModal({
           }}
         >
           <Box sx={{ mb: 2 }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <Avatar src={profile.avatar_url} />
-              <Typography variant="h6" gutterBottom>
-                {profile.name}
-              </Typography>
+            <Box sx={{ mb: 2 }}>
+              <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5 }}>
+                <Avatar
+                  src={profile.avatar_url}
+                  sx={{ width: 48, height: 48 }}
+                />
+
+                <Box>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{ fontWeight: 600, lineHeight: 1.2 }}
+                  >
+                    {profile.name}
+                  </Typography>
+
+                  <Typography variant="caption" color="text.secondary">
+                    {dayjs(selectedPost.created_at).fromNow()}
+                  </Typography>
+                </Box>
+              </Box>
             </Box>
+
             <Typography variant="body2" sx={{ mt: 2, mb: 1 }}>
               {selectedPost.content}
             </Typography>
@@ -199,6 +220,9 @@ export default function PostModal({
                     </Typography>
                     <Typography sx={{ fontSize: 14 }}>
                       {item.content}
+                    </Typography>{" "}
+                    <Typography variant="caption" color="text.secondary">
+                      {dayjs(item.created_at).fromNow()}
                     </Typography>
                   </Box>
                 </Box>

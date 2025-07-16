@@ -4,6 +4,7 @@ import {
   Box,
   Button,
   IconButton,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import React, { useContext, useState, useEffect } from "react";
@@ -355,19 +356,21 @@ export default function Navbar({
             getNotificationsByStatus={getNotifications}
             isScrolled={isScrolled}
           />
-          <IconButton>
-            <Badge badgeContent={unreadChatCount} color="error">
-              <TelegramIcon
-                onClick={() => navigate(path.clientChatManagement)}
-                sx={{
-                  width: isScrolled ? 25 : 30,
-                  height: isScrolled ? 25 : 30,
-                  color: isScrolled ? "black" : "white",
-                  transition: "width 0.3s ease, height 0.3s ease",
-                }}
-              />
-            </Badge>
-          </IconButton>
+          <Tooltip title="Tin nhắn">
+            <IconButton>
+              <Badge badgeContent={unreadChatCount} color="error">
+                <TelegramIcon
+                  onClick={() => navigate(path.clientChatManagement)}
+                  sx={{
+                    width: isScrolled ? 25 : 30,
+                    height: isScrolled ? 25 : 30,
+                    color: isScrolled ? "black" : "white",
+                    transition: "width 0.3s ease, height 0.3s ease",
+                  }}
+                />
+              </Badge>
+            </IconButton>
+          </Tooltip>
           {!isAuthenticated ? (
             <>
               <AnimatedUnderlineLink
