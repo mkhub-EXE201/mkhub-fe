@@ -1,5 +1,6 @@
 import {
   Box,
+  CircularProgress,
   Paper,
   styled,
   Table,
@@ -47,6 +48,20 @@ export default function UserManagement() {
     };
     getUsers();
   }, []);
+
+  if (loading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems={"center"}
+        minHeight="80vh"
+        width="100%"
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ width: "100%" }}>

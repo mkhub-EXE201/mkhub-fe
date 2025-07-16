@@ -10,6 +10,7 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  CircularProgress,
   TableRow,
   Typography,
 } from "@mui/material";
@@ -26,6 +27,8 @@ import { formatDateTime, getStatusColor } from "../../utils/utils";
 import Modal from "../../components/Modal";
 import createSocket from "../../utils/socket";
 import { AppContext } from "../../contexts/app.context";
+import Lottie from "react-lottie";
+import loadingAnimation from "../../assets/progressLoading.json";
 
 const StyledTableCell = styled(TableCell)(() => ({
   backgroundColor: "black",
@@ -36,7 +39,7 @@ const StyledTableCell = styled(TableCell)(() => ({
 const STATUS_LIST = ["ALL", ...Object.keys(ARTIST_APPLICATION_STATUS)];
 
 export default function ArtistManagement() {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [applications, setApplications] = useState([]);
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [statusFilter, setStatusFilter] = useState("ALL");
@@ -69,7 +72,6 @@ export default function ArtistManagement() {
 
   const getArtistApplications = async () => {
     try {
-      setLoading(true);
       const response = await adminApis.getArtistApplicationsByStatus("");
       if (response.status === HttpStatusCode.Ok) {
         setApplications(response.data.result);
@@ -98,84 +100,94 @@ export default function ArtistManagement() {
       ? applications
       : applications.filter((app) => app.status === statusFilter);
 
+  if (loading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems={"center"}
+        minHeight="80vh"
+        width="100%"
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ width: "100%" }}>
       <Typography variant="h4" color="primary" marginBottom={3}>
         Danh sách đăng kí MKUB Artist
       </Typography>
 
-      {loading ? (
-        <Skeleton />
-      ) : (
-        <>
-          <Stack direction="row" spacing={2} mb={2} flexWrap="wrap">
-            {STATUS_LIST.map((status) => {
-              const count =
-                status === "ALL"
-                  ? applications.length
-                  : statusCounts[status] || 0;
-              return (
-                <Chip
-                  key={status}
-                  label={`${
-                    status === "ALL"
-                      ? "Tất cả"
-                      : ARTIST_APPLICATION_STATUS_DISPLAY[status]
-                  } (${count})`}
-                  onClick={() => setStatusFilter(status)}
-                  sx={{
-                    fontWeight: "600",
-                  }}
-                  variant={statusFilter === status ? "filled" : "outlined"}
-                />
-              );
-            })}
-          </Stack>
+      <>
+        <Stack direction="row" spacing={2} mb={2} flexWrap="wrap">
+          {STATUS_LIST.map((status) => {
+            const count =
+              status === "ALL"
+                ? applications.length
+                : statusCounts[status] || 0;
+            return (
+              <Chip
+                key={status}
+                label={`${
+                  status === "ALL"
+                    ? "Tất cả"
+                    : ARTIST_APPLICATION_STATUS_DISPLAY[status]
+                } (${count})`}
+                onClick={() => setStatusFilter(status)}
+                sx={{
+                  fontWeight: "600",
+                }}
+                variant={statusFilter === status ? "filled" : "outlined"}
+              />
+            );
+          })}
+        </Stack>
 
-          <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 650 }} stickyHeader>
-              <TableHead>
-                <TableRow>
-                  <StyledTableCell>STT</StyledTableCell>
-                  <StyledTableCell>Tên</StyledTableCell>
-                  <StyledTableCell>Email</StyledTableCell>
-                  <StyledTableCell>Ngày đăng kí</StyledTableCell>
-                  <StyledTableCell>Lượt gửi</StyledTableCell>
-                  <StyledTableCell>Trạng thái</StyledTableCell>
-                  <StyledTableCell>Lý do</StyledTableCell>
-                  <StyledTableCell>Hành động</StyledTableCell>
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} stickyHeader>
+            <TableHead>
+              <TableRow>
+                <StyledTableCell>STT</StyledTableCell>
+                <StyledTableCell>Tên</StyledTableCell>
+                <StyledTableCell>Email</StyledTableCell>
+                <StyledTableCell>Ngày đăng kí</StyledTableCell>
+                <StyledTableCell>Lượt gửi</StyledTableCell>
+                <StyledTableCell>Trạng thái</StyledTableCell>
+                <StyledTableCell>Lý do</StyledTableCell>
+                <StyledTableCell>Hành động</StyledTableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredApplications.map((row, index) => (
+                <TableRow key={row.id}>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{row.name}</TableCell>
+                  <TableCell>{row.email}</TableCell>
+                  <TableCell>{formatDateTime(row.created_at)}</TableCell>
+                  <TableCell>{row.number_of_submission}</TableCell>
+                  <TableCell sx={{ color: getStatusColor(row.status) }}>
+                    {ARTIST_APPLICATION_STATUS_DISPLAY[row.status]}
+                  </TableCell>
+                  <TableCell>{row.reason}</TableCell>
+                  <TableCell
+                    sx={{
+                      "&:hover": {
+                        cursor: "pointer",
+                        bgcolor: (theme) => theme.palette.action.hover,
+                      },
+                    }}
+                    onClick={() => handleOpen(row)}
+                  >
+                    Chi tiết
+                  </TableCell>
                 </TableRow>
-              </TableHead>
-              <TableBody>
-                {filteredApplications.map((row, index) => (
-                  <TableRow key={row.id}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{row.name}</TableCell>
-                    <TableCell>{row.email}</TableCell>
-                    <TableCell>{formatDateTime(row.created_at)}</TableCell>
-                    <TableCell>{row.number_of_submission}</TableCell>
-                    <TableCell sx={{ color: getStatusColor(row.status) }}>
-                      {ARTIST_APPLICATION_STATUS_DISPLAY[row.status]}
-                    </TableCell>
-                    <TableCell>{row.reason}</TableCell>
-                    <TableCell
-                      sx={{
-                        "&:hover": {
-                          cursor: "pointer",
-                          bgcolor: (theme) => theme.palette.action.hover,
-                        },
-                      }}
-                      onClick={() => handleOpen(row)}
-                    >
-                      Chi tiết
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </>
-      )}
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </>
 
       {/* Modal Chi Tiết */}
       <Modal
