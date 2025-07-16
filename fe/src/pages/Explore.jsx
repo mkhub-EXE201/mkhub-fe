@@ -9,6 +9,7 @@ import {
   FormControlLabel,
   FormLabel,
   RadioGroup,
+  Button,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -217,7 +218,7 @@ export default function Explore() {
                             src={item.thumbnail}
                             alt={`Artist ${index + 1}`}
                             style={{
-                              borderRadius: "50%",
+                              borderRadius: "10%",
                               width: 70,
                               aspectRatio: "1/1",
                               objectFit: "cover",

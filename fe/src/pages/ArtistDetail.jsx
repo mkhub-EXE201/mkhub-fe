@@ -11,6 +11,7 @@ import {
   Typography,
   ImageList,
   ImageListItem,
+  Modal,
 } from "@mui/material";
 import React, { useContext, useEffect } from "react";
 import Navbar from "../components/layout/Navbar";
@@ -34,6 +35,7 @@ import { AppContext } from "../contexts/app.context";
 import PostModal from "../components/PostModal";
 import BookingModal from "../components/BookingModal";
 import ChatBox from "../components/ChatBox";
+import { set } from "react-hook-form";
 
 export default function ArtistDetail() {
   const { id } = useParams();
@@ -60,6 +62,7 @@ export default function ArtistDetail() {
   const [reactions, setReactions] = useState([]);
   const [myReaction, setMyReaction] = useState(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isServiceDetailOpen, setIsServiceDetailOpen] = useState(false);
 
   const getPhotos = async () => {
     try {
@@ -354,7 +357,6 @@ export default function ArtistDetail() {
               <Swiper
                 slidesPerView={"auto"}
                 spaceBetween={20}
-                grabCursor={true}
                 style={{ paddingBottom: 20 }}
               >
                 {services.map((item, index) => (
@@ -393,6 +395,11 @@ export default function ArtistDetail() {
                         display: "flex",
                         flexDirection: "column",
                         borderRadius: "15px",
+                      }}
+                      onClick={() => {
+                        setSelectedService(item);
+                        setIsServiceDetailOpen(true);
+                        setCurrentModal("detail");
                       }}
                     >
                       <CardMedia
@@ -456,7 +463,10 @@ export default function ArtistDetail() {
                         }}
                       >
                         <Button
-                          onClick={() => setIsChatOpen(true)}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setIsChatOpen(true);
+                          }}
                           size="small"
                           variant="outlined"
                         >
@@ -465,7 +475,8 @@ export default function ArtistDetail() {
                         <Button
                           size="small"
                           variant="contained"
-                          onClick={() => {
+                          onClick={(event) => {
+                            event.stopPropagation();
                             setCurrentModal("booking");
                             setSelectedService(item);
                           }}
@@ -544,7 +555,10 @@ export default function ArtistDetail() {
                       key={index}
                       src={item.media_url[0]}
                       alt={`photo-${index}`}
-                      onClick={() => handleImageClick(item.media_url, item)}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleImageClick(item.media_url, item);
+                      }}
                       style={{
                         width: 300,
                         height: 300,
@@ -571,6 +585,136 @@ export default function ArtistDetail() {
             </Box>
           </Box>
         )}
+
+        {currentModal === "detail" && (
+          <Box
+            onClick={closeModal}
+            sx={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100vw",
+              height: "100vh",
+              zIndex: 1300,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              backdropFilter: "blur(10px)",
+              WebkitBackdropFilter: "blur(10px)",
+              backgroundColor: "rgba(0, 0, 0, 0.3)",
+            }}
+          >
+            <Box
+              onClick={(e) => e.stopPropagation()}
+              sx={{
+                width: { xs: "90%", sm: 600 },
+                bgcolor: "rgba(255, 255, 255, 0.1)",
+                backdropFilter: "blur(18px)",
+                WebkitBackdropFilter: "blur(18px)",
+                borderRadius: 4,
+                p: 8,
+                color: "#fff",
+                boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
+              }}
+            >
+              <Typography
+                variant="h4"
+                gutterBottom
+                sx={{
+                  fontWeight: "bold",
+                  borderBottom: "3px solid white",
+                  display: "inline-block",
+                  paddingBottom: 0.5,
+                  marginBottom: 3,
+                  color: "white",
+                  fontSize: 28,
+                }}
+              >
+                {selectedService?.service_name}
+              </Typography>
+
+              <Typography
+                sx={{ my: 2 }}
+                variant="body2"
+                gutterBottom
+                color="#ccc"
+              >
+                {selectedService?.description}
+              </Typography>
+
+              {/* Hình ảnh */}
+              <Swiper
+                slidesPerView={"auto"}
+                spaceBetween={20}
+                style={{ paddingBottom: 10 }}
+              >
+                {selectedService?.service_img?.map((img, index) => (
+                  <SwiperSlide
+                    key={index}
+                    style={{
+                      aspectRatio: "1/1",
+                      height: 200,
+                      width: 200,
+                      borderRadius: "15px",
+                      overflow: "hidden",
+                      transition: "all 0.4s ease",
+                      transform:
+                        hoveredIndex === index
+                          ? "scale(1.05)"
+                          : hoveredIndex === null
+                            ? "scale(1)"
+                            : "scale(0.95)",
+                      opacity:
+                        hoveredIndex === null || hoveredIndex === index
+                          ? 1
+                          : 0.6,
+                      boxShadow:
+                        hoveredIndex === index
+                          ? "0 8px 20px rgba(0,0,0,0.25)"
+                          : "none",
+                      zIndex: hoveredIndex === index ? 10 : 1,
+                      cursor: "pointer",
+                    }}
+                    onMouseEnter={() => setHoveredIndex(index)}
+                    onMouseLeave={() => setHoveredIndex(null)}
+                  >
+                    <img
+                      src={img}
+                      alt={`Artist ${index}`}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+
+              {/* Giá */}
+              <Typography
+                variant="body1"
+                gutterBottom
+                sx={{ mt: 2, color: "#fff", fontWeight: 600 }}
+              >
+                {formatCurrency(selectedService?.min_price)} -{" "}
+                {formatCurrency(selectedService?.max_price)}
+                <Typography
+                  component="span"
+                  sx={{
+                    fontSize: "0.75em",
+                    ml: 0.5,
+                    color: "#bbb",
+                    fontWeight: 400,
+                  }}
+                >
+                  đ
+                </Typography>
+              </Typography>
+            </Box>
+          </Box>
+        )}
+
         <BookingModal
           currentModal={currentModal}
           closeModal={closeModal}
