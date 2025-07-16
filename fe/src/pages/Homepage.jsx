@@ -4,6 +4,7 @@ import StatCard from "../components/home-page/StatCard";
 import VideoCarousel from "../components/home-page/VideoCarousel"; // Eager import
 import PropTypes from "prop-types";
 import Headers from "../components/layout/Headers";
+import ChatBubble from "../components/ChatBubble";
 
 // Lazy load other components
 const TopServices = lazy(() => import("../components/home-page/TopServices"));
@@ -92,6 +93,9 @@ export default function Homepage() {
       </Suspense>
       <Suspense fallback={<StyledFallback height={100} />}>
         <Gallery />
+      </Suspense>{" "}
+      <Suspense fallback={<StyledFallback height={100} />}>
+        <ChatBubble />
       </Suspense>
       <Suspense fallback={<StyledFallback height={100} />}>
         <Footer />
