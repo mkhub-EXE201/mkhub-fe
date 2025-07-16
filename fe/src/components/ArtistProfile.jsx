@@ -43,6 +43,13 @@ export default function ArtistProfile({ portfolio }) {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(updateArtistProfileSchema),
+    defaultValues: {
+      name: portfolio.name,
+      bio: portfolio.bio,
+      email: portfolio.email,
+      phone_number: portfolio.phone_number,
+      portfolio_urls: urls,
+    },
   });
   useEffect(() => {
     if (portfolio) {
@@ -110,6 +117,7 @@ export default function ArtistProfile({ portfolio }) {
               label="Họ tên:"
               {...register("name")}
               size="small"
+              InputLabelProps={{ shrink: true }}
               fullWidth
               error={!!errors.name}
               helperText={errors.name?.message || " "}
@@ -121,6 +129,7 @@ export default function ArtistProfile({ portfolio }) {
               margin="normal"
               fullWidth
               label="Số điện thoại: "
+              InputLabelProps={{ shrink: true }}
               {...register("phone_number")}
               error={!!errors.phone_number}
               helperText={errors.phone_number?.message || " "}
@@ -143,6 +152,7 @@ export default function ArtistProfile({ portfolio }) {
               fullWidth
               multiline
               minRows={3}
+              InputLabelProps={{ shrink: true }}
               {...register("bio")}
               error={!!errors.bio}
               helperText={errors.bio?.message || " "}
@@ -157,6 +167,7 @@ export default function ArtistProfile({ portfolio }) {
             disabled
             sx={{ cursor: "not-allowed" }}
             error={!!errors.email}
+            InputLabelProps={{ shrink: true }}
             helperText={errors.email?.message || " "}
           />
           <Box>
@@ -177,6 +188,7 @@ export default function ArtistProfile({ portfolio }) {
                   value={item}
                   size="small"
                   fullWidth
+                  InputLabelProps={{ shrink: true }}
                   onChange={(e) => handleUrlChange(e, index)}
                   InputProps={{
                     readOnly: editableIndex !== index,

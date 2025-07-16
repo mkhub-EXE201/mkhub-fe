@@ -10,6 +10,10 @@ import {
   Modal,
   Typography,
   IconButton,
+  DialogContent,
+  DialogTitle,
+  DialogActions,
+  Dialog,
 } from "@mui/material";
 import toast from "react-hot-toast";
 import { useForm } from "react-hook-form";
@@ -23,6 +27,7 @@ import HttpStatusCode from "../../constants/httpStatus";
 import { useDropzone } from "react-dropzone";
 import RemoveIcon from "@mui/icons-material/Remove";
 import postApis from "../../apis/posts.apis";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 export default function ArtistPostManagement() {
   const { profile } = useContext(AppContext);
@@ -31,6 +36,31 @@ export default function ArtistPostManagement() {
   const [open, setOpen] = useState(false);
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
+  const [openAlert, setOpenAlert] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
+
+  const handleClose = () => {
+    setOpenAlert(false);
+  };
+
+  const handleRequestDelete = (post_id) => {
+    setDeleteTargetId(post_id);
+    setOpenAlert(true);
+  };
+
+  const handleDeleteConfirmed = async () => {
+    if (!deleteTargetId) return;
+    setOpenAlert(true);
+    const response = await postApis.deletePost(deleteTargetId);
+    if (response.status === HttpStatusCode.Ok) {
+      toast.success(response.data.message, {
+        position: "top-center",
+      });
+      fetchPosts();
+    }
+    setOpenAlert(false);
+    setDeleteTargetId(null);
+  };
 
   const onDrop = (acceptedFiles) => {
     const currentFiles = watch("media_url") || [];
@@ -181,11 +211,101 @@ export default function ArtistPostManagement() {
                       height="420"
                       style={{ objectFit: "cover" }}
                     />
+                    <CancelIcon
+                      onClick={() => handleRequestDelete(post.id)}
+                      sx={{
+                        width: 30,
+                        height: 30,
+                        position: "absolute",
+                        top: -15,
+                        right: -10,
+                        cursor: "pointer",
+                        ":hover": {
+                          opacity: 0.8,
+                        },
+                      }}
+                    />
                   </Box>
                 )}
               </Grid>
             ))}
           </Grid>
+          <Dialog
+            open={openAlert}
+            onClose={handleClose}
+            keepMounted
+            TransitionComponent={Fade}
+            transitionDuration={300}
+            BackdropProps={{
+              sx: {
+                backdropFilter: "blur(8px)",
+                backgroundColor: "rgba(0,0,0,0.2)",
+              },
+            }}
+            PaperProps={{
+              sx: {
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                borderRadius: "20px",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+                boxShadow: "0 12px 32px rgba(0, 0, 0, 0.35)",
+                color: "#fff",
+                px: 3,
+                py: 2,
+                transition: "all 0.3s ease",
+              },
+            }}
+          >
+            <DialogTitle
+              id="alert-dialog-title"
+              sx={{
+                fontWeight: 600,
+                fontSize: 22,
+                color: "rgba(255, 255, 255, 0.95)",
+              }}
+            >
+              Xác nhận trước khi xóa
+            </DialogTitle>
+
+            <DialogContent>
+              <Typography
+                variant="body1"
+                sx={{ color: "rgba(255, 255, 255, 0.85)", mb: 1 }}
+              >
+                Bạn có chắc chắn muốn xóa bài đăng này?
+              </Typography>
+            </DialogContent>
+
+            <DialogActions sx={{ gap: 1 }}>
+              <Button
+                onClick={handleClose}
+                variant="outlined"
+                sx={{
+                  borderColor: "rgba(255, 255, 255, 0.3)",
+                  color: "#ddd",
+                  "&:hover": {
+                    borderColor: "#aaa",
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  },
+                }}
+              >
+                Hủy
+              </Button>
+              <Button
+                onClick={handleDeleteConfirmed}
+                color="error"
+                variant="contained"
+                sx={{
+                  backgroundColor: "#ff4d4f",
+                  color: "#fff",
+                  "&:hover": {
+                    backgroundColor: "#e53935",
+                  },
+                }}
+              >
+                Xóa
+              </Button>
+            </DialogActions>
+          </Dialog>
 
           <Modal
             open={open}

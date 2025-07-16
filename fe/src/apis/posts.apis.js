@@ -7,6 +7,8 @@ const postApis = {
   getAllReactions: (post_id) => http.get(`/${postRoute}/${post_id}/reactions`),
   addPost: (payload) => http.post(`${postRoute}/add-post`, payload),
   getAllPosts: () => http.get(`${postRoute}/all`),
+  deletePost: (post_id) =>
+    http.delete(`/${postRoute}/delete-post`, { data: { post_id } }),
 };
 
 export default postApis;

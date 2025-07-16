@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState } from "react";
-import { Box, Typography, TextField, IconButton } from "@mui/material";
+import { Box, Typography, TextField, IconButton, Tooltip } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import chatLineApis from "../apis/chatLines.apis";
 import { HttpStatusCode } from "axios";
@@ -87,7 +87,11 @@ export default function ChatWindow({ room, isClient }) {
                 color: isMyMessage ? "white" : "black",
               }}
             >
-              <Typography variant="body2">{msg.message}</Typography>
+              <Tooltip
+                title={`Gửi lúc: ${new Date(msg.created_at).toLocaleString("vi-VN")}`}
+              >
+                <Typography variant="body2">{msg.message}</Typography>
+              </Tooltip>
             </Box>
           );
         })}
