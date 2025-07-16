@@ -7,6 +7,7 @@ import {
   CardActionArea,
   CardContent,
   CardMedia,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -130,6 +131,21 @@ export default function CategoryManagement() {
     setOpenAlert(false);
     setDeleteTargetId(null);
   };
+
+  if (loading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems={"center"}
+        minHeight="80vh"
+        width="100%"
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ width: "100%" }}>
       <Box
@@ -169,81 +185,78 @@ export default function CategoryManagement() {
           Thêm chủ đề makeup mới +
         </Button>
       </Box>
-      {loading ? (
-        <Skeleton />
-      ) : (
-        <Box
-          sx={{
-            width: "100%",
-            maxWidth: "1200px",
-            margin: "0 auto",
-            paddingY: { xs: 2, sm: 3 },
-          }}
-        >
-          <Grid container spacing={2}>
-            {categories.map((item) => (
-              <Grid item xs={12} sm={6} md={6} key={item.id}>
-                <Card sx={{ boxShadow: "none", borderRadius: "30px" }}>
-                  <CardActionArea
+
+      <Box
+        sx={{
+          width: "100%",
+          maxWidth: "1200px",
+          margin: "0 auto",
+          paddingY: { xs: 2, sm: 3 },
+        }}
+      >
+        <Grid container spacing={2}>
+          {categories.map((item) => (
+            <Grid item xs={12} sm={6} md={6} key={item.id}>
+              <Card sx={{ boxShadow: "none", borderRadius: "30px" }}>
+                <CardActionArea
+                  sx={{
+                    position: "relative",
+                    backgroundColor: (theme) => theme.palette.lightGray,
+                    borderRadius: "30px",
+                    overflow: "hidden",
+                  }}
+                >
+                  <CardMedia
+                    component="img"
                     sx={{
-                      position: "relative",
-                      backgroundColor: (theme) => theme.palette.lightGray,
-                      borderRadius: "30px",
-                      overflow: "hidden",
+                      width: 250,
+                      height: 300,
+                      objectFit: "cover",
+                    }}
+                    image={item.thumbnail}
+                  />
+                  <CardContent
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      paddingY: 2,
                     }}
                   >
-                    <CardMedia
-                      component="img"
+                    <Typography
+                      gutterBottom
                       sx={{
-                        width: 250,
-                        height: 300,
-                        objectFit: "cover",
+                        fontSize: {
+                          xs: 14,
+                          sm: 18,
+                          md: 20,
+                        },
                       }}
-                      image={item.thumbnail}
-                    />
-                    <CardContent
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        paddingY: 2,
-                      }}
+                      fontWeight={600}
+                      textAlign="center"
                     >
-                      <Typography
-                        gutterBottom
-                        sx={{
-                          fontSize: {
-                            xs: 14,
-                            sm: 18,
-                            md: 20,
-                          },
-                        }}
-                        fontWeight={600}
-                        textAlign="center"
-                      >
-                        {item.name}
-                      </Typography>
-                    </CardContent>
-                    <CancelIcon
-                      onClick={() => handleRequestDelete(item.id)}
-                      sx={{
-                        color: "white",
-                        position: "absolute",
-                        top: 8,
-                        right: 8,
-                        backgroundColor: "rgba(0,0,0,0.4)",
-                        borderRadius: "50%",
-                        padding: 0.5,
-                        cursor: "pointer",
-                      }}
-                    />
-                  </CardActionArea>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
-      )}
+                      {item.name}
+                    </Typography>
+                  </CardContent>
+                  <CancelIcon
+                    onClick={() => handleRequestDelete(item.id)}
+                    sx={{
+                      color: "white",
+                      position: "absolute",
+                      top: 8,
+                      right: 8,
+                      backgroundColor: "rgba(0,0,0,0.4)",
+                      borderRadius: "50%",
+                      padding: 0.5,
+                      cursor: "pointer",
+                    }}
+                  />
+                </CardActionArea>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
       <Modal open={openModal} onClose={() => setOpenModal(false)}>
         <Box
           sx={{

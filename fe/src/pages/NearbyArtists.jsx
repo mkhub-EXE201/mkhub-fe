@@ -39,8 +39,11 @@ function MapEventHandler({ onBoundsChanged }) {
 export default function NearbyArtists() {
   const [searchParams] = useSearchParams();
   const [userCoords, setUserCoords] = useState(null);
+  const [initialUserCoords, setInitialUserCoords] = useState(null);
   const [nearbyArtists, setNearbyArtists] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isViewOnly, setIsViewOnly] = useState(false);
+  const [showRecenterButton, setShowRecenterButton] = useState(false);
   const nav = useNavigate();
 
   const mapRef = useRef(null);
@@ -54,10 +57,14 @@ export default function NearbyArtists() {
 
     // Tính khoảng cách từ center tới góc (approx radius)
     const radius = center.distanceTo(bounds.getNorthEast()) / 1000; // km
+
     nav(
-      `/artists/nearby?center=${center.lat.toFixed(6)},${center.lng.toFixed(6)}&distance=${radius.toFixed(2)}`,
+      `/artists/nearby?center=${center.lat.toFixed(6)},${center.lng.toFixed(
+        6
+      )}&distance=${radius.toFixed(2)}`,
       { replace: true }
     );
+
     try {
       const res = await artistLocationApis.findArtistsByGeology(
         center.lat,
@@ -68,14 +75,16 @@ export default function NearbyArtists() {
     } catch (error) {
       toast.error("Lỗi khi tải danh sách nghệ sĩ gần bạn");
     }
-  }, [userCoords]);
+  }, [userCoords, nav]);
 
   useEffect(() => {
     const center = searchParams.get("center");
     if (!center) return;
 
     const [lat, lng] = center.split(",").map(Number);
-    setUserCoords({ lat, lng });
+    const coords = { lat, lng };
+    setUserCoords(coords);
+    setInitialUserCoords(coords); // Lưu vị trí ban đầu
     setLoading(true);
   }, [searchParams]);
 
@@ -84,6 +93,36 @@ export default function NearbyArtists() {
       fetchArtists().finally(() => setLoading(false));
     }
   }, [userCoords, fetchArtists]);
+
+  const handleMapChanged = () => {
+    if (isViewOnly) return;
+
+    fetchArtists();
+
+    const map = mapRef.current;
+    if (!map || !initialUserCoords) return;
+
+    const center = map.getCenter();
+    const distanceMoved =
+      center.distanceTo(
+        L.latLng(initialUserCoords.lat, initialUserCoords.lng)
+      ) / 1000;
+
+    if (distanceMoved > 5) {
+      setShowRecenterButton(true);
+    } else {
+      setShowRecenterButton(false);
+    }
+  };
+
+  const handleRecenter = () => {
+    const map = mapRef.current;
+    if (map && initialUserCoords) {
+      map.setView(initialUserCoords, 14);
+      fetchArtists();
+      setShowRecenterButton(false);
+    }
+  };
 
   return (
     <Box sx={{ display: "flex", height: "calc(100vh - 100px)" }}>
@@ -178,67 +217,103 @@ export default function NearbyArtists() {
           </Box>
 
           {/* map */}
-          <Box sx={{ flex: 2 }}>
-            {userCoords && (
-              <MapContainer
-                center={userCoords}
-                zoom={14}
-                ref={mapRef}
-                style={{ height: "100%", width: "100%" }}
-                scrollWheelZoom
-              >
-                <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  attribution="&copy; OpenStreetMap contributors"
-                />
-                <MapEventHandler onBoundsChanged={fetchArtists} />
+          <Box sx={{ flex: 2, position: "relative" }}>
+            <MapContainer
+              center={userCoords}
+              zoom={14}
+              ref={mapRef}
+              style={{ height: "100%", width: "100%" }}
+              scrollWheelZoom
+            >
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution="&copy; OpenStreetMap contributors"
+              />
+              <MapEventHandler onBoundsChanged={handleMapChanged} />
 
-                <Marker position={userCoords} icon={userIcon}>
-                  <Popup>Bạn đang ở đây</Popup>
-                </Marker>
+              <Marker position={userCoords} icon={userIcon}>
+                <Popup>Bạn đang ở đây</Popup>
+              </Marker>
 
-                {nearbyArtists.map((artist) => (
-                  <Marker
-                    key={artist.id}
-                    position={[artist.latitude, artist.longitude]}
-                    icon={artistIcon}
-                  >
-                    <Popup>
-                      <Box
-                        onClick={() =>
-                          nav(`/artists/${artist.artist_id}/profile`)
-                        }
-                        sx={{ cursor: "pointer" }}
-                      >
-                        <img
-                          src={artist.avatar_url}
-                          alt={artist.artist_name}
-                          style={{
-                            width: "100%",
-                            height: 200,
-                            objectFit: "cover",
-                            borderRadius: 4,
-                          }}
+              {nearbyArtists.map((artist) => (
+                <Marker
+                  key={artist.id}
+                  position={[artist.latitude, artist.longitude]}
+                  icon={artistIcon}
+                >
+                  <Popup>
+                    <Box
+                      onClick={() =>
+                        nav(`/artists/${artist.artist_id}/profile`)
+                      }
+                      sx={{ cursor: "pointer" }}
+                    >
+                      <img
+                        src={artist.avatar_url}
+                        alt={artist.artist_name}
+                        style={{
+                          width: "100%",
+                          height: 200,
+                          objectFit: "cover",
+                          borderRadius: 4,
+                        }}
+                      />
+                      <Typography fontWeight={600} mt={1}>
+                        {artist.artist_name}
+                      </Typography>
+                      <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <LocationOnIcon
+                          sx={{ fontSize: 16, color: "#ED1E79", mr: 0.5 }}
                         />
-                        <Typography fontWeight={600} mt={1}>
-                          {artist.artist_name}
-                        </Typography>
-                        <Box sx={{ display: "flex", alignItems: "center" }}>
-                          <LocationOnIcon
-                            sx={{ fontSize: 16, color: "#ED1E79", mr: 0.5 }}
-                          />
-                          <Typography fontSize={13}>
-                            {artist.address}
-                          </Typography>
-                        </Box>
-                        <Typography fontSize={13} color="gray">
-                          {artist.distance.toFixed(2)} km
-                        </Typography>
+                        <Typography fontSize={13}>{artist.address}</Typography>
                       </Box>
-                    </Popup>
-                  </Marker>
-                ))}
-              </MapContainer>
+                      <Typography fontSize={13} color="gray">
+                        {artist.distance.toFixed(2)} km
+                      </Typography>
+                    </Box>
+                  </Popup>
+                </Marker>
+              ))}
+            </MapContainer>
+
+            {/* Floating buttons */}
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => {
+                if (isViewOnly) fetchArtists();
+                setIsViewOnly((prev) => !prev);
+              }}
+              sx={{
+                position: "absolute",
+                top: 16,
+                right: 16,
+                zIndex: 1000,
+                backgroundColor: isViewOnly ? "#1976d2" : "#555",
+                color: "#fff",
+                "&:hover": {
+                  backgroundColor: isViewOnly ? "#115293" : "#333",
+                },
+              }}
+            >
+              {isViewOnly ? "Tìm quanh khu vực" : "Xem bản đồ tự do"}
+            </Button>
+
+            {showRecenterButton && (
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={handleRecenter}
+                sx={{
+                  position: "absolute",
+                  bottom: 16,
+                  right: 16,
+                  zIndex: 1000,
+                  backgroundColor: "#fff",
+                }}
+              >
+                Quay về vị trí của bạn
+              </Button>
             )}
           </Box>
         </>
