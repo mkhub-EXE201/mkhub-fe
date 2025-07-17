@@ -26,7 +26,6 @@ import { Link, useNavigate } from "react-router-dom";
 import artistApis from "../apis/artists.apis";
 import loadingAnimation from "../assets/loading.json";
 import Lottie from "react-lottie";
-import path from "../constants/path";
 
 export default function Community() {
   const [provinces, setProvinces] = useState([]);
