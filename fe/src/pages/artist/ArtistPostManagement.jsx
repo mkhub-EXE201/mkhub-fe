@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
-  Avatar,
   Backdrop,
   Box,
   Button,
@@ -15,6 +14,8 @@ import {
   DialogActions,
   Dialog,
 } from "@mui/material";
+import ChatIcon from "@mui/icons-material/Chat";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 import toast from "react-hot-toast";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -203,14 +204,49 @@ export default function ArtistPostManagement() {
                 {post.id === "empty" ? (
                   <Box sx={{ width: 300, height: 420 }} />
                 ) : (
-                  <Box position="relative">
+                  <Box position="relative" sx={{ cursor: "pointer" }}>
                     <img
                       src={post.media_url?.[0]}
                       alt="post"
                       width="100%"
                       height="420"
-                      style={{ objectFit: "cover" }}
+                      style={{ objectFit: "cover", display: "block" }}
                     />
+
+                    {/* Overlay hiển thị khi hover */}
+                    <Box
+                      className="hover-overlay"
+                      sx={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "100%",
+                        backgroundColor: "rgba(0, 0, 0, 0.5)",
+                        color: "#fff",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        flexDirection: "row",
+                        gap: 2,
+                        opacity: 0,
+                        transition: "opacity 0.3s ease-in-out",
+                        "&:hover": {
+                          opacity: 1,
+                        },
+                      }}
+                    >
+                      <Box display="flex" alignItems="center" gap={0.5}>
+                        <FavoriteIcon fontSize="small" />
+                        <Typography>{post.Comment.length || 0}</Typography>
+                      </Box>
+                      <Box display="flex" alignItems="center" gap={0.5}>
+                        <ChatIcon fontSize="small" />
+                        <Typography>{post.Reaction.length || 0}</Typography>
+                      </Box>
+                    </Box>
+
+                    {/* Nút xóa */}
                     <CancelIcon
                       onClick={() => handleRequestDelete(post.id)}
                       sx={{
@@ -220,6 +256,7 @@ export default function ArtistPostManagement() {
                         top: -15,
                         right: -10,
                         cursor: "pointer",
+                        zIndex: 2,
                         ":hover": {
                           opacity: 0.8,
                         },

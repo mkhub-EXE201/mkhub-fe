@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   IconButton,
@@ -19,6 +19,9 @@ import Lottie from "react-lottie";
 
 const ChatBubble = () => {
   const [open, setOpen] = useState(false);
+  const [displayedText, setDisplayedText] = useState("");
+  const responseTextRef = useRef("");
+  const typingIntervalRef = useRef("");
   const [messages, setMessages] = useState([
     {
       from: "bot",
@@ -34,7 +37,6 @@ const ChatBubble = () => {
     const userInput = input;
     setInput("");
 
-    // Đẩy tin nhắn người dùng + loading
     setMessages((prev) => [
       ...prev,
       userMessage,
@@ -44,16 +46,60 @@ const ChatBubble = () => {
     const response = await aiApis.chatWithAI(userInput);
 
     if (response.status === HttpStatusCode.Ok) {
-      setTimeout(() => {
+      const fullText = response.data.reply;
+      let index = 0;
+      responseTextRef.current = fullText;
+      setDisplayedText("");
+
+      setMessages((prev) => {
+        const updated = [...prev];
+        updated.pop();
+        return [...updated, { from: "bot", text: "" }];
+      });
+
+      typingIntervalRef.current = setInterval(() => {
+        index++;
+        const partial = fullText.slice(0, index);
         setMessages((prev) => {
-          // Xóa tin nhắn "Đang xử lý..." cuối cùng và thay bằng reply thực
           const updated = [...prev];
-          updated.pop(); // remove "Đang xử lý..."
-          return [...updated, { from: "bot", text: response.data.reply }];
+          updated[updated.length - 1] = { from: "bot", text: partial };
+          return updated;
         });
-      }, 800);
+
+        if (index >= fullText.length) {
+          clearInterval(typingIntervalRef.current);
+        }
+      }, 20);
+    } else {
+      setMessages((prev) => {
+        const updated = [...prev];
+        updated.pop();
+        return [
+          ...updated,
+          {
+            from: "bot",
+            text: "Xin lỗi, có lỗi xảy ra khi xử lý câu hỏi. Vui lòng thử lại sau.",
+          },
+        ];
+      });
     }
   };
+
+  useEffect(() => {
+    const full = responseTextRef.current;
+    if (displayedText && displayedText.length === full.length) {
+      setMessages((prev) => [
+        ...prev.slice(0, -1),
+        { from: "bot", text: displayedText },
+      ]);
+    }
+  }, [displayedText]);
+
+  useEffect(() => {
+    return () => {
+      if (typingIntervalRef.current) clearInterval(typingIntervalRef.current);
+    };
+  }, []);
 
   return (
     <>
@@ -168,7 +214,9 @@ const ChatBubble = () => {
                       width={20}
                     />
                   ) : (
-                    <Typography>{msg.text}</Typography>
+                    <Typography sx={{ whiteSpace: "pre-line" }}>
+                      {msg.text}
+                    </Typography>
                   )}
                 </Box>
               ))}

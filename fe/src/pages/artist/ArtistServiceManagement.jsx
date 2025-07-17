@@ -13,7 +13,6 @@ import {
   Avatar,
   IconButton,
   CardActions,
-  CardContent,
   CardMedia,
   Card,
   MenuItem,
@@ -678,7 +677,7 @@ export default function ArtistServiceManagement() {
                   >
                     <CardMedia
                       component="img"
-                      height="150"
+                      height="200"
                       image={item.thumbnail}
                       alt={item.service_name}
                       sx={{ objectFit: "cover" }}
@@ -698,8 +697,14 @@ export default function ArtistServiceManagement() {
                         sx={{
                           fontWeight: 600,
                           fontSize: 16,
-                          mb: 1,
                           lineHeight: 1.3,
+                          mb: 1,
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
                         }}
                       >
                         {item.service_name}
@@ -726,7 +731,8 @@ export default function ArtistServiceManagement() {
                       <Typography
                         sx={{ mt: "auto", fontWeight: 600, fontSize: 14 }}
                       >
-                        Từ {formatCurrency(item.min_price)} -{" "}
+                        Từ {formatCurrency(item.min_price)}
+                        {" - "}
                         {formatCurrency(item.max_price)} VND
                       </Typography>
                     </Box>

@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Modal as ModalMui,
   Avatar,
@@ -14,13 +14,18 @@ import reactionApis from "../apis/reactions.apis";
 import postApis from "../apis/posts.apis";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import { REACTION_REFERENCE_TYPE, REACTION_TYPE } from "../constants/enum";
+import {
+  REACTION_REFERENCE_TYPE,
+  REACTION_TYPE,
+  USER_ROLE,
+} from "../constants/enum";
 import commentApis from "../apis/comment.apis";
 import HttpStatusCode from "../constants/httpStatus";
 import dayjs from "dayjs";
 import "dayjs/locale/vi";
 dayjs.locale("vi");
 import relativeTime from "dayjs/plugin/relativeTime";
+import { AppContext } from "../contexts/app.context";
 dayjs.extend(relativeTime);
 
 export default function PostModal({
@@ -36,12 +41,15 @@ export default function PostModal({
   comments,
 }) {
   const [comment, setComment] = useState("");
+  const { profile: contextProfile } = useContext(AppContext);
 
   const handleAddComment = async () => {
     try {
       const payload = {
         post_id: selectedPost.id,
         content: comment,
+        user_id: contextProfile.id,
+        user_type: USER_ROLE.MEMBER,
       };
       const response = await commentApis.addComment(payload);
       if (response.status === HttpStatusCode.Ok) {
