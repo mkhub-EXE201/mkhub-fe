@@ -236,7 +236,9 @@ export default function PostModal({
                 </Box>
               ))
             ) : (
-              <Typography>Không có bình luận nào.</Typography>
+              <Typography color="text.secondary">
+                Không có bình luận nào.
+              </Typography>
             )}
           </Box>
 
@@ -251,7 +253,7 @@ export default function PostModal({
                 }
               }}
               fullWidth
-              placeholder="Comment..."
+              placeholder="Bình luận dưới tên bạn..."
               variant="outlined"
               size="small"
               InputProps={{

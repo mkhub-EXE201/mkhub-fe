@@ -340,7 +340,7 @@ export default function Navbar({
                 ":hover": { opacity: "95%" },
               }}
             >
-              <Typography sx={{ color: isScrolled ? "white" : "white" }}>
+              <Typography sx={{ color: "white" }}>
                 {!isAuthenticated
                   ? "Trở thành Makeup Artist"
                   : role === USER_ROLE.ARTIST

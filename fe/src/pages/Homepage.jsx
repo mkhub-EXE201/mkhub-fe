@@ -93,7 +93,7 @@ export default function Homepage() {
       </Suspense>
       <Suspense fallback={<StyledFallback height={100} />}>
         <Gallery />
-      </Suspense>{" "}
+      </Suspense>
       <Suspense fallback={<StyledFallback height={100} />}>
         <ChatBubble />
       </Suspense>
