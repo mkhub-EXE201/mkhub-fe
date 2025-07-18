@@ -10,6 +10,7 @@ import {
   FormControlLabel,
   Checkbox,
   Divider,
+  CircularProgress,
 } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
@@ -392,14 +393,6 @@ export default function Register() {
                         ? "contained"
                         : "outlined"
                     }
-                    disabled={
-                      !watch("first_name") ||
-                      !watch("last_name") ||
-                      !watch("email") ||
-                      !watch("phone_number") ||
-                      !watch("password") ||
-                      !watch("confirm_password")
-                    }
                     sx={{
                       mt: 2,
                       py: 1.2,
@@ -415,7 +408,18 @@ export default function Register() {
                           : "not-allowed",
                     }}
                   >
-                    {isSubmmitting ? "Đang đăng ký..." : "Đăng ký"}
+                    {isSubmmitting ? (
+                      <Box display={"flex"} gap={1}>
+                        <CircularProgress
+                          size={20}
+                          thickness={5}
+                          color="inherit"
+                        />
+                        Đang đăng ký...
+                      </Box>
+                    ) : (
+                      "Đăng ký"
+                    )}
                   </Button>
                 </form>
                 <Box sx={{ display: "flex", alignItems: "center", my: 1 }}>

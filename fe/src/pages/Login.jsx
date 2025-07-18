@@ -8,6 +8,7 @@ import {
   IconButton,
   Grid,
   Divider,
+  CircularProgress,
 } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
@@ -35,7 +36,7 @@ export default function Login() {
     setError,
     handleSubmit,
     watch,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm({
     resolver: yupResolver(loginSchema),
   });
@@ -254,7 +255,6 @@ export default function Login() {
                       ? "contained"
                       : "outlined"
                   }
-                  disabled={!watch("email") || !watch("password")}
                   sx={{
                     mt: 2,
                     py: 1.2,
@@ -265,7 +265,18 @@ export default function Login() {
                         : "not-allowed",
                   }}
                 >
-                  Đăng nhập
+                  {isSubmitting ? (
+                    <Box display={"flex"} gap={1}>
+                      <CircularProgress
+                        size={20}
+                        thickness={5}
+                        color="inherit"
+                      />
+                      Đang đăng nhập...
+                    </Box>
+                  ) : (
+                    "Đăng nhập"
+                  )}{" "}
                 </Button>
 
                 <Box sx={{ display: "flex", alignItems: "center", my: 2 }}>

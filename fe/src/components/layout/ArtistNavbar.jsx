@@ -1,9 +1,8 @@
-import { Avatar, Box, Button, InputAdornment, TextField } from "@mui/material";
+import { Avatar, Box, Button, Tooltip } from "@mui/material";
 import React, { useContext, useEffect, useState } from "react";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.png";
-import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import path from "../../constants/path";
 import artistApis from "../../apis/artists.apis";
 import { AppContext } from "../../contexts/app.context";
@@ -15,13 +14,26 @@ import { USER_ROLE } from "../../constants/enum";
 import userApis from "../../apis/users.apis";
 import toast from "react-hot-toast";
 import Popover from "../Popover";
-import { AnimatedUnderlineLink } from "../animations/AnimatedUnderline";
+import Notification from "../Notification";
+import notificationsApis from "../../apis/notifications.apis";
 
 export default function ArtistNavbar() {
-  const { profile, setRole, setIsAuthenticated, setProfile } =
+  const { profile, setRole, setIsAuthenticated, setProfile, isAuthenticated } =
     useContext(AppContext);
   const navigate = useNavigate();
   const [artistProfile, setArtistProfile] = useState({});
+  const [noti, setNoti] = useState([]);
+  const [unreadNotiCount, setUnreadNotiCount] = useState(0);
+  const alwaysScrolled = false;
+  const [isScrolled, setIsScrolled] = useState(alwaysScrolled);
+
+  useEffect(() => {
+    if (alwaysScrolled || location.pathname !== path.home) {
+      setIsScrolled(true);
+    } else {
+      setIsScrolled(window.scrollY > 200);
+    }
+  }, [location.pathname, alwaysScrolled]);
 
   useEffect(() => {
     const getArtistProfile = async () => {
@@ -48,6 +60,31 @@ export default function ArtistNavbar() {
       });
     }
     navigate(path.home);
+  };
+
+  const getNotifications = async () => {
+    if (!isAuthenticated || !profile?.id) return;
+
+    try {
+      const payload = {
+        role: USER_ROLE.ARTIST,
+        is_read: false,
+      };
+
+      const response = await notificationsApis.getAllNotifications(payload);
+      if (response.status === HttpStatusCode.Ok) {
+        const notifications = response.data.result || [];
+        setNoti(notifications);
+
+        if (!payload.is_read) {
+          setUnreadNotiCount(notifications.length);
+        }
+
+        return notifications;
+      }
+    } catch (error) {
+      console.error("Failed to fetch notifications:", error);
+    }
   };
 
   return (
@@ -83,19 +120,9 @@ export default function ArtistNavbar() {
             }}
           />
         </Link>
-        <AnimatedUnderlineLink
-          to={path.explore}
-          label="Khám phá"
-          isScrolled={true}
-        />
-        <AnimatedUnderlineLink
-          to={path.community}
-          label="Cộng đồng"
-          isScrolled={true}
-        />
       </Box>
       {/* search box */}
-      <Box
+      {/* <Box
         display="flex"
         flexDirection={"row"}
         gap={2}
@@ -142,7 +169,7 @@ export default function ArtistNavbar() {
             ),
           }}
         />
-      </Box>
+      </Box> */}
       {/* Right */}
       <Box
         sx={{
@@ -161,9 +188,25 @@ export default function ArtistNavbar() {
         </Button>
 
         <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-          <CalendarMonthIcon sx={{ width: 30, height: 30 }} />
-          <NotificationsIcon sx={{ width: 30, height: 30 }} />
-          <TelegramIcon sx={{ width: 30, height: 30 }} />
+          <Tooltip
+            title="lịch trình"
+            onClick={() => navigate(path.artistScheduleManagement)}
+          >
+            <CalendarMonthIcon
+              sx={{ width: 30, height: 30, ":hover": { opacity: "80%" } }}
+            />
+          </Tooltip>
+          <Notification
+            notifications={noti}
+            getNotificationsByStatus={getNotifications}
+            isScrolled={isScrolled}
+          />
+          <Tooltip title="tin nhắn">
+            <TelegramIcon
+              onClick={() => navigate(path.artistChatManagement)}
+              sx={{ width: 30, height: 30, ":hover": { opacity: "80%" } }}
+            />
+          </Tooltip>
           <Popover
             renderPopover={
               <Box
