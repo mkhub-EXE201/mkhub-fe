@@ -52,7 +52,12 @@ export default function Gallery() {
             <ImageListItem
               key={index}
               onClick={() => navigate(`/artists/${artist_id}/profile`)}
-              sx={{ cursor: "pointer" }}
+              sx={{
+                cursor: "pointer",
+                ":hover": {
+                  opacity: "80%",
+                },
+              }}
             >
               {url.endsWith(".mp4") || url.endsWith(".webm") ? (
                 <video

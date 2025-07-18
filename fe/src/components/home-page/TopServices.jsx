@@ -119,23 +119,45 @@ export default function TopServices() {
                 to={"/"}
                 style={{ textDecoration: "none", color: "inherit" }}
               >
-                <Card sx={{ width: "100%", boxShadow: "none" }}>
+                <Card
+                  sx={{
+                    width: "100%",
+                    boxShadow: "none",
+                    ":hover": {
+                      opacity: "80%",
+                    },
+                  }}
+                >
                   <CardActionArea
                     sx={{
                       backgroundColor: (theme) => theme.palette.lightGray,
                       borderRadius: "30px",
                     }}
                   >
-                    <CardMedia
-                      component="img"
-                      height="250px"
-                      width="250px"
+                    <Box
                       sx={{
+                        width: "100%",
+                        height: "300px",
                         borderRadius: "30px",
-                        objectFit: "cover",
+                        overflow: "hidden",
                       }}
-                      image={item.thumbnail}
-                    />
+                    >
+                      <CardMedia
+                        component="img"
+                        sx={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          transition: "transform 0.3s",
+                          transformOrigin: "center center",
+                          "&:hover": {
+                            transform: "scale(1.05)",
+                          },
+                        }}
+                        image={item.thumbnail}
+                      />
+                    </Box>
+
                     <CardContent
                       sx={{
                         display: "flex",

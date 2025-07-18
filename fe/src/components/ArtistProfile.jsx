@@ -15,29 +15,33 @@ export default function ArtistProfile({ portfolio }) {
   const [urls, setUrls] = useState(
     Array.isArray(portfolio.portfolio_url) ? [...portfolio.portfolio_url] : []
   );
-  const [originalUrls] = useState(
+  const [originalUrls, setOriginalUrls] = useState(
     Array.isArray(portfolio.portfolio_url) ? [...portfolio.portfolio_url] : []
   );
 
   const handleEditClick = (index) => {
     if (editableIndex === index) {
-      const revertedUrls = [...urls];
-      revertedUrls[index] = originalUrls[index];
-      setUrls(revertedUrls);
+      const resetUrls = [...urls];
+      resetUrls[index] = originalUrls[index];
+      setUrls(resetUrls);
+      setValue("portfolio_urls", resetUrls);
       setEditableIndex(null);
     } else {
       setEditableIndex(index);
     }
   };
+
   const handleUrlChange = (e, index) => {
     const newUrls = [...urls];
     newUrls[index] = e.target.value;
     setUrls(newUrls);
+    setValue("portfolio_urls", newUrls);
   };
   const {
     register,
     setError,
     handleSubmit,
+    setValue,
     watch,
     reset,
     formState: { errors },
@@ -53,6 +57,11 @@ export default function ArtistProfile({ portfolio }) {
   });
   useEffect(() => {
     if (portfolio) {
+      const initialUrls = Array.isArray(portfolio.portfolio_url)
+        ? [...portfolio.portfolio_url]
+        : [];
+      setUrls(initialUrls);
+      setOriginalUrls(initialUrls);
       reset({
         name: portfolio.name || "",
         bio: portfolio.bio || "",
@@ -62,6 +71,7 @@ export default function ArtistProfile({ portfolio }) {
       });
     }
   }, [portfolio, reset]);
+
   const handleUpdate = handleSubmit(async () => {
     const payload = {
       name: watch("name"),
@@ -76,6 +86,12 @@ export default function ArtistProfile({ portfolio }) {
         payload
       );
       if (response.status === HttpStatusCode.Ok) {
+        // update hủy -> sửa
+        const updatedUrls = watch("portfolio_urls");
+        setOriginalUrls([...updatedUrls]);
+        setUrls([...updatedUrls]);
+        setEditableIndex(null);
+        // toast
         toast.success(response.data.message, {
           position: "top-center",
         });
@@ -100,6 +116,7 @@ export default function ArtistProfile({ portfolio }) {
           flexDirection: "row",
           alignItems: "center",
           gap: 4,
+          marginTop: 2,
         }}
       >
         <Box

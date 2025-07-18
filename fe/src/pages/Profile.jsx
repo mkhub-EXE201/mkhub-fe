@@ -2,6 +2,7 @@ import {
   Avatar,
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -16,7 +17,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Navbar from "../components/layout/Navbar";
 import Skeleton from "../components/Skeleton";
 import userApis from "../apis/users.apis";
@@ -35,6 +36,7 @@ import { updateMeSchema } from "../schemas/updateMeSchema";
 import { isAxiosUnprocessableEntityError } from "../utils/errors.type";
 import FeedBack from "../components/FeedBack";
 import mediaApis from "../apis/media.apis";
+import { AppContext } from "../contexts/app.context";
 
 export default function Profile() {
   const [isLoading, setIsLoading] = useState(true);
@@ -47,6 +49,7 @@ export default function Profile() {
   const [selectedAppointmentCheckout, setSelectedAppointmentCheckout] =
     useState(null);
   const [open, setOpen] = useState(false);
+  const { setProfile: setContextProfile } = useContext(AppContext);
   const STATUS_STEPS = [
     { label: "Chờ xác nhận", value: "PENDING" },
     { label: "Đã xác nhận", value: "CONFIRMED" },
@@ -109,9 +112,12 @@ export default function Profile() {
 
       const res = await userApis.updateMe(data);
       if (res.status === HttpStatusCode.Ok) {
-        console.log(data);
         toast.success(res.data.message);
         setProfile((prev) => ({
+          ...prev,
+          ...res.data.result,
+        }));
+        setContextProfile((prev) => ({
           ...prev,
           ...res.data.result,
         }));
@@ -375,9 +381,22 @@ export default function Profile() {
                     <Button
                       type="submit"
                       variant="contained"
-                      disabled={isSubmitting}
+                      sx={{
+                        cursor: isSubmitting ? "not-allowed" : "pointer",
+                      }}
                     >
-                      {isSubmitting ? "Đang lưu..." : "Lưu thay đổi"}
+                      {isSubmitting ? (
+                        <Box display={"flex"} gap={1}>
+                          <CircularProgress
+                            size={20}
+                            thickness={5}
+                            color="inherit"
+                          />
+                          Đang lưu...
+                        </Box>
+                      ) : (
+                        "Lưu thay đổi"
+                      )}
                     </Button>
                   </DialogActions>
                 </form>
@@ -407,10 +426,7 @@ export default function Profile() {
                     {STATUS_STEPS.map((step, index) => (
                       <Step key={step.value} completed={false}>
                         <StepLabel
-                          onClick={() => {
-                            setActiveStep(index);
-                            console.log("Clicked step:", index);
-                          }}
+                          onClick={() => setActiveStep(index)}
                           sx={{ cursor: "pointer" }}
                         >
                           {step.label}
@@ -444,13 +460,17 @@ export default function Profile() {
 
               {tab === 1 && (
                 <Box sx={{ p: 3 }}>
-                  <Typography>Sổ địa chỉ đang được phát triển.</Typography>
+                  <Typography color="text.secondary">
+                    Sổ địa chỉ đang được phát triển.
+                  </Typography>
                 </Box>
               )}
 
               {tab === 2 && (
                 <Box sx={{ p: 3 }}>
-                  <Typography>Ưu đãi đang được phát triển.</Typography>
+                  <Typography color="text.secondary">
+                    Ưu đãi đang được phát triển.
+                  </Typography>
                 </Box>
               )}
               {tab === 3 && (

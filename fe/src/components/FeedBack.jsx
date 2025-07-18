@@ -26,61 +26,69 @@ export default function FeedBack() {
         <Skeleton />
       ) : (
         <>
-          {feedbacks.map((item) => (
-            <Box
-              key={item.id}
-              sx={{
-                mb: 3,
-                p: 3,
-                border: "1px solid #e0e0e0",
-                borderRadius: 3,
-                boxShadow: 1,
-                backgroundColor: "#fafafa",
-              }}
-            >
-              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+          {feedbacks.length > 0 ? (
+            <>
+              {feedbacks.map((item) => (
                 <Box
-                  component="img"
-                  src={item.artist.avatar_url}
-                  alt={item.artist.name}
+                  key={item.id}
                   sx={{
-                    width: 50,
-                    height: 50,
-                    borderRadius: "50%",
-                    objectFit: "cover",
-                    mr: 2,
-                    border: "2px solid #ddd",
+                    mb: 3,
+                    p: 3,
+                    border: "1px solid #e0e0e0",
+                    borderRadius: 3,
+                    boxShadow: 1,
+                    backgroundColor: "#fafafa",
                   }}
-                />
-                <Box>
-                  <Typography variant="subtitle1" fontWeight="bold">
-                    {item.artist.name}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                    <Box
+                      component="img"
+                      src={item.artist.avatar_url}
+                      alt={item.artist.name}
+                      sx={{
+                        width: 50,
+                        height: 50,
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                        mr: 2,
+                        border: "2px solid #ddd",
+                      }}
+                    />
+                    <Box>
+                      <Typography variant="subtitle1" fontWeight="bold">
+                        {item.artist.name}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Dịch vụ: {item.service.service_name}
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  <Rating
+                    value={item.rating_star}
+                    readOnly
+                    precision={0.5}
+                    size="small"
+                  />
+
+                  <Typography sx={{ mt: 1, fontStyle: "italic" }}>
+                    &quot;{item.content}&quot;
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Dịch vụ: {item.service.service_name}
+
+                  <Typography
+                    sx={{ mt: 1, color: "gray", fontSize: 12 }}
+                    variant="caption"
+                  >
+                    {new Date(item.created_at).toLocaleString("vi-VN")}
                   </Typography>
                 </Box>
-              </Box>
-
-              <Rating
-                value={item.rating_star}
-                readOnly
-                precision={0.5}
-                size="small"
-              />
-
-              <Typography sx={{ mt: 1, fontStyle: "italic" }}>
-                &quot;{item.content}&quot;
-              </Typography>
-
-              <Typography
-                sx={{ mt: 1, color: "gray", fontSize: 12 }}
-                variant="caption"
-              >
-                {new Date(item.created_at).toLocaleString("vi-VN")}
-              </Typography>
-            </Box>
-          ))}
+              ))}
+            </>
+          ) : (
+            <Typography color="text.secondary">
+              Chưa có đánh giá nào.
+            </Typography>
+          )}
         </>
       )}
     </Box>

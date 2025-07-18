@@ -11,7 +11,9 @@ import {
   Typography,
   ImageList,
   ImageListItem,
-  Modal,
+  IconButton,
+  DialogContent,
+  Dialog,
 } from "@mui/material";
 import React, { useContext, useEffect } from "react";
 import Navbar from "../components/layout/Navbar";
@@ -35,6 +37,7 @@ import { AppContext } from "../contexts/app.context";
 import PostModal from "../components/PostModal";
 import BookingModal from "../components/BookingModal";
 import ChatBox from "../components/ChatBox";
+import CloseIcon from "@mui/icons-material/Close";
 
 export default function ArtistDetail() {
   const { id } = useParams();
@@ -62,6 +65,8 @@ export default function ArtistDetail() {
   const [myReaction, setMyReaction] = useState(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isServiceDetailOpen, setIsServiceDetailOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const handleClose = () => setSelectedImage(null);
 
   const getPhotos = async () => {
     try {
@@ -523,7 +528,16 @@ export default function ArtistDetail() {
                 >
                   <ImageList variant="woven" cols={5} gap={8}>
                     {photos.map((item) => (
-                      <ImageListItem key={item}>
+                      <ImageListItem
+                        onClick={() => setSelectedImage(item)}
+                        key={item}
+                        sx={{
+                          ":hover": {
+                            opacity: "80%",
+                            cursor: "pointer",
+                          },
+                        }}
+                      >
                         <img
                           srcSet={`${item}?w=161&fit=crop&auto=format&dpr=2 2x`}
                           src={`${item}?w=161&fit=crop&auto=format`}
@@ -550,7 +564,8 @@ export default function ArtistDetail() {
                   }}
                 >
                   {posts.map((item, index) => (
-                    <img
+                    <Box
+                      component="img"
                       key={index}
                       src={item.media_url[0]}
                       alt={`photo-${index}`}
@@ -558,12 +573,16 @@ export default function ArtistDetail() {
                         event.stopPropagation();
                         handleImageClick(item.media_url, item);
                       }}
-                      style={{
+                      sx={{
                         width: 300,
                         height: 300,
-                        borderRadius: 8,
+                        borderRadius: 2,
                         objectFit: "cover",
                         cursor: "pointer",
+                        transition: "0.3s",
+                        "&:hover": {
+                          opacity: 0.9,
+                        },
                       }}
                     />
                   ))}
@@ -717,6 +736,34 @@ export default function ArtistDetail() {
           selectedService={selectedService}
         />
       </Box>
+      <Dialog open={Boolean(selectedImage)} onClose={handleClose} maxWidth="md">
+        <DialogContent
+          sx={{
+            position: "relative",
+            p: 0,
+            backgroundColor: "black",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <IconButton
+            onClick={handleClose}
+            sx={{ position: "absolute", top: 8, right: 8, color: "white" }}
+          >
+            <CloseIcon />
+          </IconButton>
+          <img
+            src={selectedImage}
+            alt="Preview"
+            style={{
+              maxHeight: "80vh",
+              maxWidth: "100%",
+              objectFit: "contain",
+            }}
+          />
+        </DialogContent>
+      </Dialog>
       <Footer />
     </Box>
   );
