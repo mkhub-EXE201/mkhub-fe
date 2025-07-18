@@ -67,7 +67,6 @@ const styles = {
 };
 
 function CanceledAppointmentCards({ cancelBookings }) {
-  console.log(cancelBookings);
   return (
     <Box sx={styles.cardContainer}>
       <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
@@ -125,7 +124,7 @@ function CanceledAppointmentCards({ cancelBookings }) {
                     color="text.secondary"
                     sx={{ mt: 1, display: "block" }}
                   >
-                    Hủy bởi:{" "}
+                    Hủy bởi:
                     {/* {appointment.canceledBy === "customer"
                       ? "Khách hàng"
                       : appointment.canceledBy === "artist"
