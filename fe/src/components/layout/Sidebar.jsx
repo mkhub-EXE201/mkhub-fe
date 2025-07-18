@@ -84,7 +84,7 @@ export default function Sidebar() {
         </>
       ) : (
         <>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 5 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <Box
               sx={{
                 padding: 5,

@@ -20,6 +20,7 @@ import {
   Select,
   FormHelperText,
   Grid,
+  Modal,
 } from "@mui/material";
 import React, { useContext, useEffect, useRef } from "react";
 import { useState } from "react";
@@ -35,6 +36,7 @@ import { formatCurrency } from "../../utils/utils";
 import { AppContext } from "../../contexts/app.context";
 import Skeleton from "../../components/Skeleton";
 import categoryApis from "../../apis/categories.apis";
+import { Swiper, SwiperSlide } from "swiper/react";
 
 export default function ArtistServiceManagement() {
   const [open, setOpen] = useState(false);
@@ -45,6 +47,11 @@ export default function ArtistServiceManagement() {
   const [activeStep, setActiveStep] = useState(0);
   const [categories, setCategories] = useState([]);
   const { profile } = useContext(AppContext);
+  const [isOpenDetail, setIsOpenDetail] = useState(false);
+  const [isOpenEdit, setIsOpenEdit] = useState(false);
+  const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [selectedService, setSelectedService] = useState(null);
+
   const getAllCategories = async () => {
     const response = await categoryApis.getAllCategories();
     if (response.status === HttpStatusCode.Ok) {
@@ -662,10 +669,15 @@ export default function ArtistServiceManagement() {
               marginX: 4,
             }}
           >
-            <Grid container disableGutters spacing={2}>
+            <Grid container spacing={2}>
               {services.map((item, index) => (
                 <Grid item xs={12} sm={6} md={4} key={index}>
                   <Card
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setIsOpenDetail(true);
+                      setSelectedService(item);
+                    }}
                     sx={{
                       width: 250,
                       height: 350,
@@ -673,6 +685,10 @@ export default function ArtistServiceManagement() {
                       flexDirection: "column",
                       borderRadius: "15px",
                       overflow: "hidden",
+                      ":hover": {
+                        opacity: "80%",
+                        cursor: "pointer",
+                      },
                     }}
                   >
                     <CardMedia
@@ -680,7 +696,14 @@ export default function ArtistServiceManagement() {
                       height="200"
                       image={item.thumbnail}
                       alt={item.service_name}
-                      sx={{ objectFit: "cover" }}
+                      sx={{
+                        transition:
+                          "transform 0.3s ease, background-color 0.3s ease",
+                        objectFit: "cover",
+                        "&:hover": {
+                          transform: "scale(1.05)",
+                        },
+                      }}
                     />
 
                     <Box
@@ -740,7 +763,13 @@ export default function ArtistServiceManagement() {
                     <CardActions
                       sx={{ justifyContent: "space-between", px: 2, pb: 2 }}
                     >
-                      <Button size="small" variant="outlined">
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                        }}
+                      >
                         Chỉnh sửa
                       </Button>
                     </CardActions>
@@ -749,6 +778,165 @@ export default function ArtistServiceManagement() {
               ))}
             </Grid>
           </Box>
+          {isOpenDetail && (
+            <Modal
+              open={isOpenDetail}
+              onClose={() => setIsOpenDetail(false)}
+              BackdropProps={{
+                sx: {
+                  backdropFilter: "blur(10px)",
+                  WebkitBackdropFilter: "blur(10px)",
+                  backgroundColor: "rgba(0,0,0,0.3)",
+                  border: "none",
+                  boxShadow: "none",
+                  outline: "none",
+                  "&:focus": {
+                    outline: "none",
+                  },
+                },
+              }}
+            >
+              <Box
+                sx={{
+                  position: "fixed",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  width: "auto",
+                  height: "auto",
+                  zIndex: 1300,
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  backdropFilter: "blur(10px)",
+                  WebkitBackdropFilter: "blur(10px)",
+                  outline: "none",
+                  "&:focus": {
+                    outline: "none",
+                  },
+                }}
+              >
+                <Box
+                  onClick={(e) => e.stopPropagation()}
+                  sx={{
+                    width: { xs: "90%", sm: 750 },
+                    bgcolor: "rgba(255, 255, 255, 0.1)",
+                    backdropFilter: "blur(18px)",
+                    WebkitBackdropFilter: "blur(18px)",
+                    border: "none",
+                    borderRadius: 4,
+                    p: 8,
+                  }}
+                >
+                  <Typography
+                    variant="h4"
+                    gutterBottom
+                    sx={{
+                      fontWeight: "bold",
+                      borderBottom: "3px solid white",
+                      display: "inline-block",
+                      paddingBottom: 0.5,
+                      marginBottom: 3,
+                      color: "white",
+                      fontSize: 28,
+                    }}
+                  >
+                    {selectedService?.service_name}
+                  </Typography>
+
+                  <Typography sx={{ my: 2, fontStyle: "italic" }} color="white">
+                    {selectedService?.description}
+                  </Typography>
+                  {/* Hình ảnh */}
+                  <Swiper
+                    slidesPerView={"auto"}
+                    spaceBetween={20}
+                    style={{ paddingBottom: 10 }}
+                  >
+                    <Box
+                    // display={"flex"}
+                    // justifyContent={"space-between"}
+                    // alignItems={"center"}
+                    >
+                      <Typography variant="body1" sx={{ mt: 2, color: "#fff" }}>
+                        Thời gian: {selectedService.duration} phút
+                      </Typography>
+                      <Typography variant="body1" sx={{ mt: 2, color: "#fff" }}>
+                        Nhận makeup tối đa: {selectedService.group_size} người
+                      </Typography>
+                    </Box>
+                    {selectedService?.service_img?.map((img, index) => (
+                      <SwiperSlide
+                        key={index}
+                        style={{
+                          aspectRatio: "1/1",
+                          height: 200,
+                          width: 200,
+                          borderRadius: "15px",
+                          overflow: "hidden",
+                          transition: "all 0.4s ease",
+                          transform:
+                            hoveredIndex === index
+                              ? "scale(1.05)"
+                              : hoveredIndex === null
+                                ? "scale(1)"
+                                : "scale(0.95)",
+                          opacity:
+                            hoveredIndex === null || hoveredIndex === index
+                              ? 1
+                              : 0.6,
+                          boxShadow:
+                            hoveredIndex === index
+                              ? "0 8px 20px rgba(0,0,0,0.25)"
+                              : "none",
+                          zIndex: hoveredIndex === index ? 10 : 1,
+                          cursor: "pointer",
+                        }}
+                        onMouseEnter={() => setHoveredIndex(index)}
+                        onMouseLeave={() => setHoveredIndex(null)}
+                      >
+                        <img
+                          src={img}
+                          alt={`Artist ${index}`}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
+                        />
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+                  {/* Giá */}
+                  <Typography
+                    variant="body1"
+                    gutterBottom
+                    sx={{
+                      mt: 2,
+                      color: "#fff",
+                      fontWeight: 600,
+                      fontSize: 26,
+                      textAlign: "end",
+                    }}
+                  >
+                    {formatCurrency(selectedService?.min_price)} -{" "}
+                    {formatCurrency(selectedService?.max_price)}
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "0.75em",
+                        ml: 0.5,
+                        color: "white",
+                        fontWeight: 400,
+                      }}
+                    >
+                      đ
+                    </Typography>
+                  </Typography>
+                </Box>
+              </Box>
+            </Modal>
+          )}
         </>
       )}
     </Box>

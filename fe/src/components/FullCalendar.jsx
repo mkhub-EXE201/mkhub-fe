@@ -219,21 +219,21 @@ const FullCalendarComponent = ({
             message: fieldErrors[key],
           });
         });
-        setFormError(fieldErrors);
       }
     }
     getAllSchedules();
   };
 
   useEffect(() => {
-    // Navigate FullCalendar to the selected date
-    if (calendarRef.current) {
-      const calendarApi = calendarRef.current.getApi();
-      calendarApi.gotoDate(selectedDate);
+    const timer = setTimeout(() => {
+      if (calendarRef.current) {
+        const calendarApi = calendarRef.current.getApi();
+        calendarApi.gotoDate(selectedDate);
+        applyButtonStyles();
+      }
+    }, 0);
 
-      // Re-apply button styles when date changes
-      applyButtonStyles();
-    }
+    return () => clearTimeout(timer);
   }, [selectedDate]);
 
   // Function to apply direct styling to buttons

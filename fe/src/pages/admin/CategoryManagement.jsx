@@ -298,13 +298,13 @@ export default function CategoryManagement() {
                 },
               }}
             />
-            <Avatar
+            <img
               src={previewUrl}
               alt="Avatar Preview"
-              sx={{
+              style={{
                 width: 150,
                 height: 150,
-                borderRadius: "50%",
+                borderRadius: "10%",
                 cursor: "pointer",
                 transition: "0.3s",
                 "&:hover": {

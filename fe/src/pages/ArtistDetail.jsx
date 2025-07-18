@@ -590,6 +590,7 @@ export default function ArtistDetail() {
             onClick={closeModal}
             sx={{
               position: "fixed",
+              backgroundColor: "rgba(0,0,0,0.3)",
               top: 0,
               left: 0,
               width: "100vw",
@@ -600,20 +601,18 @@ export default function ArtistDetail() {
               alignItems: "center",
               backdropFilter: "blur(10px)",
               WebkitBackdropFilter: "blur(10px)",
-              backgroundColor: "rgba(0, 0, 0, 0.3)",
             }}
           >
             <Box
               onClick={(e) => e.stopPropagation()}
               sx={{
                 width: { xs: "90%", sm: 600 },
-                bgcolor: "rgba(255, 255, 255, 0.1)",
+                bgcolor: "rgba(198, 197, 197, 0.876)",
                 backdropFilter: "blur(18px)",
                 WebkitBackdropFilter: "blur(18px)",
                 borderRadius: 4,
                 p: 8,
                 color: "#fff",
-                boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
               }}
             >
               <Typography
@@ -632,12 +631,7 @@ export default function ArtistDetail() {
                 {selectedService?.service_name}
               </Typography>
 
-              <Typography
-                sx={{ my: 2 }}
-                variant="body2"
-                gutterBottom
-                color="#ccc"
-              >
+              <Typography sx={{ my: 2, fontSize: 15 }} gutterBottom>
                 {selectedService?.description}
               </Typography>
 
