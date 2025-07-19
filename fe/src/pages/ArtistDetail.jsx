@@ -598,6 +598,7 @@ export default function ArtistDetail() {
                   setMyReaction={setMyReaction}
                   reactions={reactions}
                   comments={comments}
+                  profileType={"client"}
                 />
               </CustomTabPanel>
             </Box>

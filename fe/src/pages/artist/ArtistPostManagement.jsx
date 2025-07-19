@@ -29,6 +29,7 @@ import { useDropzone } from "react-dropzone";
 import RemoveIcon from "@mui/icons-material/Remove";
 import postApis from "../../apis/posts.apis";
 import CancelIcon from "@mui/icons-material/Cancel";
+import PostModal from "../../components/PostModal";
 
 export default function ArtistPostManagement() {
   const { profile } = useContext(AppContext);
@@ -39,11 +40,20 @@ export default function ArtistPostManagement() {
   const [previews, setPreviews] = useState([]);
   const [openAlert, setOpenAlert] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState(null);
+  const [openDetail, setOpenDetail] = useState(false);
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [selectedMedia, setSelectedMedia] = useState([]);
+  const [reactions, setReactions] = useState([]);
+  const [myReaction, setMyReaction] = useState(null);
+  const [currentModal, setCurrentModal] = useState(null);
 
   const handleClose = () => {
     setOpenAlert(false);
   };
-
+  const closeModal = () => {
+    setCurrentModal(null);
+  };
   const handleRequestDelete = (post_id) => {
     setDeleteTargetId(post_id);
     setOpenAlert(true);
@@ -105,13 +115,13 @@ export default function ArtistPostManagement() {
     },
   });
   useEffect(() => {
-    const previews = watch("media_urls_preview") || [];
+    const previews = watch("media_url_preview") || [];
     return () => {
       previews.forEach((item) => {
         if (item?.preview) URL.revokeObjectURL(item.preview);
       });
     };
-  }, [watch("media_urls_preview")]);
+  }, [watch("media_url_preview")]);
 
   const handleRemoveFile = (index) => {
     const files = watch("media_url") || [];
@@ -185,6 +195,29 @@ export default function ArtistPostManagement() {
     customPosts = [...posts, ...Array(emptySlots).fill({ id: "empty" })];
   }
 
+  const getAllReactions = async (postId) => {
+    try {
+      const response = await postApis.getAllReactions(postId);
+      if (response.status === HttpStatusCode.Ok) {
+        setReactions(response.data.result);
+        response.data.result.map((item) => {
+          if (item.user_id === profile.id) {
+            setMyReaction(item);
+          }
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getAllComments = async (postId) => {
+    const response = await postApis.getAllComments(postId);
+    if (response.status === HttpStatusCode.Ok) {
+      setComments(response.data.result);
+    }
+  };
+
   return (
     <Box sx={{ margin: 4 }}>
       {loading ? (
@@ -202,17 +235,25 @@ export default function ArtistPostManagement() {
             {customPosts.map((post, idx) => (
               <Grid item xs={12} sm={6} md={4} key={idx}>
                 {post.id === "empty" ? (
-                  <Box sx={{ width: 300, height: 420 }} />
+                  <Box sx={{ width: "100%", height: 420 }} />
                 ) : (
-                  <Box position="relative" sx={{ cursor: "pointer" }}>
+                  <Box
+                    position="relative"
+                    sx={{ height: 420, cursor: "pointer" }}
+                  >
                     <img
+                      loading="lazy"
                       src={post.media_url?.[0]}
                       alt="post"
-                      width="100%"
-                      height="420"
-                      style={{ objectFit: "cover", display: "block" }}
+                      style={{
+                        width: "100%",
+                        minWidth: 300,
+                        maxWidth: 320,
+                        height: "100%",
+                        objectFit: "cover",
+                        display: "block",
+                      }}
                     />
-
                     {/* Overlay hiển thị khi hover */}
                     <Box
                       className="hover-overlay"
@@ -235,6 +276,14 @@ export default function ArtistPostManagement() {
                           opacity: 1,
                         },
                       }}
+                      onClick={() => {
+                        setSelectedPost(post);
+                        setSelectedMedia(post.media_url);
+                        setOpenDetail(true);
+                        getAllComments(post.id);
+                        getAllReactions(post.id);
+                        setCurrentModal("post");
+                      }}
                     >
                       <Box display="flex" alignItems="center" gap={0.5}>
                         <FavoriteIcon fontSize="small" />
@@ -245,7 +294,6 @@ export default function ArtistPostManagement() {
                         <Typography>{post.Reaction.length || 0}</Typography>
                       </Box>
                     </Box>
-
                     {/* Nút xóa */}
                     <CancelIcon
                       onClick={() => handleRequestDelete(post.id)}
@@ -467,6 +515,21 @@ export default function ArtistPostManagement() {
               </Box>
             </Fade>
           </Modal>
+          {selectedPost && openDetail && (
+            <PostModal
+              selectedPost={selectedPost}
+              getAllComments={getAllComments}
+              currentModal={currentModal}
+              closeModal={closeModal}
+              selectedMedia={selectedMedia}
+              profile={profile}
+              myReaction={myReaction}
+              setMyReaction={setMyReaction}
+              reactions={reactions}
+              comments={comments}
+              profileType={"artist"}
+            />
+          )}
         </>
       )}
     </Box>
