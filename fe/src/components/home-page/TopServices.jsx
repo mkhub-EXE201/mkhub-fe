@@ -12,13 +12,14 @@ import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
 import Card from "@mui/material/Card";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import categoryApis from "../../apis/categories.apis";
 import HttpStatusCode from "../../constants/httpStatus";
 import path from "../../constants/path";
 
 export default function TopServices() {
   const [categories, setCategories] = useState([]);
+  const navigate = useNavigate();
   useEffect(() => {
     const getAllCategories = async () => {
       const response = await categoryApis.getAllCategories();
@@ -115,73 +116,73 @@ export default function TopServices() {
         >
           {categories.map((item, index) => (
             <SwiperSlide key={index}>
-              <Link
-                to={"/"}
-                style={{ textDecoration: "none", color: "inherit" }}
+              <Card
+                onClick={() =>
+                  navigate("/explore", {
+                    state: { value: item.id },
+                  })
+                }
+                sx={{
+                  width: "100%",
+                  boxShadow: "none",
+                  ":hover": {
+                    opacity: "80%",
+                  },
+                }}
               >
-                <Card
+                <CardActionArea
                   sx={{
-                    width: "100%",
-                    boxShadow: "none",
-                    ":hover": {
-                      opacity: "80%",
-                    },
+                    backgroundColor: (theme) => theme.palette.lightGray,
+                    borderRadius: "30px",
                   }}
                 >
-                  <CardActionArea
+                  <Box
                     sx={{
-                      backgroundColor: (theme) => theme.palette.lightGray,
+                      width: "100%",
+                      height: "300px",
                       borderRadius: "30px",
+                      overflow: "hidden",
                     }}
                   >
-                    <Box
+                    <CardMedia
+                      component="img"
                       sx={{
                         width: "100%",
-                        height: "300px",
-                        borderRadius: "30px",
-                        overflow: "hidden",
+                        height: "100%",
+                        objectFit: "cover",
+                        transition: "transform 0.3s",
+                        transformOrigin: "center center",
+                        "&:hover": {
+                          transform: "scale(1.05)",
+                        },
                       }}
-                    >
-                      <CardMedia
-                        component="img"
-                        sx={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover",
-                          transition: "transform 0.3s",
-                          transformOrigin: "center center",
-                          "&:hover": {
-                            transform: "scale(1.05)",
-                          },
-                        }}
-                        image={item.thumbnail}
-                      />
-                    </Box>
+                      image={item.thumbnail}
+                    />
+                  </Box>
 
-                    <CardContent
+                  <CardContent
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Typography
+                      gutterBottom
                       sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
+                        fontSize: {
+                          xs: 12,
+                          sm: 20,
+                          md: 20,
+                        },
                       }}
+                      fontWeight={600}
                     >
-                      <Typography
-                        gutterBottom
-                        sx={{
-                          fontSize: {
-                            xs: 12,
-                            sm: 20,
-                            md: 20,
-                          },
-                        }}
-                        fontWeight={600}
-                      >
-                        {item.name}
-                      </Typography>
-                    </CardContent>
-                  </CardActionArea>
-                </Card>
-              </Link>
+                      {item.name}
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
+              </Card>
             </SwiperSlide>
           ))}
         </Swiper>

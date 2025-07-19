@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   MapContainer,
@@ -258,7 +259,7 @@ export default function NearbyArtists() {
                           borderRadius: 4,
                         }}
                       />
-                      <Typography fontWeight={600} mt={1}>
+                      <Typography fontWeight={600}>
                         {artist.artist_name}
                       </Typography>
                       <Box sx={{ display: "flex", alignItems: "center" }}>

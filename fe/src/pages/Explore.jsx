@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import {
   Box,
   Typography,
@@ -9,7 +10,6 @@ import {
   FormControlLabel,
   FormLabel,
   RadioGroup,
-  Button,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -20,16 +20,25 @@ import CategoryIcon from "@mui/icons-material/CategoryOutlined";
 import Footer from "../components/layout/Footer";
 import artistServiceApis from "../apis/artistServices.apis";
 import categoryApis from "../apis/categories.apis";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import loadingAnimation from "../assets/loading.json";
 import Lottie from "react-lottie";
 
 export default function Explore() {
-  const [selectedValue, setSelectedValue] = useState("all");
+  const location = useLocation();
+  const passedValue = location.state?.value;
+  const [selectedValue, setSelectedValue] = useState(passedValue || "all");
   const [layouts, setLayouts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
+  const [expanded, setExpanded] = useState(true);
+
+  useEffect(() => {
+    if (passedValue && passedValue !== "all") {
+      handleFilter(passedValue);
+    }
+  }, [passedValue]);
 
   const getCategories = async () => {
     const response = await categoryApis.getAllCategories();
@@ -42,7 +51,14 @@ export default function Explore() {
   };
   useEffect(() => {
     const fetchData = async () => {
-      await Promise.all([handleGetAllServices(), getCategories()]);
+      await getCategories();
+
+      if (passedValue && passedValue !== "all") {
+        await handleFilter(passedValue);
+      } else {
+        await handleGetAllServices();
+      }
+
       setLoading(false);
     };
     fetchData();
@@ -52,7 +68,6 @@ export default function Explore() {
     const params = {};
     if (value && value !== "all") {
       params.category_id = value;
-      console.log(params);
     }
     const response = await artistServiceApis.getAllServices(params);
     if (response.status === HttpStatusCode.Ok) {
@@ -104,7 +119,10 @@ export default function Explore() {
               }}
             >
               <Box>
-                <Accordion>
+                <Accordion
+                  expanded={expanded}
+                  onChange={() => setExpanded(!expanded)}
+                >
                   <AccordionSummary
                     expandIcon={<ExpandMoreIcon />}
                     aria-controls="panel1-content"
@@ -205,6 +223,10 @@ export default function Explore() {
                           gap: 2,
                           boxShadow: 1,
                           backgroundColor: "#fff",
+                          transition: "transform 0.3s ease",
+                          ":hover": {
+                            transform: "scale(1.05)",
+                          },
                         }}
                       >
                         <Box
