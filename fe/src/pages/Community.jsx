@@ -10,6 +10,7 @@ import {
   Accordion,
   Button,
   Rating,
+  CircularProgress,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import "swiper/css";
@@ -26,6 +27,7 @@ import { Link, useNavigate } from "react-router-dom";
 import artistApis from "../apis/artists.apis";
 import loadingAnimation from "../assets/loading.json";
 import Lottie from "react-lottie";
+import Footer from "../components/layout/Footer";
 
 export default function Community() {
   const [provinces, setProvinces] = useState([]);
@@ -34,6 +36,8 @@ export default function Community() {
   const [selectedDistrict, setSelectedDistrict] = useState(null);
   const [loading, setLoading] = useState(true);
   const [artists, setArtists] = useState([]);
+  const [expanded, setExpanded] = useState(true);
+  const [isSearching, setIsSearching] = useState(false);
 
   const nav = useNavigate();
 
@@ -81,6 +85,7 @@ export default function Community() {
   };
 
   const handleSearchLocation = async () => {
+    setIsSearching(true);
     const response = await artistLocationApis.findNearArtists(
       selectedProvince,
       selectedDistrict
@@ -88,6 +93,7 @@ export default function Community() {
     if (response.status === HttpStatusCode.Ok) {
       setArtists(response.data.result);
     }
+    setIsSearching(false);
   };
   const handleFindNearby = () => {
     if (!navigator.geolocation) {
@@ -142,7 +148,10 @@ export default function Community() {
                 zIndex: 1,
               }}
             >
-              <Accordion>
+              <Accordion
+                expanded={expanded}
+                onChange={() => setExpanded(!expanded)}
+              >
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}
                   aria-controls="panel2-content"
@@ -226,6 +235,12 @@ export default function Community() {
                     sx={{ marginTop: 2 }}
                     onClick={handleSearchLocation}
                   >
+                    {isSearching && (
+                      <CircularProgress
+                        size={18}
+                        sx={{ mr: 1, color: "white" }}
+                      />
+                    )}
                     Tìm kiếm
                   </Button>
                   <Typography
@@ -465,13 +480,14 @@ export default function Community() {
                 </Box>
               ) : (
                 <Typography textAlign="center" sx={{ mt: 2 }}>
-                  Không có nghệ sĩ nào gần bạn.
+                  Không có makeup artist nào gần bạn.
                 </Typography>
               )}
             </Box>
           </>
         )}
       </Box>
+      <Footer />
     </>
   );
 }
