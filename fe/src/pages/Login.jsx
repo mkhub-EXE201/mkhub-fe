@@ -47,24 +47,17 @@ export default function Login() {
     try {
       const response = await userApis.login(data);
       if (response.status === HttpStatusCode.Ok) {
+        const user = response.data.result.user;
         setIsAuthenticated(true);
-        setProfile(response.data.result.user);
+        setProfile(user);
 
-        if (
-          response.data.result.user.role === "MEMBER" &&
-          response.data.result.user.is_artist
-        ) {
+        if (user.role === "MEMBER" && user.is_artist) {
           setRole(USER_ROLE.ARTIST);
           navigate(path.artistPortfolioManagement);
-        }
-        if (
-          response.data.result.user.role === "MEMBER" &&
-          !response.data.result.user.is_artist
-        ) {
+        } else if (user.role === "MEMBER" && !user.is_artist) {
           setRole(USER_ROLE.MEMBER);
           navigate(path.home);
-        }
-        if (response.data.result.user.role === "ADMIN") {
+        } else if (user.role === "ADMIN") {
           setRole(USER_ROLE.ADMIN);
           navigate(path.adminDashboard);
         }

@@ -1,6 +1,13 @@
 /* eslint-disable react/prop-types */
-import React, { useEffect, useState } from "react";
-import { Box, Button, Link, TextField, Typography } from "@mui/material";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Link,
+  TextField,
+  Typography,
+} from "@mui/material";
 import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -9,8 +16,12 @@ import artistApis from "../apis/artists.apis";
 import { HttpStatusCode } from "axios";
 import toast from "react-hot-toast";
 import { isAxiosUnprocessableEntityError } from "../utils/errors.type";
+import mediaApis from "../apis/media.apis";
+import { AppContext } from "../contexts/app.context";
 
 export default function ArtistProfile({ portfolio }) {
+  console.log(portfolio);
+  const { setProfile: setContextProfile } = useContext(AppContext);
   const [editableIndex, setEditableIndex] = useState(null);
   const [urls, setUrls] = useState(
     Array.isArray(portfolio.portfolio_url) ? [...portfolio.portfolio_url] : []
@@ -18,6 +29,15 @@ export default function ArtistProfile({ portfolio }) {
   const [originalUrls, setOriginalUrls] = useState(
     Array.isArray(portfolio.portfolio_url) ? [...portfolio.portfolio_url] : []
   );
+  const [previewUrl, setPreviewUrl] = useState("");
+
+  useEffect(() => {
+    if (portfolio?.avatar_url) {
+      setPreviewUrl(portfolio.avatar_url);
+    }
+  }, [portfolio?.avatar_url]);
+  const fileInputRef = useRef();
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const handleEditClick = (index) => {
     if (editableIndex === index) {
@@ -44,7 +64,7 @@ export default function ArtistProfile({ portfolio }) {
     setValue,
     watch,
     reset,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm({
     resolver: yupResolver(updateArtistProfileSchema),
     defaultValues: {
@@ -73,12 +93,22 @@ export default function ArtistProfile({ portfolio }) {
   }, [portfolio, reset]);
 
   const handleUpdate = handleSubmit(async () => {
+    if (selectedFile) {
+      const avatarFormData = new FormData();
+      avatarFormData.append("folderName", "profile");
+      avatarFormData.append("images", selectedFile);
+      const resUpload = await mediaApis.uploadImage(avatarFormData);
+      if (resUpload.status === HttpStatusCode.Ok) {
+        setValue("avatar_url", ...resUpload.data.result);
+      }
+    }
     const payload = {
       name: watch("name"),
       bio: watch("bio"),
       email: watch("email"),
       phone_number: watch("phone_number"),
       portfolio_url: watch("portfolio_urls"),
+      avatar_url: watch("avatar_url"),
     };
     try {
       const response = await artistApis.updateArtistProfile(
@@ -91,6 +121,11 @@ export default function ArtistProfile({ portfolio }) {
         setOriginalUrls([...updatedUrls]);
         setUrls([...updatedUrls]);
         setEditableIndex(null);
+        setContextProfile((prev) => ({
+          ...prev,
+          ...response.data.result,
+          artist_avatar_url: response.data.result.avatar_url,
+        }));
         // toast
         toast.success(response.data.message, {
           position: "top-center",
@@ -108,6 +143,15 @@ export default function ArtistProfile({ portfolio }) {
       }
     }
   });
+
+  const handleAvatarChange = (event) => {
+    const file = event.target.files?.[0];
+    setSelectedFile(file);
+    if (file) {
+      setValue("avatar_url", file, { shouldValidate: true });
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
   return (
     <>
       <Box
@@ -243,7 +287,7 @@ export default function ArtistProfile({ portfolio }) {
               width={300}
               height={300}
               style={{ borderRadius: "50%", objectFit: "cover" }}
-              src={portfolio.avatar_url}
+              src={previewUrl}
               alt="avatar"
             />
           </Box>
@@ -255,11 +299,18 @@ export default function ArtistProfile({ portfolio }) {
               paddingY: 1,
               alignSelf: "center",
             }}
-            onClick={() => {}}
+            onClick={() => fileInputRef.current?.click()}
           >
             <AddPhotoAlternateOutlinedIcon />
             Đổi ảnh đại diện
           </Button>
+          <input
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            ref={fileInputRef}
+            onChange={handleAvatarChange}
+          />
         </Box>
       </Box>
       <Box
@@ -276,11 +327,28 @@ export default function ArtistProfile({ portfolio }) {
             paddingX: 4,
             paddingY: 1,
             alignSelf: "center",
+            minWidth: 250,
+            ":hover": {
+              opacity: 0.9,
+            },
+            ":disabled": {
+              bgcolor: (theme) => theme.palette.primary.main,
+              color: (theme) => theme.palette.white,
+              cursor: "not-allowed",
+            },
           }}
+          disabled={isSubmitting}
           onClick={handleUpdate}
           type="submit"
         >
-          <Typography>Chỉnh sửa hồ sơ</Typography>
+          {isSubmitting ? (
+            <Box display={"flex"} gap={1} alignItems={"center"}>
+              <CircularProgress color="'white" size={16} />
+              <Typography>Đang cập nhật...</Typography>
+            </Box>
+          ) : (
+            <Typography>Chỉnh sửa hồ sơ</Typography>
+          )}
         </Button>
       </Box>
     </>
