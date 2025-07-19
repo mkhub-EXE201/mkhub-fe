@@ -670,112 +670,120 @@ export default function ArtistServiceManagement() {
             }}
           >
             <Grid container spacing={2}>
-              {services.map((item, index) => (
-                <Grid item xs={12} sm={6} md={4} key={index}>
-                  <Card
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setIsOpenDetail(true);
-                      setSelectedService(item);
-                    }}
-                    sx={{
-                      width: 250,
-                      height: 350,
-                      display: "flex",
-                      flexDirection: "column",
-                      borderRadius: "15px",
-                      overflow: "hidden",
-                      ":hover": {
-                        opacity: "80%",
-                        cursor: "pointer",
-                      },
-                    }}
-                  >
-                    <CardMedia
-                      component="img"
-                      height="200"
-                      image={item.thumbnail}
-                      alt={item.service_name}
-                      sx={{
-                        transition:
-                          "transform 0.3s ease, background-color 0.3s ease",
-                        objectFit: "cover",
-                        "&:hover": {
-                          transform: "scale(1.05)",
-                        },
-                      }}
-                    />
-
-                    <Box
-                      sx={{
-                        flex: "1 1 auto",
-                        display: "flex",
-                        flexDirection: "column",
-                        px: 2,
-                        py: 1,
-                      }}
-                    >
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontWeight: 600,
-                          fontSize: 16,
-                          lineHeight: 1.3,
-                          mb: 1,
-                          display: "-webkit-box",
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: "vertical",
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
-                      >
-                        {item.service_name}
-                      </Typography>
-
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{
-                          flexShrink: 0,
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          display: "-webkit-box",
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: "vertical",
-                          fontSize: 13,
-                          lineHeight: "1.4em",
-                          minHeight: "2.8em",
-                        }}
-                      >
-                        {item.description}
-                      </Typography>
-
-                      <Typography
-                        sx={{ mt: "auto", fontWeight: 600, fontSize: 14 }}
-                      >
-                        Từ {formatCurrency(item.min_price)}
-                        {" - "}
-                        {formatCurrency(item.max_price)} VND
-                      </Typography>
-                    </Box>
-
-                    <CardActions
-                      sx={{ justifyContent: "space-between", px: 2, pb: 2 }}
-                    >
-                      <Button
-                        size="small"
-                        variant="outlined"
+              {services.length > 0 ? (
+                <>
+                  {services.map((item, index) => (
+                    <Grid item xs={12} sm={6} md={4} key={index}>
+                      <Card
                         onClick={(event) => {
                           event.stopPropagation();
+                          setIsOpenDetail(true);
+                          setSelectedService(item);
+                        }}
+                        sx={{
+                          width: 250,
+                          height: 350,
+                          display: "flex",
+                          flexDirection: "column",
+                          borderRadius: "15px",
+                          overflow: "hidden",
+                          ":hover": {
+                            opacity: "80%",
+                            cursor: "pointer",
+                          },
                         }}
                       >
-                        Chỉnh sửa
-                      </Button>
-                    </CardActions>
-                  </Card>
-                </Grid>
-              ))}
+                        <CardMedia
+                          component="img"
+                          height="200"
+                          image={item.thumbnail}
+                          alt={item.service_name}
+                          sx={{
+                            transition:
+                              "transform 0.3s ease, background-color 0.3s ease",
+                            objectFit: "cover",
+                            "&:hover": {
+                              transform: "scale(1.05)",
+                            },
+                          }}
+                        />
+
+                        <Box
+                          sx={{
+                            flex: "1 1 auto",
+                            display: "flex",
+                            flexDirection: "column",
+                            px: 2,
+                            py: 1,
+                          }}
+                        >
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              fontWeight: 600,
+                              fontSize: 16,
+                              lineHeight: 1.3,
+                              mb: 1,
+                              display: "-webkit-box",
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: "vertical",
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {item.service_name}
+                          </Typography>
+
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{
+                              flexShrink: 0,
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              display: "-webkit-box",
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: "vertical",
+                              fontSize: 13,
+                              lineHeight: "1.4em",
+                              minHeight: "2.8em",
+                            }}
+                          >
+                            {item.description}
+                          </Typography>
+
+                          <Typography
+                            sx={{ mt: "auto", fontWeight: 600, fontSize: 14 }}
+                          >
+                            Từ {formatCurrency(item.min_price)}
+                            {" - "}
+                            {formatCurrency(item.max_price)} VND
+                          </Typography>
+                        </Box>
+
+                        <CardActions
+                          sx={{ justifyContent: "space-between", px: 2, pb: 2 }}
+                        >
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                            }}
+                          >
+                            Chỉnh sửa
+                          </Button>
+                        </CardActions>
+                      </Card>
+                    </Grid>
+                  ))}
+                </>
+              ) : (
+                <Typography color="text.secondary">
+                  Chưa có dịch vụ makeup nào.
+                </Typography>
+              )}
             </Grid>
           </Box>
           {isOpenDetail && (

@@ -39,7 +39,9 @@ export default function PostModal({
   setMyReaction,
   reactions,
   comments,
+  profileType,
 }) {
+  console.log("post: ", selectedPost);
   const [comment, setComment] = useState("");
   const { profile: contextProfile } = useContext(AppContext);
 
@@ -122,7 +124,11 @@ export default function PostModal({
             <Box sx={{ mb: 2 }}>
               <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5 }}>
                 <Avatar
-                  src={profile.avatar_url}
+                  src={
+                    profileType === "artist"
+                      ? profile.artist_avatar_url
+                      : profile.avatar_url
+                  }
                   sx={{ width: 48, height: 48 }}
                 />
 
@@ -131,7 +137,9 @@ export default function PostModal({
                     variant="subtitle1"
                     sx={{ fontWeight: 600, lineHeight: 1.2 }}
                   >
-                    {profile.name}
+                    {profileType === "artist"
+                      ? profile.artist_name
+                      : profile.name}
                   </Typography>
 
                   <Typography variant="caption" color="text.secondary">
