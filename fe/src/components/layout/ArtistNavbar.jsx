@@ -4,7 +4,6 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import path from "../../constants/path";
-import artistApis from "../../apis/artists.apis";
 import { AppContext } from "../../contexts/app.context";
 import HttpStatusCode from "../../constants/httpStatus";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
@@ -21,7 +20,6 @@ export default function ArtistNavbar() {
   const { profile, setRole, setIsAuthenticated, setProfile, isAuthenticated } =
     useContext(AppContext);
   const navigate = useNavigate();
-  const [artistProfile, setArtistProfile] = useState({});
   const [noti, setNoti] = useState([]);
   const [unreadNotiCount, setUnreadNotiCount] = useState(0);
   const alwaysScrolled = false;
@@ -34,16 +32,6 @@ export default function ArtistNavbar() {
       setIsScrolled(window.scrollY > 200);
     }
   }, [location.pathname, alwaysScrolled]);
-
-  useEffect(() => {
-    const getArtistProfile = async () => {
-      const response = await artistApis.getArtistProfile(profile.artist_id);
-      if (response.status === HttpStatusCode.Ok) {
-        setArtistProfile(response.data.result);
-      }
-    };
-    getArtistProfile();
-  }, []);
 
   const handleNavigation = () => {
     setRole(USER_ROLE.MEMBER);
@@ -237,10 +225,7 @@ export default function ArtistNavbar() {
             }
           >
             <Avatar
-              src={
-                artistProfile?.avatar_url ||
-                "https://mkhub.s3.us-east-1.amazonaws.com/avatar/default_avt.jpg"
-              }
+              src={profile.artist_avatar_url}
               alt="avatar"
               sx={{
                 width: 40,

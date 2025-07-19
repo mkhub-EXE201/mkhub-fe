@@ -34,4 +34,23 @@ export const updateArtistProfileSchema = Yup.object().shape({
     )
     .min(1, REGISTER_ARTIST_MESSAGE.PORTFOLIO_URL_MUST_BE_AT_LEAST_ONE)
     .max(5, REGISTER_ARTIST_MESSAGE.PORTFOLIO_URL_MUST_BE_AT_MOST_FIVE),
+  avatar_url: Yup.mixed()
+    .test(
+      "fileType",
+      REGISTER_ARTIST_MESSAGE.AVATAR_URL_MUST_BE_IMAGE,
+      (value) => {
+        if (!value) return true;
+        return (
+          value && (value.type === "image/jpeg" || value.type === "image/png")
+        );
+      }
+    )
+    .test(
+      "fileSize",
+      REGISTER_ARTIST_MESSAGE.AVATAR_URL_SIZE_MUST_BE_LESS_THAN_2_MB,
+      (value) => {
+        if (!value) return true;
+        return value && value.size <= 2 * 1024 * 1024;
+      }
+    ),
 });

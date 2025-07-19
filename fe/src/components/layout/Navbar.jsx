@@ -454,10 +454,7 @@ export default function Navbar({
               }
             >
               <Avatar
-                src={
-                  profile?.avatar_url ||
-                  "https://mkhub.s3.us-east-1.amazonaws.com/avatar/default_avt.jpg"
-                }
+                src={profile?.client_avatar_url}
                 alt="avatar"
                 sx={{
                   width: isScrolled ? 25 : 30,
