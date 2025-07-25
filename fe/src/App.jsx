@@ -11,7 +11,7 @@ function App() {
   useEffect(() => {
     if (!profile?.id) return;
 
-    const socket = io("http://localhost:3000", {
+    const socket = io(import.meta.env.VITE_API_BASE_UR, {
       transports: ["websocket"],
       withCredentials: true,
       query: {
