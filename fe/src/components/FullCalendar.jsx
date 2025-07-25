@@ -213,6 +213,7 @@ const FullCalendarComponent = ({
     } catch (error) {
       if (isAxiosUnprocessableEntityError(error)) {
         const fieldErrors = error.response.data.errors;
+        setFormError(fieldErrors);
         Object.keys(fieldErrors).forEach((key) => {
           setError(key, {
             type: "server",
