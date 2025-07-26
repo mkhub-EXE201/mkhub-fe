@@ -341,13 +341,19 @@ export default function Navbar({
               }}
             >
               <Typography sx={{ color: "white" }}>
-                {!isAuthenticated
-                  ? "Trở thành Makeup Artist"
-                  : role === USER_ROLE.ARTIST
-                    ? "Chuyển sang chế độ User"
-                    : profile?.is_artist
-                      ? "Chuyển sang chế độ Makeup Artist"
-                      : "Trở thành Makeup Artist"}
+                {!isAuthenticated ? (
+                  <Tooltip title="Đăng kí ngay">
+                    Trở thành Makeup Artist
+                  </Tooltip>
+                ) : role === USER_ROLE.ARTIST ? (
+                  "Chuyển sang chế độ User"
+                ) : profile?.is_artist ? (
+                  "Chuyển sang chế độ Makeup Artist"
+                ) : (
+                  <Tooltip title="Đăng kí ngay">
+                    Trở thành Makeup Artist
+                  </Tooltip>
+                )}
               </Typography>
             </Box>
           </Button>

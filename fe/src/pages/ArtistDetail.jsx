@@ -60,7 +60,7 @@ export default function ArtistDetail() {
   const [posts, setPosts] = useState([]);
   const [comments, setComments] = useState([]);
   const [selectedMedia, setSelectedMedia] = useState([]);
-  const [selectedPost, setSelectedPost] = useState({});
+  const [selectedPost, setSelectedPost] = useState(null);
   const [reactions, setReactions] = useState([]);
   const [myReaction, setMyReaction] = useState(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -587,19 +587,21 @@ export default function ArtistDetail() {
                     />
                   ))}
                 </Box>
-                <PostModal
-                  selectedPost={selectedPost}
-                  getAllComments={getAllComments}
-                  currentModal={currentModal}
-                  closeModal={closeModal}
-                  selectedMedia={selectedMedia}
-                  profile={profile}
-                  myReaction={myReaction}
-                  setMyReaction={setMyReaction}
-                  reactions={reactions}
-                  comments={comments}
-                  profileType={"client"}
-                />
+                {selectedPost && (
+                  <PostModal
+                    selectedPost={selectedPost}
+                    getAllComments={getAllComments}
+                    currentModal={currentModal}
+                    closeModal={closeModal}
+                    selectedMedia={selectedMedia}
+                    profile={profile}
+                    myReaction={myReaction}
+                    setMyReaction={setMyReaction}
+                    reactions={reactions}
+                    comments={comments}
+                    profileType={"client"}
+                  />
+                )}
               </CustomTabPanel>
             </Box>
           </Box>

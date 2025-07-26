@@ -10,6 +10,7 @@ import {
   FormControlLabel,
   FormLabel,
   RadioGroup,
+  CircularProgress,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -30,6 +31,7 @@ export default function Explore() {
   const [selectedValue, setSelectedValue] = useState(passedValue || "all");
   const [layouts, setLayouts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filterLoading, setFilterLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState(true);
@@ -66,6 +68,7 @@ export default function Explore() {
 
   const handleFilter = async (value) => {
     const params = {};
+    setFilterLoading(true);
     if (value && value !== "all") {
       params.category_id = value;
     }
@@ -75,6 +78,7 @@ export default function Explore() {
     } else {
       toast.error("Không thể lọc layout");
     }
+    setFilterLoading(false);
   };
 
   const handleGetAllServices = async () => {
@@ -87,18 +91,29 @@ export default function Explore() {
   return (
     <Box>
       {loading ? (
-        <Lottie
-          options={{
-            loop: true,
-            autoplay: true,
-            animationData: loadingAnimation,
-            rendererSettings: {
-              preserveAspectRatio: "xMidYMid slice",
-            },
-          }}
-          height={500}
-          width={500}
-        />
+        <>
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+            height="100%"
+            padding={2}
+          >
+            <Lottie
+              options={{
+                loop: true,
+                autoplay: true,
+                animationData: loadingAnimation,
+                rendererSettings: {
+                  preserveAspectRatio: "xMidYMid slice",
+                },
+              }}
+              height={400}
+              width={400}
+            />
+          </Box>
+        </>
       ) : layouts.length > 0 ? (
         <>
           <Box sx={{ display: "flex", gap: 2, marginTop: 5, marginX: 5 }}>
@@ -203,9 +218,15 @@ export default function Explore() {
                   gridTemplateColumns: "repeat(3, 1fr)",
                   gap: 3,
                   marginTop: 2,
+                  minHeight: 200,
+                  placeItems: filterLoading ? "center" : "unset",
                 }}
               >
-                {layouts.length > 0 && (
+                {filterLoading ? (
+                  <Box display="flex" justifyContent="center">
+                    <CircularProgress />
+                  </Box>
+                ) : layouts.length > 0 ? (
                   <>
                     {layouts.map((item, index) => (
                       <Box
@@ -230,11 +251,7 @@ export default function Explore() {
                         }}
                       >
                         <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 2,
-                          }}
+                          sx={{ display: "flex", alignItems: "center", gap: 2 }}
                         >
                           <img
                             src={item.thumbnail}
@@ -250,12 +267,7 @@ export default function Explore() {
                             <Typography fontSize={14} fontWeight={500}>
                               Artist {item.artist.name}
                             </Typography>
-                            <Box
-                              sx={{
-                                display: "flex",
-                                gap: "5px",
-                              }}
-                            >
+                            <Box sx={{ display: "flex", gap: "5px" }}>
                               <PlaceIcon sx={{ fontSize: 16 }} />
                               <Typography sx={{ fontSize: 13 }}>
                                 {item.districtName}, {item.provinceName}
@@ -269,6 +281,8 @@ export default function Explore() {
                       </Box>
                     ))}
                   </>
+                ) : (
+                  <Typography>Không tìm thấy layout phù hợp.</Typography>
                 )}
               </Box>
             </Box>

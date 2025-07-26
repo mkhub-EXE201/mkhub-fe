@@ -26,6 +26,7 @@ import "dayjs/locale/vi";
 dayjs.locale("vi");
 import relativeTime from "dayjs/plugin/relativeTime";
 import { AppContext } from "../contexts/app.context";
+import { useNavigate } from "react-router-dom";
 dayjs.extend(relativeTime);
 
 export default function PostModal({
@@ -41,16 +42,14 @@ export default function PostModal({
   comments,
   profileType,
 }) {
-  console.log("post: ", selectedPost);
   const [comment, setComment] = useState("");
   const { profile: contextProfile } = useContext(AppContext);
-
+  const nav = useNavigate();
   const handleAddComment = async () => {
     try {
       const payload = {
         post_id: selectedPost.id,
         content: comment,
-        user_id: contextProfile.id,
         user_type: USER_ROLE.MEMBER,
       };
       const response = await commentApis.addComment(payload);
@@ -122,13 +121,26 @@ export default function PostModal({
         >
           <Box sx={{ mb: 2 }}>
             <Box sx={{ mb: 2 }}>
-              <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5 }}>
-                <Avatar
-                  src={
-                    profileType === "artist"
-                      ? profile.artist_avatar_url
-                      : profile.avatar_url
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 1.5,
+                  ...(profileType === "client" && {
+                    cursor: "pointer",
+                    "&:hover": {
+                      opacity: 0.8,
+                    },
+                  }),
+                }}
+                onClick={() => {
+                  if (profileType === "client") {
+                    nav(`/artists/${selectedPost.artist_id}/profile`);
                   }
+                }}
+              >
+                <Avatar
+                  src={selectedPost.artist.avatar_url}
                   sx={{ width: 48, height: 48 }}
                 />
 
@@ -139,7 +151,7 @@ export default function PostModal({
                   >
                     {profileType === "artist"
                       ? profile.artist_name
-                      : profile.name}
+                      : selectedPost.artist.name}
                   </Typography>
 
                   <Typography variant="caption" color="text.secondary">
@@ -220,7 +232,7 @@ export default function PostModal({
                   }}
                 >
                   <Avatar
-                    src={item.avatar_url}
+                    src={item.artist.avatar_url}
                     sx={{ width: 36, height: 36 }}
                   />
                   <Box
@@ -232,7 +244,9 @@ export default function PostModal({
                     }}
                   >
                     <Typography sx={{ fontWeight: 500, fontSize: 14 }}>
-                      {item.last_name} {item.first_name}
+                      {item.user_type === "MEMBER"
+                        ? `${item.user.last_name} ${item.user.first_name}`
+                        : `${item.artist.name}`}
                     </Typography>
                     <Typography sx={{ fontSize: 14 }}>
                       {item.content}

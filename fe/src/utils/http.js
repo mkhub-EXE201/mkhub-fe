@@ -21,6 +21,8 @@ import {
   isAxiosUnauthorizedError,
 } from "./errors.type";
 import { USER_ROLE } from "../constants/enum";
+import path from "../constants/path";
+
 class Http {
   instance;
   accessToken = "";
@@ -120,6 +122,9 @@ class Http {
           clearLocalStorage();
           this.accessToken = "";
           this.refreshToken = "";
+          if (isAxiosUnauthorizedError) {
+            window.location.href = path.login;
+          }
         }
         return Promise.reject(error);
       }
