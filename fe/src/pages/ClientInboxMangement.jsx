@@ -27,14 +27,24 @@ export default function ClientInboxManagement() {
   }, []);
 
   return (
-    <Box sx={{ display: "flex", height: "100vh" }}>
-      <ChatSideBar
-        isClient
-        chatRooms={chatRooms}
-        selectedRoom={selectedRoom}
-        onSelect={setSelectedRoom}
-      />
-      <ChatWindow room={selectedRoom} isClient />
+    <Box
+      sx={{
+        display: "flex",
+        height: "calc(100vh - 100px)",
+        overflow: "hidden",
+      }}
+    >
+      <Box sx={{ width: 300, height: "100%", overflow: "auto" }}>
+        <ChatSideBar
+          isClient
+          chatRooms={chatRooms}
+          selectedRoom={selectedRoom}
+          onSelect={setSelectedRoom}
+        />
+      </Box>
+      <Box sx={{ flex: 1, height: "100%", overflow: "auto" }}>
+        <ChatWindow room={selectedRoom} isClient />
+      </Box>
     </Box>
   );
 }
