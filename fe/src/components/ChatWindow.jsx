@@ -1,6 +1,13 @@
 /* eslint-disable react/prop-types */
-import React, { useEffect, useState } from "react";
-import { Box, Typography, TextField, IconButton, Tooltip } from "@mui/material";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Box,
+  Typography,
+  TextField,
+  IconButton,
+  Tooltip,
+  Avatar,
+} from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import chatLineApis from "../apis/chatLines.apis";
 import { HttpStatusCode } from "axios";
@@ -8,6 +15,11 @@ import { MESSAGE_SENDER_TYPE } from "../constants/enum";
 export default function ChatWindow({ room, isClient }) {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
+  const endRef = useRef(null);
+
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   useEffect(() => {
     if (room) {
@@ -51,8 +63,19 @@ export default function ChatWindow({ room, isClient }) {
   }
 
   return (
-    <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-      <Box sx={{ p: 2, borderBottom: "1px solid #ccc" }}>
+    <Box
+      sx={{ flex: 1, display: "flex", flexDirection: "column", height: "100%" }}
+    >
+      <Box
+        sx={{
+          p: 2,
+          borderBottom: "1px solid #ccc",
+          flexShrink: 0,
+          display: "flex",
+          gap: 2,
+        }}
+      >
+        <Avatar src={room.artist.avatar_url} />
         <Typography variant="h6">
           {isClient
             ? `${room.artist?.name}`
@@ -63,8 +86,9 @@ export default function ChatWindow({ room, isClient }) {
       <Box
         sx={{
           flex: 1,
-          p: 2,
           overflowY: "auto",
+          px: 2,
+          py: 1,
           display: "flex",
           flexDirection: "column",
           gap: 1,
@@ -95,9 +119,19 @@ export default function ChatWindow({ room, isClient }) {
             </Box>
           );
         })}
+        <Box ref={endRef} />
       </Box>
 
-      <Box sx={{ p: 2, display: "flex", gap: 1 }}>
+      <Box
+        sx={{
+          px: 2,
+          py: 1,
+          borderTop: "1px solid #ccc",
+          display: "flex",
+          gap: 1,
+          flexShrink: 0,
+        }}
+      >
         <TextField
           fullWidth
           size="small"

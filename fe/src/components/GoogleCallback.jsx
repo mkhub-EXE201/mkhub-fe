@@ -32,8 +32,9 @@ const GoogleCallback = () => {
         toast.success("Đăng nhập thành công!");
         navigate(path.home);
       } catch (error) {
-        toast.error("Lấy thông tin người dùng thất bại");
-        navigate(path.login);
+        // toast.error("Lấy thông tin người dùng thất bại");
+        // navigate(path.login);
+        console.log(error);
       }
     };
 
