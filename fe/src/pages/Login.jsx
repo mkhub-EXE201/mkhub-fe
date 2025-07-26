@@ -137,7 +137,10 @@ export default function Login() {
               width: "400px",
             }}
           >
-            <Box sx={{ mb: 2, alignSelf: "flex-start", ml: -1 }}>
+            <Box
+              sx={{ mb: 2, alignSelf: "flex-start", ml: -1 }}
+              onClick={() => navigate("/")}
+            >
               <img
                 src={logo}
                 alt="Makeup Hub Logo"

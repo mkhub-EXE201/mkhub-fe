@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Box,
   TextField,
@@ -14,6 +14,7 @@ import {
   ImageListItemBar,
   ListSubheader,
   CircularProgress,
+  Dialog,
 } from "@mui/material";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import searchApis from "../apis/search.apis";
@@ -23,6 +24,9 @@ import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import SearchIcon from "@mui/icons-material/Search";
 import toast from "react-hot-toast";
+import PostModal from "../components/PostModal";
+import postApis from "../apis/posts.apis";
+import { AppContext } from "../contexts/app.context";
 
 export default function Search() {
   const [searchParams] = useSearchParams();
@@ -30,6 +34,7 @@ export default function Search() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const [localQuery, setLocalQuery] = useState(query);
+  const [openPostModal, setOpenPostModal] = useState(null);
   const [results, setResults] = useState({
     users: [],
     posts: [],
@@ -37,6 +42,13 @@ export default function Search() {
     services: [],
   });
   const [tab, setTab] = useState(0);
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [selectedMedia, setSelectedMedia] = useState([]);
+  const [reactions, setReactions] = useState([]);
+  const [myReaction, setMyReaction] = useState(null);
+  const [currentModal, setCurrentModal] = useState(null);
+  const { profile } = useContext(AppContext);
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -69,6 +81,28 @@ export default function Search() {
     }
   };
 
+  const getAllReactions = async (postId) => {
+    try {
+      const response = await postApis.getAllReactions(postId);
+      if (response.status === HttpStatusCode.Ok) {
+        setReactions(response.data.result);
+        response.data.result.map((item) => {
+          if (item.user_id === profile.id) {
+            setMyReaction(item);
+          }
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getAllComments = async (postId) => {
+    const response = await postApis.getAllComments(postId);
+    if (response.status === HttpStatusCode.Ok) {
+      setComments(response.data.result);
+    }
+  };
   return (
     <Box sx={{ width: "100%", margin: "0 auto", padding: 4 }}>
       <TextField
@@ -202,10 +236,15 @@ export default function Search() {
                       <ImageListItem key={item.artist_id}>
                         <Box
                           component="img"
-                          alt={item.artist_name || "artist image"} // <- thêm dòng này
-                          onClick={() =>
-                            navigate(`/artists/${item.artist_id}/profile`)
-                          }
+                          alt={item.artist_name || "artist image"}
+                          onClick={() => {
+                            setSelectedPost(item);
+                            setSelectedMedia(item.media_url);
+                            setOpenPostModal(item);
+                            getAllComments(item.id);
+                            getAllReactions(item.id);
+                            setCurrentModal("post");
+                          }}
                           src={`${item.media_url[0]}?w=248&fit=crop&auto=format`}
                           srcSet={`${item.media_url[0]}?w=248&fit=crop&auto=format&dpr=2 2x`}
                           loading="lazy"
@@ -333,6 +372,21 @@ export default function Search() {
               </Box>
             )}
           </Box>
+          {openPostModal && (
+            <PostModal
+              selectedPost={openPostModal}
+              getAllComments={getAllComments}
+              currentModal={currentModal}
+              closeModal={() => setOpenPostModal(null)}
+              selectedMedia={selectedMedia}
+              profile={profile}
+              myReaction={myReaction}
+              setMyReaction={setMyReaction}
+              reactions={reactions}
+              comments={comments}
+              profileType={"client"}
+            />
+          )}
         </>
       )}
     </Box>

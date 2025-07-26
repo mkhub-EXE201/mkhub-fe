@@ -37,6 +37,7 @@ import { isAxiosUnprocessableEntityError } from "../utils/errors.type";
 import FeedBack from "../components/FeedBack";
 import mediaApis from "../apis/media.apis";
 import { AppContext } from "../contexts/app.context";
+import Footer from "../components/layout/Footer";
 
 export default function Profile() {
   const [isLoading, setIsLoading] = useState(true);
@@ -185,370 +186,376 @@ export default function Profile() {
         {isLoading ? (
           <Skeleton />
         ) : (
-          <Box sx={{ padding: 3 }}>
-            {/* Hồ sơ người dùng */}
-            <Box
-              sx={{
-                padding: 3,
-                margin: "0 auto",
-                marginTop: 5,
-                borderRadius: 5,
-                width: { xs: "90%", md: "85%" },
-              }}
-            >
+          <>
+            <Box sx={{ padding: 3 }}>
+              {/* Hồ sơ người dùng */}
               <Box
                 sx={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  gap: 3,
-                  flexWrap: "wrap",
+                  padding: 3,
+                  margin: "0 auto",
+                  marginTop: 5,
+                  borderRadius: 5,
+                  width: { xs: "90%", md: "85%" },
                 }}
               >
-                <Avatar
-                  src={profile?.avatar_url}
+                <Box
                   sx={{
-                    width: 100,
-                    height: 100,
-                    objectFit: "cover",
-                    borderRadius: "50%",
-                    flexShrink: 0,
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: 3,
+                    flexWrap: "wrap",
                   }}
-                  alt="User Avatar"
-                />
-
-                <Box sx={{ flexGrow: 1 }}>
-                  <Typography sx={{ fontSize: 24, fontWeight: "bold", mb: 1 }}>
-                    {profile?.last_name || ""} {profile?.first_name || ""}
-                  </Typography>
-
-                  <Box
+                >
+                  <Avatar
+                    src={profile?.avatar_url}
                     sx={{
-                      display: "flex",
-                      flexWrap: "wrap",
-                      gap: 1.5,
-                      alignItems: "center",
+                      width: 100,
+                      height: 100,
+                      objectFit: "cover",
+                      borderRadius: "50%",
+                      flexShrink: 0,
                     }}
-                  >
-                    {profile.email && (
-                      <Typography sx={{ fontSize: 16 }}>
-                        {profile.email}
-                      </Typography>
-                    )}
+                    alt="User Avatar"
+                  />
 
-                    {profile?.email && profile?.phone_number && (
-                      <Divider orientation="vertical" flexItem />
-                    )}
+                  <Box sx={{ flexGrow: 1 }}>
+                    <Typography
+                      sx={{ fontSize: 24, fontWeight: "bold", mb: 1 }}
+                    >
+                      {profile?.last_name || ""} {profile?.first_name || ""}
+                    </Typography>
 
-                    {profile?.phone_number && (
-                      <Typography sx={{ fontSize: 16, color: "gray" }}>
-                        {profile.phone_number}
-                      </Typography>
-                    )}
-
-                    <Button
-                      onClick={() => setOpen(true)}
-                      variant="outlined"
-                      size="small"
+                    <Box
                       sx={{
-                        ml: "auto",
-                        textTransform: "none",
-                        fontWeight: 500,
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: 1.5,
+                        alignItems: "center",
                       }}
                     >
-                      Chỉnh sửa hồ sơ
-                    </Button>
+                      {profile.email && (
+                        <Typography sx={{ fontSize: 16 }}>
+                          {profile.email}
+                        </Typography>
+                      )}
+
+                      {profile?.email && profile?.phone_number && (
+                        <Divider orientation="vertical" flexItem />
+                      )}
+
+                      {profile?.phone_number && (
+                        <Typography sx={{ fontSize: 16, color: "gray" }}>
+                          {profile.phone_number}
+                        </Typography>
+                      )}
+
+                      <Button
+                        onClick={() => setOpen(true)}
+                        variant="outlined"
+                        size="small"
+                        sx={{
+                          ml: "auto",
+                          textTransform: "none",
+                          fontWeight: 500,
+                        }}
+                      >
+                        Chỉnh sửa hồ sơ
+                      </Button>
+                    </Box>
                   </Box>
                 </Box>
               </Box>
-            </Box>
-            <Modal open={open} onClose={() => setOpen(false)}>
+              <Modal open={open} onClose={() => setOpen(false)}>
+                <Dialog
+                  open={open}
+                  onClose={() => setOpen(false)}
+                  maxWidth="sm"
+                  fullWidth
+                >
+                  <form onSubmit={handleSubmit(onSubmit)}>
+                    <DialogTitle>Chỉnh sửa hồ sơ</DialogTitle>
+
+                    <DialogContent>
+                      <Box sx={{ display: "flex", gap: 4 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Avatar
+                            src={previewImage || profile?.avatar_url}
+                            sx={{
+                              width: 150,
+                              height: 150,
+                              objectFit: "cover",
+                              mb: 1,
+                            }}
+                          />
+                          <Button
+                            variant="outlined"
+                            component="label"
+                            size="small"
+                          >
+                            Chọn ảnh mới
+                            <input
+                              hidden
+                              accept="image/*"
+                              type="file"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  setSelectedFile(file);
+                                  setPreviewImage(URL.createObjectURL(file));
+                                }
+                              }}
+                            />
+                          </Button>
+                        </Box>
+
+                        <Box sx={{ flex: 1 }}>
+                          <Box
+                            sx={{
+                              display: "grid",
+                              gridTemplateColumns: "1fr 1fr",
+                              gap: 2,
+                            }}
+                          >
+                            <TextField
+                              variant="standard"
+                              label="Họ"
+                              {...register("last_name", {
+                                required: "Vui lòng nhập họ",
+                              })}
+                              error={!!errors.last_name}
+                              helperText={errors.last_name?.message}
+                              fullWidth
+                            />
+
+                            <TextField
+                              variant="standard"
+                              label="Tên"
+                              {...register("first_name", {
+                                required: "Vui lòng nhập tên",
+                              })}
+                              error={!!errors.first_name}
+                              helperText={errors.first_name?.message}
+                              fullWidth
+                            />
+
+                            <TextField
+                              variant="standard"
+                              label="Email"
+                              {...register("email", {
+                                required: "Vui lòng nhập email",
+                                pattern: {
+                                  value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/,
+                                  message: "Email không hợp lệ",
+                                },
+                              })}
+                              error={!!errors.email}
+                              helperText={errors.email?.message}
+                              fullWidth
+                            />
+
+                            <TextField
+                              variant="standard"
+                              label="Số điện thoại"
+                              {...register("phone_number", {
+                                required: "Vui lòng nhập số điện thoại",
+                                pattern: {
+                                  value: /^[0-9]{9,11}$/,
+                                  message: "Số điện thoại không hợp lệ",
+                                },
+                              })}
+                              error={!!errors.phone_number}
+                              helperText={errors.phone_number?.message}
+                              fullWidth
+                            />
+                          </Box>
+                        </Box>
+                      </Box>
+                    </DialogContent>
+
+                    <DialogActions>
+                      <Button onClick={() => setOpen(false)} color="secondary">
+                        Hủy
+                      </Button>
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        sx={{
+                          cursor: isSubmitting ? "not-allowed" : "pointer",
+                        }}
+                      >
+                        {isSubmitting ? (
+                          <Box display={"flex"} gap={1}>
+                            <CircularProgress
+                              size={20}
+                              thickness={5}
+                              color="inherit"
+                            />
+                            Đang lưu...
+                          </Box>
+                        ) : (
+                          "Lưu thay đổi"
+                        )}
+                      </Button>
+                    </DialogActions>
+                  </form>
+                </Dialog>
+              </Modal>
+
+              {/* Tabs */}
+              <Box sx={{ marginX: 10, padding: 2 }}>
+                <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+                  <Tabs value={tab} onChange={handleChange}>
+                    <Tab label="Lịch hẹn makeup" />
+                    <Tab label="Sổ địa chỉ" />
+                    <Tab label="Ưu đãi của tôi" />
+                    <Tab label="Đánh giá của tôi" />
+                  </Tabs>
+                </Box>
+
+                {/* Tab nội dung */}
+                {tab === 0 && (
+                  <Box sx={{ p: 3 }}>
+                    {/* Stepper */}
+                    <Stepper
+                      activeStep={activeStep}
+                      alternativeLabel
+                      sx={{ mb: 4 }}
+                    >
+                      {STATUS_STEPS.map((step, index) => (
+                        <Step key={step.value} completed={false}>
+                          <StepLabel
+                            onClick={() => setActiveStep(index)}
+                            sx={{ cursor: "pointer" }}
+                          >
+                            {step.label}
+                          </StepLabel>
+                        </Step>
+                      ))}
+                    </Stepper>
+
+                    {/* Danh sách lịch hẹn */}
+                    {filteredAppointments.length > 0 ? (
+                      filteredAppointments.map((appointment) => (
+                        <AppointmentCard
+                          key={appointment.id}
+                          appointment={appointment}
+                          onViewDetail={() =>
+                            setSelectedAppointmentDetail(appointment)
+                          }
+                          onCheckout={() => {
+                            setSelectedAppointmentCheckout(appointment);
+                            setOpenCheckoutModal(true);
+                          }}
+                        />
+                      ))
+                    ) : (
+                      <Typography color="text.secondary">
+                        Không có lịch hẹn ở trạng thái này.
+                      </Typography>
+                    )}
+                  </Box>
+                )}
+
+                {tab === 1 && (
+                  <Box sx={{ p: 3 }}>
+                    <Typography color="text.secondary">
+                      Sổ địa chỉ đang được phát triển.
+                    </Typography>
+                  </Box>
+                )}
+
+                {tab === 2 && (
+                  <Box sx={{ p: 3 }}>
+                    <Typography color="text.secondary">
+                      Ưu đãi đang được phát triển.
+                    </Typography>
+                  </Box>
+                )}
+                {tab === 3 && (
+                  <Box sx={{ p: 3 }}>
+                    <FeedBack />
+                  </Box>
+                )}
+              </Box>
+
+              {/* Modal thanh toán */}
+              <CheckoutModal
+                open={openCheckoutModal}
+                onClose={() => setOpenCheckoutModal(false)}
+                appointment={selectedAppointmentCheckout}
+                onConfirm={async (paymentMethod) => {
+                  setOpenCheckoutModal(false);
+
+                  if (paymentMethod === "stripe") {
+                    try {
+                      const response = await paymentApi.createPaymentSession({
+                        appointment_id: selectedAppointmentCheckout.id,
+                      });
+                      if (response.status === HttpStatusCode.Ok) {
+                        window.location.href = response.data.result;
+                      } else {
+                        toast.error("Đã xảy ra lỗi khi tạo phiên thanh toán.");
+                      }
+                    } catch (error) {
+                      console.error("Lỗi khi tạo phiên Stripe:", error);
+                    }
+                  }
+                }}
+              />
+
+              {/* Modal chi tiết lịch hẹn */}
               <Dialog
-                open={open}
-                onClose={() => setOpen(false)}
+                open={!!selectedAppointmentDetail}
+                onClose={() => setSelectedAppointmentDetail(null)}
                 maxWidth="sm"
                 fullWidth
               >
-                <form onSubmit={handleSubmit(onSubmit)}>
-                  <DialogTitle>Chỉnh sửa hồ sơ</DialogTitle>
-
-                  <DialogContent>
-                    <Box sx={{ display: "flex", gap: 4 }}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Avatar
-                          src={previewImage || profile?.avatar_url}
-                          sx={{
-                            width: 150,
-                            height: 150,
-                            objectFit: "cover",
-                            mb: 1,
-                          }}
-                        />
-                        <Button
-                          variant="outlined"
-                          component="label"
-                          size="small"
-                        >
-                          Chọn ảnh mới
-                          <input
-                            hidden
-                            accept="image/*"
-                            type="file"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                setSelectedFile(file);
-                                setPreviewImage(URL.createObjectURL(file));
-                              }
-                            }}
-                          />
-                        </Button>
-                      </Box>
-
-                      <Box sx={{ flex: 1 }}>
-                        <Box
-                          sx={{
-                            display: "grid",
-                            gridTemplateColumns: "1fr 1fr",
-                            gap: 2,
-                          }}
-                        >
-                          <TextField
-                            variant="standard"
-                            label="Họ"
-                            {...register("last_name", {
-                              required: "Vui lòng nhập họ",
-                            })}
-                            error={!!errors.last_name}
-                            helperText={errors.last_name?.message}
-                            fullWidth
-                          />
-
-                          <TextField
-                            variant="standard"
-                            label="Tên"
-                            {...register("first_name", {
-                              required: "Vui lòng nhập tên",
-                            })}
-                            error={!!errors.first_name}
-                            helperText={errors.first_name?.message}
-                            fullWidth
-                          />
-
-                          <TextField
-                            variant="standard"
-                            label="Email"
-                            {...register("email", {
-                              required: "Vui lòng nhập email",
-                              pattern: {
-                                value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/,
-                                message: "Email không hợp lệ",
-                              },
-                            })}
-                            error={!!errors.email}
-                            helperText={errors.email?.message}
-                            fullWidth
-                          />
-
-                          <TextField
-                            variant="standard"
-                            label="Số điện thoại"
-                            {...register("phone_number", {
-                              required: "Vui lòng nhập số điện thoại",
-                              pattern: {
-                                value: /^[0-9]{9,11}$/,
-                                message: "Số điện thoại không hợp lệ",
-                              },
-                            })}
-                            error={!!errors.phone_number}
-                            helperText={errors.phone_number?.message}
-                            fullWidth
-                          />
-                        </Box>
-                      </Box>
-                    </Box>
-                  </DialogContent>
-
-                  <DialogActions>
-                    <Button onClick={() => setOpen(false)} color="secondary">
-                      Hủy
-                    </Button>
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      sx={{
-                        cursor: isSubmitting ? "not-allowed" : "pointer",
-                      }}
-                    >
-                      {isSubmitting ? (
-                        <Box display={"flex"} gap={1}>
-                          <CircularProgress
-                            size={20}
-                            thickness={5}
-                            color="inherit"
-                          />
-                          Đang lưu...
-                        </Box>
-                      ) : (
-                        "Lưu thay đổi"
-                      )}
-                    </Button>
-                  </DialogActions>
-                </form>
-              </Dialog>
-            </Modal>
-
-            {/* Tabs */}
-            <Box sx={{ marginX: 10, padding: 2 }}>
-              <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-                <Tabs value={tab} onChange={handleChange}>
-                  <Tab label="Lịch hẹn makeup" />
-                  <Tab label="Sổ địa chỉ" />
-                  <Tab label="Ưu đãi của tôi" />
-                  <Tab label="Đánh giá của tôi" />
-                </Tabs>
-              </Box>
-
-              {/* Tab nội dung */}
-              {tab === 0 && (
-                <Box sx={{ p: 3 }}>
-                  {/* Stepper */}
-                  <Stepper
-                    activeStep={activeStep}
-                    alternativeLabel
-                    sx={{ mb: 4 }}
-                  >
-                    {STATUS_STEPS.map((step, index) => (
-                      <Step key={step.value} completed={false}>
-                        <StepLabel
-                          onClick={() => setActiveStep(index)}
-                          sx={{ cursor: "pointer" }}
-                        >
-                          {step.label}
-                        </StepLabel>
-                      </Step>
-                    ))}
-                  </Stepper>
-
-                  {/* Danh sách lịch hẹn */}
-                  {filteredAppointments.length > 0 ? (
-                    filteredAppointments.map((appointment) => (
-                      <AppointmentCard
-                        key={appointment.id}
-                        appointment={appointment}
-                        onViewDetail={() =>
-                          setSelectedAppointmentDetail(appointment)
-                        }
-                        onCheckout={() => {
-                          setSelectedAppointmentCheckout(appointment);
-                          setOpenCheckoutModal(true);
-                        }}
-                      />
-                    ))
-                  ) : (
-                    <Typography color="text.secondary">
-                      Không có lịch hẹn ở trạng thái này.
-                    </Typography>
-                  )}
-                </Box>
-              )}
-
-              {tab === 1 && (
-                <Box sx={{ p: 3 }}>
-                  <Typography color="text.secondary">
-                    Sổ địa chỉ đang được phát triển.
+                <DialogTitle>Chi tiết lịch hẹn</DialogTitle>
+                <DialogContent dividers>
+                  <Typography variant="subtitle1" fontWeight="bold">
+                    {selectedAppointmentDetail?.artist?.name}
                   </Typography>
-                </Box>
-              )}
-
-              {tab === 2 && (
-                <Box sx={{ p: 3 }}>
-                  <Typography color="text.secondary">
-                    Ưu đãi đang được phát triển.
+                  <Typography variant="body2">
+                    Dịch vụ: {selectedAppointmentDetail?.service?.service_name}
                   </Typography>
-                </Box>
-              )}
-              {tab === 3 && (
-                <Box sx={{ p: 3 }}>
-                  <FeedBack />
-                </Box>
-              )}
-            </Box>
-
-            {/* Modal thanh toán */}
-            <CheckoutModal
-              open={openCheckoutModal}
-              onClose={() => setOpenCheckoutModal(false)}
-              appointment={selectedAppointmentCheckout}
-              onConfirm={async (paymentMethod) => {
-                setOpenCheckoutModal(false);
-
-                if (paymentMethod === "stripe") {
-                  try {
-                    const response = await paymentApi.createPaymentSession({
-                      appointment_id: selectedAppointmentCheckout.id,
-                    });
-                    if (response.status === HttpStatusCode.Ok) {
-                      window.location.href = response.data.result;
-                    } else {
-                      toast.error("Đã xảy ra lỗi khi tạo phiên thanh toán.");
+                  <Typography variant="body2">
+                    Địa điểm: {selectedAppointmentDetail?.district_name},{" "}
+                    {selectedAppointmentDetail?.province_name}
+                  </Typography>
+                  <Typography variant="body2">
+                    Thời gian:{" "}
+                    {formatTime(selectedAppointmentDetail?.start_time)} -{" "}
+                    {formatTime(selectedAppointmentDetail?.end_time)}
+                  </Typography>
+                  <Typography variant="body2">
+                    Ngày: {formatDate(selectedAppointmentDetail?.booking_date)}
+                  </Typography>
+                  <Typography variant="body2">
+                    Trạng thái:{" "}
+                    {
+                      APPOINTMENT_STATUS_DISPLAY[
+                        selectedAppointmentDetail?.appointmentStatusLog?.at(-1)
+                      ]
                     }
-                  } catch (error) {
-                    console.error("Lỗi khi tạo phiên Stripe:", error);
-                  }
-                }
-              }}
-            />
-
-            {/* Modal chi tiết lịch hẹn */}
-            <Dialog
-              open={!!selectedAppointmentDetail}
-              onClose={() => setSelectedAppointmentDetail(null)}
-              maxWidth="sm"
-              fullWidth
-            >
-              <DialogTitle>Chi tiết lịch hẹn</DialogTitle>
-              <DialogContent dividers>
-                <Typography variant="subtitle1" fontWeight="bold">
-                  {selectedAppointmentDetail?.artist?.name}
-                </Typography>
-                <Typography variant="body2">
-                  Dịch vụ: {selectedAppointmentDetail?.service?.service_name}
-                </Typography>
-                <Typography variant="body2">
-                  Địa điểm: {selectedAppointmentDetail?.district_name},{" "}
-                  {selectedAppointmentDetail?.province_name}
-                </Typography>
-                <Typography variant="body2">
-                  Thời gian: {formatTime(selectedAppointmentDetail?.start_time)}{" "}
-                  - {formatTime(selectedAppointmentDetail?.end_time)}
-                </Typography>
-                <Typography variant="body2">
-                  Ngày: {formatDate(selectedAppointmentDetail?.booking_date)}
-                </Typography>
-                <Typography variant="body2">
-                  Trạng thái:{" "}
-                  {
-                    APPOINTMENT_STATUS_DISPLAY[
-                      selectedAppointmentDetail?.appointmentStatusLog?.at(-1)
-                    ]
-                  }
-                </Typography>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={() => setSelectedAppointmentDetail(null)}>
-                  Đóng
-                </Button>
-              </DialogActions>
-            </Dialog>
-          </Box>
+                  </Typography>
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={() => setSelectedAppointmentDetail(null)}>
+                    Đóng
+                  </Button>
+                </DialogActions>
+              </Dialog>
+            </Box>
+          </>
         )}
       </Box>
+      <Footer />
     </Box>
   );
 }

@@ -128,8 +128,8 @@ export default function Community() {
                 preserveAspectRatio: "xMidYMid slice",
               },
             }}
-            height={500}
-            width={500}
+            height={400}
+            width={400}
           />
         ) : (
           <>
@@ -446,16 +446,17 @@ export default function Community() {
                             <Swiper
                               modules={[Autoplay]}
                               spaceBetween={10}
-                              slidesPerView={1}
+                              slidesPerView={2}
+                              slidesPerGroup={2}
                               autoplay={{
-                                delay: 1000,
+                                delay: 1500,
                                 disableOnInteraction: false,
                               }}
                               style={{
                                 borderRadius: 8,
                                 overflow: "hidden",
-                                width: 150,
-                                height: 120,
+                                width: 300,
+                                height: 150,
                               }}
                             >
                               {artist.media_urls.map((url, index) => (
@@ -465,7 +466,7 @@ export default function Community() {
                                     alt={`slide-${index}`}
                                     style={{
                                       width: "150px",
-                                      height: "120px",
+                                      height: "150px",
                                       objectFit: "cover",
                                       borderRadius: 8,
                                     }}
