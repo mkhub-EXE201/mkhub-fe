@@ -7,5 +7,7 @@ const artistServiceApis = {
   getOneAllServices: (user_id) =>
     http.get(`${artistServiceUrl}/${user_id}/all`),
   getAllServices: (params = {}) => http.get(`${artistServiceUrl}`, { params }),
+  deleteService: (service_id, artist_id) =>
+    http.delete(`${artistServiceUrl}/${artist_id}/${service_id}`),
 };
 export default artistServiceApis;
