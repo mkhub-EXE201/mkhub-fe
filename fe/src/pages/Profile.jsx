@@ -94,7 +94,7 @@ export default function Profile() {
     // Nếu có status (booking)
     return item.status;
   };
-
+  console.log(appointments);
   const filteredAppointments = appointments.filter(
     (appointment) => getLatestStatus(appointment) === selectedStatus
   );

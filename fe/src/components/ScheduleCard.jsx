@@ -246,7 +246,7 @@ const ScheduleCard = ({
               fullWidth
               label="Gói makeup"
               variant="outlined"
-              value={`${appointment.service_name}`}
+              value={`${appointment.service.service_name}`}
               disabled
             />
             <TextField

@@ -14,6 +14,7 @@ import chatLineApis from "../apis/chatLines.apis";
 import { MESSAGE_SENDER_TYPE } from "../constants/enum";
 import HttpStatusCode from "../constants/httpStatus";
 import chatRoomApis from "../apis/chatRooms.apis";
+import toast from "react-hot-toast";
 
 const ChatBox = ({ onClose, artist, client }) => {
   const [message, setMessage] = useState("");
@@ -37,6 +38,11 @@ const ChatBox = ({ onClose, artist, client }) => {
 
   const handleSend = async () => {
     if (!message.trim()) return;
+    if (!client) {
+      toast.error("Vui lòng đăng nhập để gửi tin nhắn cho Artist.", {
+        position: "top-center",
+      });
+    }
     const payload = {
       artist_id: artist.id,
       client_id: client.id,
