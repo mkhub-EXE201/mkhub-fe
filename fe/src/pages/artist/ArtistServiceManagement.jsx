@@ -21,6 +21,10 @@ import {
   FormHelperText,
   Grid,
   Modal,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Dialog,
 } from "@mui/material";
 import React, { useContext, useEffect, useRef } from "react";
 import { useState } from "react";
@@ -37,6 +41,7 @@ import { AppContext } from "../../contexts/app.context";
 import Skeleton from "../../components/Skeleton";
 import categoryApis from "../../apis/categories.apis";
 import { Swiper, SwiperSlide } from "swiper/react";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 export default function ArtistServiceManagement() {
   const [open, setOpen] = useState(false);
@@ -51,6 +56,8 @@ export default function ArtistServiceManagement() {
   const [isOpenEdit, setIsOpenEdit] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [selectedService, setSelectedService] = useState(null);
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
+  const [openAlert, setOpenAlert] = useState(false);
 
   const getAllCategories = async () => {
     const response = await categoryApis.getAllCategories();
@@ -225,6 +232,32 @@ export default function ArtistServiceManagement() {
     newPreviewFiles.splice(index, 1);
     setValue("service_img", newFiles);
     setValue("service_img_preview", newPreviewFiles);
+  };
+
+  const handleCloseAlert = () => {
+    setOpenAlert(false);
+  };
+
+  const handleRequestDelete = async (service_id) => {
+    setDeleteTargetId(service_id);
+    setOpenAlert(true);
+  };
+
+  const handleDeleteConfirmed = async () => {
+    if (!deleteTargetId) return;
+    setOpenAlert(true);
+    const response = await artistServiceApis.deleteService(
+      deleteTargetId,
+      profile.artist_id
+    );
+    if (response.status === HttpStatusCode.Ok) {
+      toast.success(response.data.message, {
+        position: "top-center",
+      });
+      getOneServices();
+    }
+    setOpenAlert(false);
+    setDeleteTargetId(null);
   };
 
   return (
@@ -578,7 +611,7 @@ export default function ArtistServiceManagement() {
 
                         <Box>
                           <Typography>
-                            <strong>Ảnh thumbnail:</strong>
+                            <strong>Ảnh bìa dịch vụ:</strong>
                           </Typography>
                           <Avatar
                             src={previewUrl}
@@ -691,8 +724,29 @@ export default function ArtistServiceManagement() {
                             opacity: "80%",
                             cursor: "pointer",
                           },
+                          position: "relative",
                         }}
                       >
+                        <CancelIcon
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRequestDelete(item.id);
+                          }}
+                          sx={{
+                            width: 30,
+                            height: 30,
+                            position: "absolute",
+                            top: 0,
+                            right: 5,
+                            cursor: "pointer",
+                            zIndex: 10,
+                            borderRadius: "50%",
+                            padding: "2px",
+                            ":hover": {
+                              opacity: 0.8,
+                            },
+                          }}
+                        />
                         <CardMedia
                           component="img"
                           height="200"
@@ -707,7 +761,6 @@ export default function ArtistServiceManagement() {
                             },
                           }}
                         />
-
                         <Box
                           sx={{
                             flex: "1 1 auto",
@@ -761,7 +814,6 @@ export default function ArtistServiceManagement() {
                             {formatCurrency(item.max_price)} VND
                           </Typography>
                         </Box>
-
                         <CardActions
                           sx={{ justifyContent: "space-between", px: 2, pb: 2 }}
                         >
@@ -947,6 +999,27 @@ export default function ArtistServiceManagement() {
           )}
         </>
       )}
+      <Dialog
+        open={openAlert}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Xác nhận trước khi xóa"}
+        </DialogTitle>
+        <DialogContent>
+          <p>Bạn có chắc chắn muốn xóa chủ đề makeup này?</p>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Hủy
+          </Button>
+          <Button onClick={handleDeleteConfirmed} color="primary" autoFocus>
+            Xóa
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

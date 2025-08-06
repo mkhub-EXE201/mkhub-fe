@@ -9,12 +9,15 @@ import adminApis from "../../apis/admin.apis";
 import { formatToVND } from "../../utils/utils";
 import AdminDashboardChart from "../../components/AdminDashboardChart";
 import RevenueChart from "../../components/RevenueChart";
+import transactionApis from "../../apis/transactions.apis";
+import TransactionTable from "../../components/TransactionTable";
 
 export default function AdminDashboard() {
   const [totalBookings, setTotalBookings] = useState(0);
   const [totalUsers, setTotalUsers] = useState(0);
   const [loading, setLoading] = useState(true);
   const [revenue, setRevenue] = useState(0);
+  const [transactions, setTransactions] = useState([]);
   const exchangeRate = 25000;
   const vndAmount = (revenue / 100) * exchangeRate;
 
@@ -51,12 +54,24 @@ export default function AdminDashboard() {
     }
   };
 
+  const getPlatformTransactions = async () => {
+    try {
+      const response = await transactionApis.getAllTransactions();
+      if (response.status === HttpStatusCode.Ok) {
+        setTransactions(response.data.result);
+      }
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       await Promise.all([
         getTotalBookings(),
         getTotalUsers(),
         getPlatformRevenue(),
+        getPlatformTransactions(),
       ]).finally(setLoading(false));
     };
     fetchData();
@@ -306,6 +321,12 @@ export default function AdminDashboard() {
         <Box sx={{ display: "flex", flexDirection: "row", gap: 2, marginX: 2 }}>
           <AdminDashboardChart />
           <RevenueChart />
+        </Box>
+        <Box sx={{ marginTop: 10 }}>
+          <Typography variant="h5" sx={{ mb: 2 }}>
+            Chi tiết giao dịch
+          </Typography>
+          <TransactionTable transactions={transactions} />
         </Box>
       </Box>
     </>
