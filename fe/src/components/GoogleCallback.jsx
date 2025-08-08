@@ -22,7 +22,7 @@ const GoogleCallback = () => {
     const fetchUserProfile = async () => {
       try {
         await Promise.resolve();
-        const response = await http.get(`${import.meta.env.VITE_API_URL}/me`, {
+        const response = await http.get(`users/me`, {
           headers: {
             Authorization: `Bearer ${access_token}`,
           },
