@@ -5,7 +5,7 @@ export const artistUrl = "artists";
 
 const artistApis = {
   registerArtist: (payload) => http.post(`${artistUrl}/register`, payload),
-  getArtistProfile: (artist_id) => http.get(`${artistUrl}/${artist_id}/me`),
+  getArtistProfile: () => http.get(`${artistUrl}/me`),
   updateArtistProfile: (artist_id, body) =>
     http.patch(`${artistUrl}/${artist_id}/me`, body),
   getPortfolioIcon: (domain, size) => {

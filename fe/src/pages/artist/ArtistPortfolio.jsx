@@ -51,7 +51,7 @@ export default function ArtistPortfolio() {
 
   const getArtistPortfolio = async () => {
     try {
-      const response = await artistApis.getArtistProfile(profile.artist_id);
+      const response = await artistApis.getArtistProfile();
       setPortfolio(response.data.result);
     } catch (error) {
       toast.error(error.message || error.response.data.message);

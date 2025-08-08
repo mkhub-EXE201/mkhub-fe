@@ -3,7 +3,6 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import path from "../constants/path";
 import { AppContext } from "../contexts/app.context";
-import { decodeToken } from "../utils/jwt";
 import {
   setAccessTokenToLocalStorage,
   setProfileToLocalStorage,
@@ -20,9 +19,9 @@ const GoogleCallback = () => {
     const refresh_token = urlParams.get("refresh_token");
     setAccessTokenToLocalStorage(access_token);
     setRefreshTokenToLocalStorage(refresh_token);
-    const fetchUserProfile = async (userId) => {
+    const fetchUserProfile = async () => {
       try {
-        const response = await userApis.getMe(userId);
+        const response = await userApis.getMe();
         const userData = response.data.result;
         setIsAuthenticated(true);
         setProfile(userData);
@@ -32,17 +31,15 @@ const GoogleCallback = () => {
         toast.success("Đăng nhập thành công!");
         navigate(path.home);
       } catch (error) {
-        // toast.error("Lấy thông tin người dùng thất bại");
-        // navigate(path.login);
+        toast.error("Lấy thông tin người dùng thất bại");
+        navigate(path.login);
         console.log(error);
       }
     };
 
     if (access_token) {
       try {
-        const decoded = decodeToken(access_token);
-        const userId = decoded.user_id || decoded.id;
-        fetchUserProfile(userId);
+        fetchUserProfile();
       } catch (error) {
         toast.error("Token không hợp lệ!");
         navigate(path.login);
