@@ -35,7 +35,7 @@ export default function Sidebar() {
   useEffect(() => {
     const getArtistProfile = async () => {
       try {
-        const response = await artistApis.getArtistProfile(profile.artist_id);
+        const response = await artistApis.getArtistProfile();
         if (response.status === HttpStatusCode.Ok) {
           setPortfolioUrl(response.data.result.portfolio_url || []);
           setArtistProfile(response.data.result);
