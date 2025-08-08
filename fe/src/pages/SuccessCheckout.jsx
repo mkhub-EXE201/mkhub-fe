@@ -6,6 +6,7 @@ import {
   CircularProgress,
   Avatar,
   Divider,
+  Paper,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { useSearchParams, useNavigate } from "react-router-dom";
@@ -35,7 +36,6 @@ export default function SuccessCheckout() {
         setLoading(false);
       }
     };
-
     fetchAppointment();
   }, [appointmentId]);
 
@@ -90,29 +90,32 @@ export default function SuccessCheckout() {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        textAlign: "center",
         p: 3,
       }}
     >
-      <CheckCircleIcon sx={{ fontSize: 80, color: "success.main", mb: 2 }} />
+      {/* Icon thành công */}
+      <CheckCircleIcon sx={{ fontSize: 90, color: "success.main", mb: 2 }} />
 
       <Typography variant="h4" fontWeight="bold" gutterBottom>
         Đặt lịch thành công!
       </Typography>
-
-      <Typography variant="body1" sx={{ maxWidth: 500, mb: 3 }}>
-        Cảm ơn bạn đã sử dụng MKub. Lịch hẹn của bạn đã được ghi nhận.
+      <Typography
+        variant="body1"
+        sx={{ maxWidth: 520, mb: 4, color: "text.secondary" }}
+      >
+        Cảm ơn bạn đã tin tưởng MKub. Lịch hẹn đã được ghi nhận, chúng tôi sẽ
+        sớm liên hệ để xác nhận chi tiết.
       </Typography>
 
-      <Box
+      {/* Card thông tin lịch hẹn */}
+      <Paper
+        elevation={2}
         sx={{
-          border: "1px solid #ddd",
-          borderRadius: 2,
-          padding: 3,
+          borderRadius: 3,
+          p: 3,
           width: "100%",
-          maxWidth: 500,
-          textAlign: "left",
-          mb: 3,
+          maxWidth: 520,
+          mb: 4,
         }}
       >
         <Typography fontWeight="bold" gutterBottom>
@@ -120,26 +123,36 @@ export default function SuccessCheckout() {
         </Typography>
         <Divider sx={{ mb: 2 }} />
 
+        {/* Artist */}
         <Box display="flex" alignItems="center" gap={2} mb={2}>
-          <Avatar src={artist.avatar_url} alt={artist.name} />
+          <Avatar
+            src={artist.avatar_url}
+            alt={artist.name}
+            sx={{ width: 48, height: 48 }}
+          />
           <Box>
             <Typography>
               <strong>Nghệ sĩ:</strong> {artist.name}
             </Typography>
-            <Typography fontSize="0.875rem" color="gray">
+            <Typography fontSize="0.875rem" color="text.secondary">
               SĐT: {appointment.artist_phone}
             </Typography>
           </Box>
         </Box>
 
+        {/* Client */}
         <Box display="flex" alignItems="center" gap={2} mb={2}>
-          <Avatar src={client.avatar_url} alt={client.first_name} />
+          <Avatar
+            src={client.avatar_url}
+            alt={client.first_name}
+            sx={{ width: 48, height: 48 }}
+          />
           <Box>
             <Typography>
               <strong>Khách hàng:</strong> {client.first_name}{" "}
               {client.last_name}
             </Typography>
-            <Typography fontSize="0.875rem" color="gray">
+            <Typography fontSize="0.875rem" color="text.secondary">
               SĐT: {appointment.client_phone}
             </Typography>
           </Box>
@@ -156,12 +169,21 @@ export default function SuccessCheckout() {
         <Typography>
           <strong>Địa điểm:</strong> {street_name}
         </Typography>
-        <Typography>
-          <strong>Giá:</strong> {total_price.toLocaleString()}₫
+        <Typography color="primary" fontWeight="bold" mt={1}>
+          Giá: {total_price.toLocaleString()}₫
         </Typography>
-      </Box>
+      </Paper>
 
-      <Button variant="contained" onClick={handleGoHome}>
+      <Button
+        variant="contained"
+        size="large"
+        onClick={handleGoHome}
+        sx={{
+          borderRadius: 3,
+          px: 4,
+          fontWeight: "bold",
+        }}
+      >
         Quay về trang chủ
       </Button>
     </Box>
