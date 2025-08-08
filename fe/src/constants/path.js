@@ -17,6 +17,7 @@ const path = {
   artistScheduleManagement: "/artist/schedules",
   artistChatManagement: "/artist/inbox",
   artistNotificationManagement: "/artist/notifications",
+  artistRevenueManagement: "/artist/revenue",
   artistManagement: "/admin/artists/management",
   categoryManagement: "/admin/categories/management",
   bookingManagement: "/admin/bookings/management",
