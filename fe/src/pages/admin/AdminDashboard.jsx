@@ -18,8 +18,6 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [revenue, setRevenue] = useState(0);
   const [transactions, setTransactions] = useState([]);
-  const exchangeRate = 25000;
-  const vndAmount = (revenue / 100) * exchangeRate;
 
   const getTotalBookings = async () => {
     try {
@@ -281,7 +279,7 @@ export default function AdminDashboard() {
                   color: "text.primary",
                 }}
               >
-                {formatToVND(vndAmount)} VNĐ
+                {formatToVND(revenue)} VNĐ
               </Typography>
 
               <Box
@@ -322,7 +320,7 @@ export default function AdminDashboard() {
           <AdminDashboardChart />
           <RevenueChart />
         </Box>
-        <Box sx={{ marginTop: 10 }}>
+        <Box sx={{ marginTop: 12 }}>
           <Typography variant="h5" sx={{ mb: 2 }}>
             Chi tiết giao dịch
           </Typography>
