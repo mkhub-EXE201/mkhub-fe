@@ -92,3 +92,7 @@ export const EMIT_TYPE = {
   NOTIFICATION: "NOTIFICATION",
   ARTIST_APPROVED: "ARTIST_APPROVED",
 };
+
+export const TRANSACTION_STATUS_DISPLAY = {
+  SUCCESS: "Thành công",
+};
