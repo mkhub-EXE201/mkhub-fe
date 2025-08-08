@@ -8,7 +8,7 @@ import {
   setProfileToLocalStorage,
   setRefreshTokenToLocalStorage,
 } from "../utils/auth";
-import userApis from "../apis/users.apis";
+import http from "../utils/http";
 
 const GoogleCallback = () => {
   const navigate = useNavigate();
@@ -22,7 +22,11 @@ const GoogleCallback = () => {
     const fetchUserProfile = async () => {
       try {
         await Promise.resolve();
-        const response = await userApis.getMe();
+        const response = await http.get(`${import.meta.env.VITE_API_URL}/me`, {
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+          },
+        });
         const userData = response.data.result;
         setIsAuthenticated(true);
         setProfile(userData);
