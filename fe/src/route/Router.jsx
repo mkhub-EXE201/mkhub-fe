@@ -37,6 +37,7 @@ import Community from "../pages/Community";
 import NearbyArtists from "../pages/NearbyArtists";
 import RegisterRequest from "../pages/RegisterRequest";
 import GoogleCallback from "../components/GoogleCallback";
+import ArtistRevenueManagement from "../pages/artist/ArtistRevenueManagement";
 
 export const ProtectedRoute = ({ isAdmin, isArtist }) => {
   const { isAuthenticated, role } = useContext(AppContext);
@@ -225,6 +226,10 @@ const AppRouter = () => {
         {
           path: path.artistChatManagement,
           element: <ArtistLayout>{<ArtistChatManagement />}</ArtistLayout>,
+        },
+        {
+          path: path.artistRevenueManagement,
+          element: <ArtistLayout>{<ArtistRevenueManagement />}</ArtistLayout>,
         },
       ],
     },

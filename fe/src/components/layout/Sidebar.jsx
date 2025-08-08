@@ -184,7 +184,7 @@ export default function Sidebar() {
                 </Typography>
                 <Typography
                   onClick={() => {
-                    handleItemClick(path.artistNotificationManagement);
+                    handleItemClick(path.artistRevenueManagement);
                   }}
                   sx={{
                     fontSize: 20,
@@ -195,7 +195,7 @@ export default function Sidebar() {
                         : "white",
                   }}
                 >
-                  Quản lý thông báo
+                  Báo cáo tài chính
                 </Typography>
               </Box>
               <Box>

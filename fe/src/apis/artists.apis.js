@@ -23,5 +23,7 @@ const artistApis = {
     http.get(`${artistUrl}/me/stripe/status`),
   getTotalApplications: () => http.get(`${artistUrl}/applications/total`),
   getRequests: () => http.get(`${artistUrl}/requests`),
+  getArtistRevenue: () => http.get(`${artistUrl}/stripe/balance`),
+  getArtistStats: () => http.get(`${artistUrl}/stats`),
 };
 export default artistApis;
