@@ -38,6 +38,8 @@ import FeedBack from "../components/FeedBack";
 import mediaApis from "../apis/media.apis";
 import { AppContext } from "../contexts/app.context";
 import Footer from "../components/layout/Footer";
+import { Pagination } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
 
 export default function Profile() {
   const [isLoading, setIsLoading] = useState(true);
@@ -71,7 +73,6 @@ export default function Profile() {
   } = useForm({
     resolver: yupResolver(updateMeSchema),
   });
-
   const [previewImage, setPreviewImage] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
 
@@ -516,37 +517,95 @@ export default function Profile() {
                 maxWidth="sm"
                 fullWidth
               >
-                <DialogTitle>Chi tiết lịch hẹn</DialogTitle>
-                <DialogContent dividers>
-                  <Typography variant="subtitle1" fontWeight="bold">
-                    {selectedAppointmentDetail?.artist?.name}
-                  </Typography>
-                  <Typography variant="body2">
-                    Dịch vụ: {selectedAppointmentDetail?.service?.service_name}
-                  </Typography>
-                  <Typography variant="body2">
-                    Địa điểm: {selectedAppointmentDetail?.district_name},{" "}
-                    {selectedAppointmentDetail?.province_name}
-                  </Typography>
-                  <Typography variant="body2">
-                    Thời gian:{" "}
-                    {formatTime(selectedAppointmentDetail?.start_time)} -{" "}
-                    {formatTime(selectedAppointmentDetail?.end_time)}
-                  </Typography>
-                  <Typography variant="body2">
-                    Ngày: {formatDate(selectedAppointmentDetail?.booking_date)}
-                  </Typography>
-                  <Typography variant="body2">
-                    Trạng thái:{" "}
-                    {
-                      APPOINTMENT_STATUS_DISPLAY[
-                        selectedAppointmentDetail?.appointmentStatusLog?.at(-1)
-                      ]
-                    }
-                  </Typography>
+                <DialogTitle sx={{ fontWeight: "bold", fontSize: "1.2rem" }}>
+                  Chi tiết lịch hẹn
+                </DialogTitle>
+
+                <DialogContent dividers sx={{ overflowX: "hidden" }}>
+                  <Box
+                    sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+                  >
+                    <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                      {selectedAppointmentDetail?.artist?.name}
+                    </Typography>
+
+                    <Typography variant="body2" color="text.secondary">
+                      <strong>Dịch vụ:</strong>{" "}
+                      {selectedAppointmentDetail?.service?.service_name}
+                    </Typography>
+
+                    {/* Swiper ảnh */}
+                    <Swiper
+                      grabCursor
+                      pagination={{ clickable: true }}
+                      style={{
+                        width: "50%",
+                        aspectRatio: "1/1",
+                      }}
+                    >
+                      {selectedAppointmentDetail?.service?.service_img?.map(
+                        (item, index) => (
+                          <SwiperSlide key={index}>
+                            <Box
+                              sx={{
+                                width: "100%",
+                                borderRadius: 2,
+                                overflow: "hidden",
+                                boxShadow: 1,
+                              }}
+                            >
+                              <img
+                                src={item}
+                                alt={`Service ${index}`}
+                                style={{
+                                  width: "100%",
+                                  height: "auto",
+                                  display: "block",
+                                  objectFit: "cover",
+                                }}
+                              />
+                            </Box>
+                          </SwiperSlide>
+                        )
+                      )}
+                    </Swiper>
+
+                    <Typography variant="body2" color="text.secondary">
+                      <strong>Địa điểm:</strong>{" "}
+                      {selectedAppointmentDetail?.district_name},{" "}
+                      {selectedAppointmentDetail?.province_name}
+                    </Typography>
+
+                    <Typography variant="body2" color="text.secondary">
+                      <strong>Thời gian:</strong>{" "}
+                      {formatTime(selectedAppointmentDetail?.start_time)} -{" "}
+                      {formatTime(selectedAppointmentDetail?.end_time)}
+                    </Typography>
+
+                    <Typography variant="body2" color="text.secondary">
+                      <strong>Ngày:</strong>{" "}
+                      {formatDate(selectedAppointmentDetail?.booking_date)}
+                    </Typography>
+
+                    <Typography variant="body2" color="text.secondary">
+                      <strong>Trạng thái:</strong>{" "}
+                      {
+                        APPOINTMENT_STATUS_DISPLAY[
+                          selectedAppointmentDetail?.appointmentStatusLog?.at(
+                            -1
+                          )
+                        ]
+                      }
+                    </Typography>
+                  </Box>
                 </DialogContent>
-                <DialogActions>
-                  <Button onClick={() => setSelectedAppointmentDetail(null)}>
+
+                <DialogActions sx={{ px: 3, py: 2 }}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => setSelectedAppointmentDetail(null)}
+                  >
                     Đóng
                   </Button>
                 </DialogActions>
