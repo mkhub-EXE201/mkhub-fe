@@ -21,6 +21,7 @@ const GoogleCallback = () => {
     setRefreshTokenToLocalStorage(refresh_token);
     const fetchUserProfile = async () => {
       try {
+        await Promise.resolve();
         const response = await userApis.getMe();
         const userData = response.data.result;
         setIsAuthenticated(true);
