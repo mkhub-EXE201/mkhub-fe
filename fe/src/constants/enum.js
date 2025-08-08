@@ -68,6 +68,7 @@ export const APPOINTMENT_STATUS_DISPLAY = {
   CONFIRMED: "Đã lên lịch",
   PAID: "Đã thanh toán",
   COMPLETED: "Đã hoàn thành",
+  REJECTED: "Hủy",
 };
 
 export const USER_ROLE_DISPLAY = {

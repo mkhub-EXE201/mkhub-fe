@@ -67,7 +67,7 @@ export default function ArtistScheduleManagement() {
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [cancelBookings, setCancelBookings] = useState([]);
   const getBookingRequests = async () => {
-    const response = await bookingApis.getBookingRequests();
+    const response = await bookingApis.getBookingRequests("ARTIST");
     if (response.status === HttpStatusCode.Ok) {
       setBookings(response.data.result);
       const cancelBookings = response.data.result.filter(

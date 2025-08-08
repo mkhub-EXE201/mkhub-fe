@@ -103,34 +103,50 @@ export default function ArtistRevenueManagement() {
       <Box display="flex" gap={3} mb={4}>
         <Paper sx={{ flex: 1, p: 2, overflow: "visible" }}>
           <Typography variant="h6">Doanh thu theo tháng</Typography>
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart
-              data={revenueByMonth}
-              margin={{ top: 20, right: 30, left: 50, bottom: 5 }}
+          {revenueByMonth.length > 0 ? (
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart
+                data={revenueByMonth}
+                margin={{ top: 20, right: 30, left: 50, bottom: 5 }}
+              >
+                <CartesianGrid stroke="#ccc" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Line type="monotone" dataKey="revenue" stroke="#3f51b5" />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <Typography
+              sx={{ mt: 2, textAlign: "center", color: "text.secondary" }}
             >
-              <CartesianGrid stroke="#ccc" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="revenue" stroke="#3f51b5" />
-            </LineChart>
-          </ResponsiveContainer>
+              Hiện tại chưa có dữ liệu doanh thu
+            </Typography>
+          )}
         </Paper>
 
         <Paper sx={{ flex: 1, p: 2, overflow: "visible" }}>
           <Typography variant="h6">Lợi nhuận theo tháng</Typography>
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart
-              data={profitByMonth}
-              margin={{ top: 20, right: 30, left: 50, bottom: 5 }}
+          {profitByMonth.length > 0 ? (
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart
+                data={profitByMonth}
+                margin={{ top: 20, right: 30, left: 50, bottom: 5 }}
+              >
+                <CartesianGrid stroke="#ccc" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Line type="monotone" dataKey="profit" stroke="#4caf50" />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <Typography
+              sx={{ mt: 2, textAlign: "center", color: "text.secondary" }}
             >
-              <CartesianGrid stroke="#ccc" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="profit" stroke="#4caf50" />
-            </LineChart>
-          </ResponsiveContainer>
+              Hiện tại chưa có dữ liệu lợi nhuận
+            </Typography>
+          )}
         </Paper>
       </Box>
 
@@ -139,29 +155,37 @@ export default function ArtistRevenueManagement() {
         <Typography variant="h6" gutterBottom>
           Tỉ lệ Booking theo trạng thái
         </Typography>
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie
-              data={pieData}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              outerRadius={100}
-              fill="#8884d8"
-              dataKey="value"
-              label={(entry) => `${entry.name} (${entry.value})`}
-            >
-              {pieData.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={COLORS[index % COLORS.length]}
-                />
-              ))}
-            </Pie>
-            <Tooltip />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
+        {pieData.length > 0 ? (
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={pieData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                outerRadius={100}
+                fill="#8884d8"
+                dataKey="value"
+                label={(entry) => `${entry.name} (${entry.value})`}
+              >
+                {pieData.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        ) : (
+          <Typography
+            sx={{ mt: 2, textAlign: "center", color: "text.secondary" }}
+          >
+            Hiện tại chưa có dữ liệu booking
+          </Typography>
+        )}
       </Paper>
     </Box>
   );
