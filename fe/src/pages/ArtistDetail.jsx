@@ -210,7 +210,10 @@ export default function ArtistDetail() {
                 {/* Avatar */}
                 <Box
                   component="img"
-                  src={profile.avatar_url}
+                  src={
+                    profile?.avatar_url ||
+                    "https://mkhub.s3.us-east-1.amazonaws.com/avatar/default_avt.jpg"
+                  }
                   sx={{
                     width: 100,
                     height: 100,
